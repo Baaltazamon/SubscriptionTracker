@@ -91,9 +91,25 @@
   <sys:String x:Key="SettingsBackups">Backups</sys:String>
   <sys:String x:Key="SettingsCreateBackup">Create backup</sys:String>
   <sys:String x:Key="SettingsRestoreBackup">Restore backup</sys:String>
+  <sys:String x:Key="SettingsCategories">Categories</sys:String>
+  <sys:String x:Key="SettingsCategoriesSubtitle">Create, rename, recolor, and reassign categories for your subscriptions.</sys:String>
+  <sys:String x:Key="SettingsCategoriesTotal">Total categories</sys:String>
+  <sys:String x:Key="SettingsCategoriesCustom">Custom categories</sys:String>
+  <sys:String x:Key="SettingsCategoriesLinkedSubscriptions">Linked subscriptions</sys:String>
   <sys:String x:Key="SettingsAbout">About</sys:String>
   <sys:String x:Key="SettingsVersion">Version</sys:String>
   <sys:String x:Key="SettingsDataProfile">Data profile</sys:String>
+
+  <sys:String x:Key="CategoryAdd">Add category</sys:String>
+  <sys:String x:Key="CategoryEdit">Rename</sys:String>
+  <sys:String x:Key="CategoryDelete">Delete</sys:String>
+  <sys:String x:Key="CategorySave">Save category</sys:String>
+  <sys:String x:Key="CategorySystem">System</sys:String>
+  <sys:String x:Key="CategoryLinkedSubscriptions">linked subscriptions</sys:String>
+  <sys:String x:Key="CategoryEditorName">Category name</sys:String>
+  <sys:String x:Key="CategoryEditorColor">Accent color</sys:String>
+  <sys:String x:Key="CategoryEditorColorHint">Optional. Use a HEX color like #F97316.</sys:String>
+  <sys:String x:Key="CategoryTransferLabel">Transfer subscriptions to</sys:String>
 
   <sys:String x:Key="SubscriptionEditorName">Name</sys:String>
   <sys:String x:Key="SubscriptionEditorDescription">Description</sys:String>

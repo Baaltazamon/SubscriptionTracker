@@ -91,9 +91,25 @@
   <sys:String x:Key="SettingsBackups">Резервные копии</sys:String>
   <sys:String x:Key="SettingsCreateBackup">Создать резервную копию</sys:String>
   <sys:String x:Key="SettingsRestoreBackup">Восстановить из копии</sys:String>
+  <sys:String x:Key="SettingsCategories">Категории</sys:String>
+  <sys:String x:Key="SettingsCategoriesSubtitle">Создавайте, переименовывайте, перекрашивайте и переназначайте категории подписок.</sys:String>
+  <sys:String x:Key="SettingsCategoriesTotal">Всего категорий</sys:String>
+  <sys:String x:Key="SettingsCategoriesCustom">Пользовательские</sys:String>
+  <sys:String x:Key="SettingsCategoriesLinkedSubscriptions">Связанные подписки</sys:String>
   <sys:String x:Key="SettingsAbout">О приложении</sys:String>
   <sys:String x:Key="SettingsVersion">Версия</sys:String>
   <sys:String x:Key="SettingsDataProfile">Профиль данных</sys:String>
+
+  <sys:String x:Key="CategoryAdd">Добавить категорию</sys:String>
+  <sys:String x:Key="CategoryEdit">Переименовать</sys:String>
+  <sys:String x:Key="CategoryDelete">Удалить</sys:String>
+  <sys:String x:Key="CategorySave">Сохранить категорию</sys:String>
+  <sys:String x:Key="CategorySystem">Системная</sys:String>
+  <sys:String x:Key="CategoryLinkedSubscriptions">связанных подписок</sys:String>
+  <sys:String x:Key="CategoryEditorName">Название категории</sys:String>
+  <sys:String x:Key="CategoryEditorColor">Акцентный цвет</sys:String>
+  <sys:String x:Key="CategoryEditorColorHint">Необязательно. Используйте HEX-цвет в формате #F97316.</sys:String>
+  <sys:String x:Key="CategoryTransferLabel">Перенести подписки в категорию</sys:String>
 
   <sys:String x:Key="SubscriptionEditorName">Название</sys:String>
   <sys:String x:Key="SubscriptionEditorDescription">Описание</sys:String>

@@ -1,0 +1,57 @@
+<Window x:Class="SubscriptionTracker.Wpf.Dialogs.CategoryDeleteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding WindowTitle}"
+        Width="520"
+        Height="340"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+  <Border Background="{DynamicResource AppBackgroundBrush}" Padding="24">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <StackPanel>
+        <TextBlock FontSize="16"
+                   FontWeight="SemiBold"
+                   Text="{Binding CategoryName}" />
+        <TextBlock Margin="0,10,0,0"
+                   Foreground="{DynamicResource AppMutedBrush}"
+                   Text="{Binding Description}"
+                   TextWrapping="Wrap" />
+
+        <Border Margin="0,18,0,0"
+                Padding="14"
+                Background="{DynamicResource AppCardBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="14"
+                Visibility="{Binding TransferSectionVisibility}">
+          <StackPanel>
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}"
+                       Text="{DynamicResource CategoryTransferLabel}" />
+            <ComboBox Margin="0,8,0,0"
+                      DisplayMemberPath="Label"
+                      ItemsSource="{Binding TransferOptions}"
+                      SelectedItem="{Binding SelectedTransferOption}" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <StackPanel Grid.Row="1"
+                  Margin="0,20,0,0"
+                  Orientation="Horizontal"
+                  HorizontalAlignment="Right">
+        <Button Width="120"
+                Click="DeleteClick"
+                Style="{StaticResource DangerButtonStyle}"
+                Content="{DynamicResource CategoryDelete}" />
+        <Button Width="120"
+                IsCancel="True"
+                Content="{DynamicResource SubscriptionEditorCancel}" />
+      </StackPanel>
+    </Grid>
+  </Border>
+</Window>

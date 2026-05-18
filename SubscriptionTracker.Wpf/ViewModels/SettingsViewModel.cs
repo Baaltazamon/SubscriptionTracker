@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+using Microsoft.Extensions.DependencyInjection;
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
 using SubscriptionTracker.Application.Localization;
@@ -13,6 +15,8 @@ public sealed class SettingsViewModel : ViewModelBase
     private readonly IAppSettingsService _appSettingsService;
     private readonly IDatabaseBackupService _databaseBackupService;
     private readonly IDialogService _dialogService;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ICategoryManagementDialogService _categoryManagementDialogService;
     private readonly IAutoStartService _autoStartService;
     private readonly IApplicationLifecycleService _applicationLifecycleService;
     private readonly IThemeService _themeService;
@@ -24,6 +28,7 @@ public sealed class SettingsViewModel : ViewModelBase
     private OptionItem<string>? _selectedLanguageOption;
     private OptionItem<string>? _selectedCurrencyOption;
     private OptionItem<int>? _selectedReminderIntervalOption;
+    private CategoryListItemDto? _selectedCategory;
     private bool _areNotificationsEnabled;
     private bool _launchOnStartup;
 
@@ -31,6 +36,8 @@ public sealed class SettingsViewModel : ViewModelBase
         IAppSettingsService appSettingsService,
         IDatabaseBackupService databaseBackupService,
         IDialogService dialogService,
+        IServiceScopeFactory scopeFactory,
+        ICategoryManagementDialogService categoryManagementDialogService,
         IAutoStartService autoStartService,
         IApplicationLifecycleService applicationLifecycleService,
         IThemeService themeService,
@@ -40,6 +47,8 @@ public sealed class SettingsViewModel : ViewModelBase
         _appSettingsService = appSettingsService;
         _databaseBackupService = databaseBackupService;
         _dialogService = dialogService;
+        _scopeFactory = scopeFactory;
+        _categoryManagementDialogService = categoryManagementDialogService;
         _autoStartService = autoStartService;
         _applicationLifecycleService = applicationLifecycleService;
         _themeService = themeService;
@@ -49,6 +58,9 @@ public sealed class SettingsViewModel : ViewModelBase
         SavePreferencesCommand = new AsyncRelayCommand(SavePreferencesAsync);
         CreateBackupCommand = new AsyncRelayCommand(CreateBackupAsync);
         RestoreBackupCommand = new AsyncRelayCommand(RestoreBackupAsync);
+        AddCategoryCommand = new AsyncRelayCommand(AddCategoryAsync);
+        EditCategoryCommand = new AsyncRelayCommand(EditCategoryAsync, () => SelectedCategory is not null);
+        DeleteCategoryCommand = new AsyncRelayCommand(DeleteCategoryAsync, () => SelectedCategory is not null && !SelectedCategory.IsSystem);
         UseDarkThemeCommand = new AsyncRelayCommand(() => SetThemeAsync(AppTheme.Dark));
         UseLightThemeCommand = new AsyncRelayCommand(() => SetThemeAsync(AppTheme.Light));
 
@@ -74,6 +86,8 @@ public sealed class SettingsViewModel : ViewModelBase
         get => _reminderIntervalOptions;
         private set => SetProperty(ref _reminderIntervalOptions, value);
     }
+
+    public ObservableCollection<CategoryListItemDto> Categories { get; } = [];
 
     public OptionItem<string>? SelectedLanguageOption
     {
@@ -105,6 +119,19 @@ public sealed class SettingsViewModel : ViewModelBase
         set => SetProperty(ref _launchOnStartup, value);
     }
 
+    public CategoryListItemDto? SelectedCategory
+    {
+        get => _selectedCategory;
+        set
+        {
+            if (SetProperty(ref _selectedCategory, value))
+            {
+                EditCategoryCommand.NotifyCanExecuteChanged();
+                DeleteCategoryCommand.NotifyCanExecuteChanged();
+            }
+        }
+    }
+
     public string DatabasePath => _appSettingsService.GetSettings().DatabasePath;
 
     public string ThemeName => _themeService.CurrentTheme == AppTheme.Dark
@@ -119,15 +146,32 @@ public sealed class SettingsViewModel : ViewModelBase
 
     public string DataProfileText => LocalizationCatalog.Get("DataProfileText");
 
+    public int CategoryCount => Categories.Count;
+
+    public int CustomCategoryCount => Categories.Count(static item => !item.IsSystem);
+
+    public int LinkedSubscriptionCount => Categories.Sum(static item => item.SubscriptionCount);
+
     public AsyncRelayCommand SavePreferencesCommand { get; }
 
     public AsyncRelayCommand CreateBackupCommand { get; }
 
     public AsyncRelayCommand RestoreBackupCommand { get; }
 
+    public AsyncRelayCommand AddCategoryCommand { get; }
+
+    public AsyncRelayCommand EditCategoryCommand { get; }
+
+    public AsyncRelayCommand DeleteCategoryCommand { get; }
+
     public AsyncRelayCommand UseDarkThemeCommand { get; }
 
     public AsyncRelayCommand UseLightThemeCommand { get; }
+
+    public override async Task RefreshAsync()
+    {
+        await LoadCategoriesAsync();
+    }
 
     private async Task SavePreferencesAsync()
     {
@@ -230,6 +274,65 @@ public sealed class SettingsViewModel : ViewModelBase
         LaunchOnStartup = _autoStartService.IsEnabled();
     }
 
+    private async Task AddCategoryAsync()
+    {
+        var request = await _categoryManagementDialogService.ShowEditorAsync(null);
+        if (request is null)
+        {
+            return;
+        }
+
+        await SaveCategoryAsync(request);
+    }
+
+    private async Task EditCategoryAsync()
+    {
+        if (SelectedCategory is null)
+        {
+            return;
+        }
+
+        var request = await _categoryManagementDialogService.ShowEditorAsync(SelectedCategory);
+        if (request is null)
+        {
+            return;
+        }
+
+        await SaveCategoryAsync(request);
+    }
+
+    private async Task DeleteCategoryAsync()
+    {
+        if (SelectedCategory is null)
+        {
+            return;
+        }
+
+        var request = await _categoryManagementDialogService.ShowDeleteAsync(SelectedCategory, Categories.ToArray());
+        if (request is null)
+        {
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var categoryService = scope.ServiceProvider.GetRequiredService<ICategoryService>();
+            await categoryService.DeleteAsync(request);
+            await LoadCategoriesAsync();
+            _eventBus.PublishDataChanged();
+        }
+        catch (Exception exception)
+        {
+            _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("CategoryDeleteFailedTitle"));
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     private void RebuildOptions()
     {
         var settings = _appSettingsService.GetSettings();
@@ -261,6 +364,47 @@ public sealed class SettingsViewModel : ViewModelBase
         RaiseReadonlyProperties();
     }
 
+    private async Task SaveCategoryAsync(SaveCategoryRequest request)
+    {
+        IsBusy = true;
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var categoryService = scope.ServiceProvider.GetRequiredService<ICategoryService>();
+            var savedCategory = await categoryService.SaveAsync(request);
+            await LoadCategoriesAsync(savedCategory.Id);
+            _eventBus.PublishDataChanged();
+        }
+        catch (Exception exception)
+        {
+            _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("CategorySaveFailedTitle"));
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task LoadCategoriesAsync(Guid? selectedCategoryId = null)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var categoryService = scope.ServiceProvider.GetRequiredService<ICategoryService>();
+        var items = await categoryService.GetManageableAsync();
+
+        Categories.Clear();
+        foreach (var item in items)
+        {
+            Categories.Add(item);
+        }
+
+        var targetCategoryId = selectedCategoryId ?? SelectedCategory?.Id;
+        SelectedCategory = targetCategoryId.HasValue
+            ? Categories.FirstOrDefault(item => item.Id == targetCategoryId.Value)
+            : Categories.FirstOrDefault();
+
+        RaiseCategorySummaryProperties();
+    }
+
     private void RaiseReadonlyProperties()
     {
         RaisePropertyChanged(nameof(DatabasePath));
@@ -269,5 +413,14 @@ public sealed class SettingsViewModel : ViewModelBase
         RaisePropertyChanged(nameof(BackupStatus));
         RaisePropertyChanged(nameof(AppVersion));
         RaisePropertyChanged(nameof(DataProfileText));
+    }
+
+    private void RaiseCategorySummaryProperties()
+    {
+        RaisePropertyChanged(nameof(CategoryCount));
+        RaisePropertyChanged(nameof(CustomCategoryCount));
+        RaisePropertyChanged(nameof(LinkedSubscriptionCount));
+        EditCategoryCommand.NotifyCanExecuteChanged();
+        DeleteCategoryCommand.NotifyCanExecuteChanged();
     }
 }

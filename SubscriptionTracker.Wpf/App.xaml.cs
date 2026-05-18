@@ -34,6 +34,7 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IApplicationLifecycleService, ApplicationLifecycleService>();
                 services.AddSingleton<IThemeService, ThemeService>();
                 services.AddSingleton<ILocalizationService, LocalizationService>();
+                services.AddSingleton<ICategoryManagementDialogService, CategoryManagementDialogService>();
                 services.AddSingleton<ISubscriptionEditorService, SubscriptionEditorService>();
                 services.AddSingleton<ReminderScheduler>();
 
