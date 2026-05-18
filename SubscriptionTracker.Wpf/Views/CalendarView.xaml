@@ -4,23 +4,115 @@
   <ScrollViewer VerticalScrollBarVisibility="Auto">
     <StackPanel>
       <Border Style="{StaticResource CardBorderStyle}">
-        <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource CalendarTitle}" />
+        <StackPanel>
+          <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource CalendarTitle}" />
+          <TextBlock Margin="0,4,0,0"
+                     Foreground="{DynamicResource AppMutedBrush}"
+                     Text="{DynamicResource CalendarSubtitle}" />
+
+          <Grid Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="180" />
+              <ColumnDefinition Width="170" />
+              <ColumnDefinition Width="170" />
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0"
+                     Margin="0,0,12,0"
+                     VerticalContentAlignment="Center"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+
+            <ComboBox Grid.Column="1"
+                      Margin="0,0,12,0"
+                      DisplayMemberPath="Label"
+                      ItemsSource="{Binding CategoryFilters}"
+                      SelectedItem="{Binding SelectedCategoryFilter}" />
+
+            <DatePicker Grid.Column="2"
+                        Margin="0,0,12,0"
+                        SelectedDate="{Binding FromDate}" />
+
+            <DatePicker Grid.Column="3"
+                        SelectedDate="{Binding ToDate}" />
+          </Grid>
+
+          <UniformGrid Margin="0,16,0,0" Columns="3">
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,12,0" Padding="14">
+              <StackPanel>
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource CalendarVisiblePayments}" />
+                <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold" Text="{Binding VisiblePaymentsCount}" />
+              </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,12,0" Padding="14">
+              <StackPanel>
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource CalendarVisibleMonths}" />
+                <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold" Text="{Binding VisibleMonthsCount}" />
+              </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardBorderStyle}" Padding="14">
+              <StackPanel>
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource CalendarScheduledTotal}" />
+                <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold" Text="{Binding VisibleScheduledTotalLabel}" />
+              </StackPanel>
+            </Border>
+          </UniformGrid>
+        </StackPanel>
       </Border>
       <ItemsControl ItemsSource="{Binding Months}">
         <ItemsControl.ItemTemplate>
           <DataTemplate>
             <Border Style="{StaticResource CardBorderStyle}">
               <StackPanel>
-                <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding Title}" />
+                <DockPanel>
+                  <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding Title}" />
+                  <TextBlock DockPanel.Dock="Right"
+                             Foreground="{DynamicResource AppMutedBrush}"
+                             Text="{Binding TotalAmountLabel}" />
+                </DockPanel>
                 <ItemsControl Margin="0,12,0,0" ItemsSource="{Binding Payments}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                      <DockPanel Margin="0,0,0,10">
-                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding PaymentDateLabel}" Width="120" />
-                        <TextBlock Text="{Binding SubscriptionName}" Width="240" />
-                        <TextBlock Text="{Binding CategoryName}" Foreground="{DynamicResource AppMutedBrush}" Width="220" />
-                        <TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right" Text="{Binding AmountLabel}" />
-                      </DockPanel>
+                      <Border Margin="0,0,0,10"
+                              Padding="14"
+                              Background="{DynamicResource AppSecondaryCardBrush}"
+                              CornerRadius="14"
+                              BorderBrush="{DynamicResource AppBorderBrush}"
+                              BorderThickness="1">
+                        <Grid>
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="170" />
+                            <ColumnDefinition Width="120" />
+                          </Grid.ColumnDefinitions>
+
+                          <TextBlock Grid.Column="0"
+                                     VerticalAlignment="Center"
+                                     FontSize="16"
+                                     FontWeight="SemiBold"
+                                     Text="{Binding PaymentDateLabel}" />
+
+                          <StackPanel Grid.Column="1" Margin="16,0">
+                            <TextBlock FontWeight="SemiBold" Text="{Binding SubscriptionName}" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Foreground="{DynamicResource AppMutedBrush}"
+                                       Text="{Binding CategoryName}" />
+                          </StackPanel>
+
+                          <TextBlock Grid.Column="2"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Right"
+                                     Foreground="{DynamicResource AppMutedBrush}"
+                                     Text="{Binding CountdownLabel}" />
+
+                          <TextBlock Grid.Column="3"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Right"
+                                     FontWeight="SemiBold"
+                                     Text="{Binding AmountLabel}" />
+                        </Grid>
+                      </Border>
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>

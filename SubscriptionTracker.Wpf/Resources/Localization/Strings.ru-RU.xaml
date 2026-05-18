@@ -19,8 +19,14 @@
   <sys:String x:Key="ForecastTitle">Прогноз на 12 месяцев</sys:String>
   <sys:String x:Key="SubscriptionsTitle">Все подписки</sys:String>
   <sys:String x:Key="CalendarTitle">Платежи по месяцам</sys:String>
+  <sys:String x:Key="CalendarSubtitle">Поиск и фильтрация запланированных списаний по периоду и категории.</sys:String>
   <sys:String x:Key="AnalyticsTitle">Аналитика расходов</sys:String>
   <sys:String x:Key="HistoryTitle">История операций</sys:String>
+  <sys:String x:Key="FilterDateFrom">С</sys:String>
+  <sys:String x:Key="FilterDateTo">По</sys:String>
+  <sys:String x:Key="CalendarVisiblePayments">В выборке</sys:String>
+  <sys:String x:Key="CalendarVisibleMonths">Месяцев</sys:String>
+  <sys:String x:Key="CalendarScheduledTotal">Запланировано</sys:String>
   <sys:String x:Key="SettingsTitle">Параметры приложения</sys:String>
 
   <sys:String x:Key="DashboardActiveSubscriptions">Активные подписки</sys:String>

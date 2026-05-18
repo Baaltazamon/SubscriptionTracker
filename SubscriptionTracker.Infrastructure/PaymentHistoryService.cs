@@ -13,12 +13,14 @@ public sealed class PaymentHistoryService(AppDbContext dbContext) : IPaymentHist
         return await dbContext.PaymentHistories
             .AsNoTracking()
             .Include(static payment => payment.Subscription)
+            .ThenInclude(static subscription => subscription.Category)
             .OrderByDescending(static payment => payment.PaymentDate)
             .Select(static payment => new PaymentHistoryDto
             {
                 Id = payment.Id,
                 SubscriptionId = payment.SubscriptionId,
                 SubscriptionName = payment.Subscription.Name,
+                CategoryName = payment.Subscription.Category.Name,
                 Amount = payment.Amount,
                 Currency = payment.Currency,
                 PaymentDate = payment.PaymentDate,
