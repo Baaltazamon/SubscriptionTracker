@@ -33,19 +33,19 @@ public sealed class ThemeService : IThemeService
         }
         else
         {
-            SetBrush(resources, "AppBackgroundBrush", "#F5F1EA");
-            SetBrush(resources, "AppPanelBrush", "#FFF7ED");
+            SetBrush(resources, "AppBackgroundBrush", "#F3EDE3");
+            SetBrush(resources, "AppPanelBrush", "#F7ECDE");
             SetBrush(resources, "AppCardBrush", "#FFFFFF");
-            SetBrush(resources, "AppSecondaryCardBrush", "#FCFAF7");
+            SetBrush(resources, "AppSecondaryCardBrush", "#F9F4EC");
             SetBrush(resources, "AppAccentBrush", "#EA580C");
             SetBrush(resources, "AppAccentAltBrush", "#0284C7");
             SetBrush(resources, "AppForegroundBrush", "#0F172A");
-            SetBrush(resources, "AppMutedBrush", "#57534E");
-            SetBrush(resources, "AppBorderBrush", "#D6D3D1");
-            SetBrush(resources, "AppHoverBrush", "#EEE7DA");
-            SetBrush(resources, "AppPressedBrush", "#E7DDCC");
-            SetBrush(resources, "AppInputBackgroundBrush", "#FFFFFF");
-            SetBrush(resources, "AppTitleBarBrush", "#FCFAF7");
+            SetBrush(resources, "AppMutedBrush", "#5F5548");
+            SetBrush(resources, "AppBorderBrush", "#D2C5B2");
+            SetBrush(resources, "AppHoverBrush", "#EFE3D2");
+            SetBrush(resources, "AppPressedBrush", "#E6D7C1");
+            SetBrush(resources, "AppInputBackgroundBrush", "#FFFCF8");
+            SetBrush(resources, "AppTitleBarBrush", "#FAF4EB");
             SetBrush(resources, "AppDangerBrush", "#DC2626");
         }
 
