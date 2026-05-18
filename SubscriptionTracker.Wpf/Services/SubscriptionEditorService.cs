@@ -8,7 +8,7 @@ namespace SubscriptionTracker.Wpf.Services;
 
 public sealed class SubscriptionEditorService(
     IServiceScopeFactory scopeFactory,
-    INotificationService notificationService) : ISubscriptionEditorService
+    IDialogService dialogService) : ISubscriptionEditorService
 {
     public async Task<bool> ShowAsync(SubscriptionListItemDto? currentItem, CancellationToken cancellationToken = default)
     {
@@ -17,7 +17,7 @@ public sealed class SubscriptionEditorService(
         var subscriptionService = scope.ServiceProvider.GetRequiredService<ISubscriptionService>();
 
         var viewModel = await SubscriptionEditViewModel.CreateAsync(categoryService, currentItem, cancellationToken);
-        var window = new SubscriptionEditWindow
+        var window = new SubscriptionEditWindow(dialogService)
         {
             DataContext = viewModel
         };
@@ -34,7 +34,7 @@ public sealed class SubscriptionEditorService(
         }
         catch (Exception exception)
         {
-            notificationService.ShowError(exception.Message, LocalizationCatalog.Get("SaveFailedTitle"));
+            dialogService.ShowError(exception.Message, LocalizationCatalog.Get("SaveFailedTitle"));
             return false;
         }
     }

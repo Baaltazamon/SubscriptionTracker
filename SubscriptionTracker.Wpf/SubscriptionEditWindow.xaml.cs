@@ -1,13 +1,17 @@
 using System.Windows;
 using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Wpf.ViewModels;
+using SubscriptionTracker.Wpf.Services;
 
 namespace SubscriptionTracker.Wpf;
 
 public partial class SubscriptionEditWindow : Window
 {
-    public SubscriptionEditWindow()
+    private readonly IDialogService _dialogService;
+
+    public SubscriptionEditWindow(IDialogService dialogService)
     {
+        _dialogService = dialogService;
         InitializeComponent();
     }
 
@@ -21,7 +25,7 @@ public partial class SubscriptionEditWindow : Window
         var validationError = viewModel.Validate();
         if (validationError is not null)
         {
-            MessageBox.Show(validationError, LocalizationCatalog.Get("ValidateDataTitle"), MessageBoxButton.OK, MessageBoxImage.Warning);
+            _dialogService.ShowWarning(validationError, LocalizationCatalog.Get("ValidateDataTitle"));
             return;
         }
 
