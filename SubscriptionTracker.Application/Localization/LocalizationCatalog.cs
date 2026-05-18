@@ -6,6 +6,12 @@ public static class LocalizationCatalog
 {
     private static readonly IReadOnlyDictionary<string, string> Ru = new Dictionary<string, string>(StringComparer.Ordinal)
     {
+        ["DashboardNav"] = "Панель управления",
+        ["SubscriptionsNav"] = "Подписки",
+        ["CalendarNav"] = "Календарь платежей",
+        ["AnalyticsNav"] = "Аналитика",
+        ["HistoryNav"] = "История платежей",
+        ["SettingsNav"] = "Настройки",
         ["MainSubtitle"] = "Персональный контроль подписок",
         ["HeaderBadgeText"] = "Локально · SQLite · Без облака",
         ["SidebarStatusTitle"] = "Локальный режим",
@@ -92,6 +98,12 @@ public static class LocalizationCatalog
 
     private static readonly IReadOnlyDictionary<string, string> En = new Dictionary<string, string>(StringComparer.Ordinal)
     {
+        ["DashboardNav"] = "Dashboard",
+        ["SubscriptionsNav"] = "Subscriptions",
+        ["CalendarNav"] = "Payment calendar",
+        ["AnalyticsNav"] = "Analytics",
+        ["HistoryNav"] = "Payment history",
+        ["SettingsNav"] = "Settings",
         ["MainSubtitle"] = "Personal subscription control",
         ["HeaderBadgeText"] = "Local · SQLite · No cloud",
         ["SidebarStatusTitle"] = "Local mode",

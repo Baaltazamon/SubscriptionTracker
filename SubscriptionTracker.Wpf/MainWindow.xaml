@@ -136,14 +136,18 @@
                     BorderBrush="{DynamicResource AppBorderBrush}"
                     BorderThickness="1">
               <StackPanel>
-                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{Binding SidebarStatusTitle}" />
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}"
+                           TextWrapping="Wrap"
+                           Text="{Binding SidebarStatusTitle}" />
                 <TextBlock Margin="0,6,0,0"
                            FontSize="14"
                            FontWeight="SemiBold"
+                           TextWrapping="Wrap"
                            Text="{Binding SidebarStatusDetails}" />
                 <TextBlock Margin="0,8,0,0"
                            FontSize="11"
                            Foreground="{DynamicResource AppMutedBrush}"
+                           TextWrapping="Wrap"
                            Text="{Binding LastRefreshLabel}" />
               </StackPanel>
             </Border>
