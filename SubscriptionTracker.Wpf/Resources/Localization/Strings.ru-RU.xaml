@@ -72,6 +72,7 @@
   <sys:String x:Key="SettingsBaseCurrency">Основная валюта</sys:String>
   <sys:String x:Key="SettingsLanguage">Язык интерфейса</sys:String>
   <sys:String x:Key="SettingsTheme">Тема</sys:String>
+  <sys:String x:Key="SettingsLaunchOnStartup">Запускать вместе с Windows</sys:String>
   <sys:String x:Key="SettingsSavePreferences">Сохранить настройки</sys:String>
   <sys:String x:Key="SettingsDarkTheme">Темная</sys:String>
   <sys:String x:Key="SettingsLightTheme">Светлая</sys:String>

@@ -26,6 +26,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
 
               <TextBlock Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsBaseCurrency}" />
@@ -48,7 +49,13 @@
                 <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding UseLightThemeCommand}" Content="{DynamicResource SettingsLightTheme}" />
               </StackPanel>
 
-              <Button Grid.Row="3"
+              <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsLaunchOnStartup}" />
+              <CheckBox Grid.Row="3" Grid.Column="1"
+                        Margin="0,14,0,0"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding LaunchOnStartup}" />
+
+              <Button Grid.Row="4"
                       Grid.Column="1"
                       Margin="0,18,0,0"
                       HorizontalAlignment="Left"

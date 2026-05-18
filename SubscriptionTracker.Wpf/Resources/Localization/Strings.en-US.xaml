@@ -72,6 +72,7 @@
   <sys:String x:Key="SettingsBaseCurrency">Base currency</sys:String>
   <sys:String x:Key="SettingsLanguage">Interface language</sys:String>
   <sys:String x:Key="SettingsTheme">Theme</sys:String>
+  <sys:String x:Key="SettingsLaunchOnStartup">Launch with Windows</sys:String>
   <sys:String x:Key="SettingsSavePreferences">Save settings</sys:String>
   <sys:String x:Key="SettingsDarkTheme">Dark</sys:String>
   <sys:String x:Key="SettingsLightTheme">Light</sys:String>

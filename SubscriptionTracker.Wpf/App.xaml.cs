@@ -30,6 +30,7 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<AppEventBus>();
                 services.AddSingleton<IDialogService, DialogService>();
                 services.AddSingleton<IToastNotificationService, WindowsToastNotificationService>();
+                services.AddSingleton<IAutoStartService, AutoStartService>();
                 services.AddSingleton<IApplicationLifecycleService, ApplicationLifecycleService>();
                 services.AddSingleton<IThemeService, ThemeService>();
                 services.AddSingleton<ILocalizationService, LocalizationService>();
