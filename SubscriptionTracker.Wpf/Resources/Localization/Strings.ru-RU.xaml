@@ -2,19 +2,101 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
   <sys:String x:Key="AppTitle">Subscription Tracker</sys:String>
+
   <sys:String x:Key="DashboardNav">Панель управления</sys:String>
   <sys:String x:Key="SubscriptionsNav">Подписки</sys:String>
   <sys:String x:Key="CalendarNav">Календарь платежей</sys:String>
   <sys:String x:Key="AnalyticsNav">Аналитика</sys:String>
   <sys:String x:Key="HistoryNav">История платежей</sys:String>
   <sys:String x:Key="SettingsNav">Настройки</sys:String>
+
+  <sys:String x:Key="TitleBarMinimizeTooltip">Свернуть</sys:String>
+  <sys:String x:Key="TitleBarMaximizeTooltip">Развернуть или восстановить</sys:String>
+  <sys:String x:Key="TitleBarCloseTooltip">Закрыть</sys:String>
+
   <sys:String x:Key="UpcomingPaymentsTitle">Ближайшие списания</sys:String>
   <sys:String x:Key="CategoriesTitle">Категории</sys:String>
   <sys:String x:Key="ForecastTitle">Прогноз на 12 месяцев</sys:String>
-  <sys:String x:Key="TopActionsTitle">Быстрые действия</sys:String>
   <sys:String x:Key="SubscriptionsTitle">Все подписки</sys:String>
   <sys:String x:Key="CalendarTitle">Платежи по месяцам</sys:String>
   <sys:String x:Key="AnalyticsTitle">Аналитика расходов</sys:String>
   <sys:String x:Key="HistoryTitle">История операций</sys:String>
   <sys:String x:Key="SettingsTitle">Параметры приложения</sys:String>
+
+  <sys:String x:Key="DashboardActiveSubscriptions">Активные подписки</sys:String>
+  <sys:String x:Key="DashboardMonthlySpend">Расходы в месяц</sys:String>
+  <sys:String x:Key="DashboardYearlySpend">Расходы в год</sys:String>
+  <sys:String x:Key="DashboardNextPayment">Следующий платеж</sys:String>
+  <sys:String x:Key="DashboardFocusMonth">Фокус месяца</sys:String>
+  <sys:String x:Key="DashboardMostExpensive">Самая дорогая подписка</sys:String>
+  <sys:String x:Key="DashboardAverageDaily">Средний расход в день</sys:String>
+  <sys:String x:Key="DashboardPotentialSavings">Потенциальная экономия</sys:String>
+  <sys:String x:Key="DashboardForecast6Months">Прогноз расходов на 6 месяцев</sys:String>
+
+  <sys:String x:Key="SubscriptionsSubtitle">Рабочий список подписок с быстрыми действиями и фильтрацией.</sys:String>
+  <sys:String x:Key="SubscriptionsInList">В списке</sys:String>
+  <sys:String x:Key="SubscriptionsActive">Активных</sys:String>
+  <sys:String x:Key="SubscriptionsMonthlyLoad">Месячная нагрузка</sys:String>
+  <sys:String x:Key="SubscriptionsAdd">Добавить</sys:String>
+  <sys:String x:Key="SubscriptionsEdit">Редактировать</sys:String>
+  <sys:String x:Key="SubscriptionsMarkPaid">Отметить как оплачено</sys:String>
+  <sys:String x:Key="SubscriptionsSkip">Пропустить</sys:String>
+  <sys:String x:Key="SubscriptionsToggle">Вкл/выкл</sys:String>
+  <sys:String x:Key="SubscriptionsExport">Экспорт в Excel</sys:String>
+  <sys:String x:Key="SubscriptionsDelete">Удалить</sys:String>
+  <sys:String x:Key="SubscriptionsCategory">Категория</sys:String>
+  <sys:String x:Key="SubscriptionsCycle">Период</sys:String>
+  <sys:String x:Key="SubscriptionsAmount">Сумма</sys:String>
+  <sys:String x:Key="SubscriptionsMonthlyAmount">В месяц</sys:String>
+  <sys:String x:Key="SubscriptionsNextCharge">Следующее списание</sys:String>
+  <sys:String x:Key="SubscriptionsDeadlineStatus">Статус срока</sys:String>
+  <sys:String x:Key="SubscriptionsState">Состояние</sys:String>
+
+  <sys:String x:Key="HistorySubtitle">История запланированных, оплаченных и пропущенных платежей.</sys:String>
+  <sys:String x:Key="HistoryVisible">В выборке</sys:String>
+  <sys:String x:Key="HistoryPaid">Оплачено</sys:String>
+  <sys:String x:Key="HistoryPlanned">Запланировано</sys:String>
+  <sys:String x:Key="HistoryDate">Дата</sys:String>
+  <sys:String x:Key="HistorySubscription">Подписка</sys:String>
+  <sys:String x:Key="HistoryAmount">Сумма</sys:String>
+  <sys:String x:Key="HistoryStatus">Статус</sys:String>
+  <sys:String x:Key="HistoryComment">Комментарий</sys:String>
+
+  <sys:String x:Key="AnalyticsYearForecast">Прогноз на год</sys:String>
+  <sys:String x:Key="AnalyticsDailyAverage">Средний расход в день</sys:String>
+  <sys:String x:Key="AnalyticsDisableTop3">Если отключить топ-3</sys:String>
+  <sys:String x:Key="AnalyticsMonthlySavings">Потенциальная экономия в месяц</sys:String>
+
+  <sys:String x:Key="SettingsSubtitle">Базовые параметры приложения, напоминаний и локального хранения.</sys:String>
+  <sys:String x:Key="SettingsGeneral">Общие</sys:String>
+  <sys:String x:Key="SettingsBaseCurrency">Основная валюта</sys:String>
+  <sys:String x:Key="SettingsLanguage">Язык интерфейса</sys:String>
+  <sys:String x:Key="SettingsTheme">Тема</sys:String>
+  <sys:String x:Key="SettingsSavePreferences">Сохранить настройки</sys:String>
+  <sys:String x:Key="SettingsDarkTheme">Темная</sys:String>
+  <sys:String x:Key="SettingsLightTheme">Светлая</sys:String>
+  <sys:String x:Key="SettingsReminders">Напоминания</sys:String>
+  <sys:String x:Key="SettingsReminderCheck">Проверка платежей</sys:String>
+  <sys:String x:Key="SettingsNotifications">Уведомления</sys:String>
+  <sys:String x:Key="SettingsStorage">Хранилище</sys:String>
+  <sys:String x:Key="SettingsMode">Режим</sys:String>
+  <sys:String x:Key="SettingsDatabasePath">Путь к БД</sys:String>
+  <sys:String x:Key="SettingsBackups">Резервные копии</sys:String>
+  <sys:String x:Key="SettingsAbout">О приложении</sys:String>
+  <sys:String x:Key="SettingsVersion">Версия</sys:String>
+  <sys:String x:Key="SettingsDataProfile">Профиль данных</sys:String>
+
+  <sys:String x:Key="SubscriptionEditorName">Название</sys:String>
+  <sys:String x:Key="SubscriptionEditorDescription">Описание</sys:String>
+  <sys:String x:Key="SubscriptionEditorCategory">Категория</sys:String>
+  <sys:String x:Key="SubscriptionEditorBillingCycle">Периодичность</sys:String>
+  <sys:String x:Key="SubscriptionEditorAmount">Сумма</sys:String>
+  <sys:String x:Key="SubscriptionEditorCurrency">Валюта</sys:String>
+  <sys:String x:Key="SubscriptionEditorFirstPaymentDate">Дата первого платежа</sys:String>
+  <sys:String x:Key="SubscriptionEditorNextPaymentDate">Дата следующего платежа</sys:String>
+  <sys:String x:Key="SubscriptionEditorReminderDays">Напоминать за N дней</sys:String>
+  <sys:String x:Key="SubscriptionEditorAutoRenewal">Автопродление</sys:String>
+  <sys:String x:Key="SubscriptionEditorIsActive">Подписка активна</sys:String>
+  <sys:String x:Key="SubscriptionEditorSave">Сохранить</sys:String>
+  <sys:String x:Key="SubscriptionEditorCancel">Отмена</sys:String>
 </ResourceDictionary>

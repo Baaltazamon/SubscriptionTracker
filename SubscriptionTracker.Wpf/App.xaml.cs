@@ -1,8 +1,8 @@
-using System.Globalization;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SubscriptionTracker.Application.Interfaces;
 using SubscriptionTracker.Infrastructure;
 using SubscriptionTracker.Infrastructure.Persistence;
 using SubscriptionTracker.Wpf.Services;
@@ -18,10 +18,6 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
 
-        var culture = new CultureInfo("ru-RU");
-        CultureInfo.DefaultThreadCurrentCulture = culture;
-        CultureInfo.DefaultThreadCurrentUICulture = culture;
-
         _host = Host.CreateDefaultBuilder()
             .ConfigureLogging(logging =>
             {
@@ -34,6 +30,7 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<AppEventBus>();
                 services.AddSingleton<INotificationService, MessageBoxNotificationService>();
                 services.AddSingleton<IThemeService, ThemeService>();
+                services.AddSingleton<ILocalizationService, LocalizationService>();
                 services.AddSingleton<ISubscriptionEditorService, SubscriptionEditorService>();
                 services.AddSingleton<ReminderScheduler>();
 
@@ -56,7 +53,13 @@ public partial class App : System.Windows.Application
             await scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().InitializeAsync();
         }
 
-        _host.Services.GetRequiredService<IThemeService>().Apply(AppTheme.Dark);
+        var settingsService = _host.Services.GetRequiredService<IAppSettingsService>();
+        var localizationService = _host.Services.GetRequiredService<ILocalizationService>();
+        var themeService = _host.Services.GetRequiredService<IThemeService>();
+        var settings = settingsService.GetSettings();
+
+        localizationService.ApplyLanguage(settings.LanguageCode);
+        themeService.Apply(string.Equals(settings.Theme, "Light", StringComparison.OrdinalIgnoreCase) ? AppTheme.Light : AppTheme.Dark);
 
         var scheduler = _host.Services.GetRequiredService<ReminderScheduler>();
         await scheduler.RunStartupCheckAsync();

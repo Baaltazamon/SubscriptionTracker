@@ -25,7 +25,7 @@ public sealed class PaymentHistoryService(AppDbContext dbContext) : IPaymentHist
                 Status = payment.Status,
                 Note = payment.Note ?? string.Empty,
                 AmountLabel = $"{payment.Amount:N2} {payment.Currency}",
-                PaymentDateLabel = payment.PaymentDate.ToString("dd.MM.yyyy"),
+                PaymentDateLabel = payment.PaymentDate.ToString("d"),
                 StatusLabel = BillingCycleDisplayFormatter.ToLabel(payment.Status)
             })
             .ToListAsync(cancellationToken);

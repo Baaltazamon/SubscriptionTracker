@@ -1,3 +1,4 @@
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Application.Services;
 using SubscriptionTracker.Domain.Enums;
 
@@ -25,7 +26,7 @@ public sealed class UpcomingPaymentDto
 
     public string AmountLabel => $"{Amount:N2} {Currency}";
 
-    public string PaymentDateLabel => PaymentDate.ToString("dd.MM.yyyy");
+    public string PaymentDateLabel => PaymentDate.ToString("d");
 
     public string AmountInBaseCurrencyLabel => $"{AmountInBaseCurrency:N2} {BaseCurrency}";
 
@@ -35,20 +36,20 @@ public sealed class UpcomingPaymentDto
 
     public string CountdownLabel => DaysUntil switch
     {
-        < 0 => $"Просрочено на {Math.Abs(DaysUntil)} дн.",
-        0 => "Сегодня",
-        1 => "Через 1 день",
-        < 5 => $"Через {DaysUntil} дня",
-        _ => $"Через {DaysUntil} дней"
+        < 0 => LocalizationCatalog.Format("CountdownOverdue", Math.Abs(DaysUntil)),
+        0 => LocalizationCatalog.Get("CountdownToday"),
+        1 => LocalizationCatalog.Get("CountdownInOneDay"),
+        < 5 => LocalizationCatalog.Format("CountdownInFewDays", DaysUntil),
+        _ => LocalizationCatalog.Format("CountdownInManyDays", DaysUntil)
     };
 
     public string UrgencyLabel => DaysUntil switch
     {
-        < 0 => "Просрочен",
-        0 => "Сегодня",
-        <= 3 => "Скоро",
-        <= 7 => "На неделе",
-        _ => "Запланирован"
+        < 0 => LocalizationCatalog.Get("UrgencyOverdue"),
+        0 => LocalizationCatalog.Get("UrgencyToday"),
+        <= 3 => LocalizationCatalog.Get("UrgencySoon"),
+        <= 7 => LocalizationCatalog.Get("UrgencyThisWeek"),
+        _ => LocalizationCatalog.Get("UrgencyPlanned")
     };
 
     public string UrgencyColorHex => DaysUntil switch

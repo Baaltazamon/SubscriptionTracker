@@ -1,0 +1,102 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <sys:String x:Key="AppTitle">Subscription Tracker</sys:String>
+
+  <sys:String x:Key="DashboardNav">Dashboard</sys:String>
+  <sys:String x:Key="SubscriptionsNav">Subscriptions</sys:String>
+  <sys:String x:Key="CalendarNav">Payment calendar</sys:String>
+  <sys:String x:Key="AnalyticsNav">Analytics</sys:String>
+  <sys:String x:Key="HistoryNav">Payment history</sys:String>
+  <sys:String x:Key="SettingsNav">Settings</sys:String>
+
+  <sys:String x:Key="TitleBarMinimizeTooltip">Minimize</sys:String>
+  <sys:String x:Key="TitleBarMaximizeTooltip">Maximize or restore</sys:String>
+  <sys:String x:Key="TitleBarCloseTooltip">Close</sys:String>
+
+  <sys:String x:Key="UpcomingPaymentsTitle">Upcoming payments</sys:String>
+  <sys:String x:Key="CategoriesTitle">Categories</sys:String>
+  <sys:String x:Key="ForecastTitle">12-month forecast</sys:String>
+  <sys:String x:Key="SubscriptionsTitle">All subscriptions</sys:String>
+  <sys:String x:Key="CalendarTitle">Monthly payments</sys:String>
+  <sys:String x:Key="AnalyticsTitle">Spending analytics</sys:String>
+  <sys:String x:Key="HistoryTitle">Activity history</sys:String>
+  <sys:String x:Key="SettingsTitle">Application settings</sys:String>
+
+  <sys:String x:Key="DashboardActiveSubscriptions">Active subscriptions</sys:String>
+  <sys:String x:Key="DashboardMonthlySpend">Monthly spend</sys:String>
+  <sys:String x:Key="DashboardYearlySpend">Yearly spend</sys:String>
+  <sys:String x:Key="DashboardNextPayment">Next payment</sys:String>
+  <sys:String x:Key="DashboardFocusMonth">Monthly focus</sys:String>
+  <sys:String x:Key="DashboardMostExpensive">Most expensive subscription</sys:String>
+  <sys:String x:Key="DashboardAverageDaily">Average daily spend</sys:String>
+  <sys:String x:Key="DashboardPotentialSavings">Potential savings</sys:String>
+  <sys:String x:Key="DashboardForecast6Months">6-month spending forecast</sys:String>
+
+  <sys:String x:Key="SubscriptionsSubtitle">Working subscription list with quick actions and filtering.</sys:String>
+  <sys:String x:Key="SubscriptionsInList">In list</sys:String>
+  <sys:String x:Key="SubscriptionsActive">Active</sys:String>
+  <sys:String x:Key="SubscriptionsMonthlyLoad">Monthly load</sys:String>
+  <sys:String x:Key="SubscriptionsAdd">Add</sys:String>
+  <sys:String x:Key="SubscriptionsEdit">Edit</sys:String>
+  <sys:String x:Key="SubscriptionsMarkPaid">Mark as paid</sys:String>
+  <sys:String x:Key="SubscriptionsSkip">Skip</sys:String>
+  <sys:String x:Key="SubscriptionsToggle">Toggle</sys:String>
+  <sys:String x:Key="SubscriptionsExport">Export to Excel</sys:String>
+  <sys:String x:Key="SubscriptionsDelete">Delete</sys:String>
+  <sys:String x:Key="SubscriptionsCategory">Category</sys:String>
+  <sys:String x:Key="SubscriptionsCycle">Cycle</sys:String>
+  <sys:String x:Key="SubscriptionsAmount">Amount</sys:String>
+  <sys:String x:Key="SubscriptionsMonthlyAmount">Per month</sys:String>
+  <sys:String x:Key="SubscriptionsNextCharge">Next charge</sys:String>
+  <sys:String x:Key="SubscriptionsDeadlineStatus">Due status</sys:String>
+  <sys:String x:Key="SubscriptionsState">State</sys:String>
+
+  <sys:String x:Key="HistorySubtitle">History of planned, paid, and skipped charges.</sys:String>
+  <sys:String x:Key="HistoryVisible">Visible</sys:String>
+  <sys:String x:Key="HistoryPaid">Paid</sys:String>
+  <sys:String x:Key="HistoryPlanned">Planned</sys:String>
+  <sys:String x:Key="HistoryDate">Date</sys:String>
+  <sys:String x:Key="HistorySubscription">Subscription</sys:String>
+  <sys:String x:Key="HistoryAmount">Amount</sys:String>
+  <sys:String x:Key="HistoryStatus">Status</sys:String>
+  <sys:String x:Key="HistoryComment">Comment</sys:String>
+
+  <sys:String x:Key="AnalyticsYearForecast">Year forecast</sys:String>
+  <sys:String x:Key="AnalyticsDailyAverage">Average daily spend</sys:String>
+  <sys:String x:Key="AnalyticsDisableTop3">If you cancel the top 3</sys:String>
+  <sys:String x:Key="AnalyticsMonthlySavings">Potential monthly savings</sys:String>
+
+  <sys:String x:Key="SettingsSubtitle">Base app, reminder, and local storage settings.</sys:String>
+  <sys:String x:Key="SettingsGeneral">General</sys:String>
+  <sys:String x:Key="SettingsBaseCurrency">Base currency</sys:String>
+  <sys:String x:Key="SettingsLanguage">Interface language</sys:String>
+  <sys:String x:Key="SettingsTheme">Theme</sys:String>
+  <sys:String x:Key="SettingsSavePreferences">Save settings</sys:String>
+  <sys:String x:Key="SettingsDarkTheme">Dark</sys:String>
+  <sys:String x:Key="SettingsLightTheme">Light</sys:String>
+  <sys:String x:Key="SettingsReminders">Reminders</sys:String>
+  <sys:String x:Key="SettingsReminderCheck">Payment checks</sys:String>
+  <sys:String x:Key="SettingsNotifications">Notifications</sys:String>
+  <sys:String x:Key="SettingsStorage">Storage</sys:String>
+  <sys:String x:Key="SettingsMode">Mode</sys:String>
+  <sys:String x:Key="SettingsDatabasePath">Database path</sys:String>
+  <sys:String x:Key="SettingsBackups">Backups</sys:String>
+  <sys:String x:Key="SettingsAbout">About</sys:String>
+  <sys:String x:Key="SettingsVersion">Version</sys:String>
+  <sys:String x:Key="SettingsDataProfile">Data profile</sys:String>
+
+  <sys:String x:Key="SubscriptionEditorName">Name</sys:String>
+  <sys:String x:Key="SubscriptionEditorDescription">Description</sys:String>
+  <sys:String x:Key="SubscriptionEditorCategory">Category</sys:String>
+  <sys:String x:Key="SubscriptionEditorBillingCycle">Billing cycle</sys:String>
+  <sys:String x:Key="SubscriptionEditorAmount">Amount</sys:String>
+  <sys:String x:Key="SubscriptionEditorCurrency">Currency</sys:String>
+  <sys:String x:Key="SubscriptionEditorFirstPaymentDate">First payment date</sys:String>
+  <sys:String x:Key="SubscriptionEditorNextPaymentDate">Next payment date</sys:String>
+  <sys:String x:Key="SubscriptionEditorReminderDays">Remind before N days</sys:String>
+  <sys:String x:Key="SubscriptionEditorAutoRenewal">Auto renewal</sys:String>
+  <sys:String x:Key="SubscriptionEditorIsActive">Subscription is active</sys:String>
+  <sys:String x:Key="SubscriptionEditorSave">Save</sys:String>
+  <sys:String x:Key="SubscriptionEditorCancel">Cancel</sys:String>
+</ResourceDictionary>

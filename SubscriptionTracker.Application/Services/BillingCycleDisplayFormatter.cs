@@ -1,3 +1,4 @@
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Domain.Enums;
 
 namespace SubscriptionTracker.Application.Services;
@@ -8,11 +9,11 @@ public static class BillingCycleDisplayFormatter
     {
         return cycle switch
         {
-            BillingCycle.Monthly => "Каждый месяц",
-            BillingCycle.Quarterly => "Каждый квартал",
-            BillingCycle.SemiAnnual => "Раз в полгода",
-            BillingCycle.Yearly => "Раз в год",
-            _ => "Неизвестно"
+            BillingCycle.Monthly => LocalizationCatalog.Get("BillingCycleMonthly"),
+            BillingCycle.Quarterly => LocalizationCatalog.Get("BillingCycleQuarterly"),
+            BillingCycle.SemiAnnual => LocalizationCatalog.Get("BillingCycleSemiAnnual"),
+            BillingCycle.Yearly => LocalizationCatalog.Get("BillingCycleYearly"),
+            _ => LocalizationCatalog.Get("Unknown")
         };
     }
 
@@ -20,12 +21,12 @@ public static class BillingCycleDisplayFormatter
     {
         return status switch
         {
-            PaymentStatus.Planned => "Запланирован",
-            PaymentStatus.Paid => "Оплачен",
-            PaymentStatus.Skipped => "Пропущен",
-            PaymentStatus.Cancelled => "Отменен",
-            PaymentStatus.Failed => "Ошибка",
-            _ => "Неизвестно"
+            PaymentStatus.Planned => LocalizationCatalog.Get("PaymentStatusPlanned"),
+            PaymentStatus.Paid => LocalizationCatalog.Get("PaymentStatusPaid"),
+            PaymentStatus.Skipped => LocalizationCatalog.Get("PaymentStatusSkipped"),
+            PaymentStatus.Cancelled => LocalizationCatalog.Get("PaymentStatusCancelled"),
+            PaymentStatus.Failed => LocalizationCatalog.Get("PaymentStatusFailed"),
+            _ => LocalizationCatalog.Get("Unknown")
         };
     }
 }

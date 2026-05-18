@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Wpf.Services;
 
 namespace SubscriptionTracker.Wpf.ViewModels;
@@ -15,28 +16,27 @@ public sealed class SubscriptionsViewModel : ViewModelBase
     private readonly AppEventBus _eventBus;
     private readonly ISubscriptionEditorService _subscriptionEditorService;
     private readonly INotificationService _notificationService;
+    private readonly IAppSettingsService _appSettingsService;
+    private readonly ILocalizationService _localizationService;
     private SubscriptionListItemDto? _selectedItem;
-    private string _selectedFilter = "Все";
+    private OptionItem<SubscriptionFilter>? _selectedFilter;
+    private IReadOnlyList<OptionItem<SubscriptionFilter>> _filters = [];
     private string _searchText = string.Empty;
 
     public SubscriptionsViewModel(
         IServiceScopeFactory scopeFactory,
         AppEventBus eventBus,
         ISubscriptionEditorService subscriptionEditorService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IAppSettingsService appSettingsService,
+        ILocalizationService localizationService)
     {
         _scopeFactory = scopeFactory;
         _eventBus = eventBus;
         _subscriptionEditorService = subscriptionEditorService;
         _notificationService = notificationService;
-
-        Filters =
-        [
-            "Все",
-            "Активные",
-            "Отключенные",
-            "Скоро спишутся"
-        ];
+        _appSettingsService = appSettingsService;
+        _localizationService = localizationService;
 
         ItemsView = CollectionViewSource.GetDefaultView(Items);
         ItemsView.Filter = FilterItem;
@@ -48,13 +48,20 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         SkipCommand = new AsyncRelayCommand(SkipAsync, () => SelectedItem is not null);
         ToggleActiveCommand = new AsyncRelayCommand(ToggleActiveAsync, () => SelectedItem is not null);
         ExportCommand = new AsyncRelayCommand(ExportAsync);
+
+        _localizationService.LanguageChanged += (_, _) => RebuildFilters();
+        RebuildFilters();
     }
 
     public ObservableCollection<SubscriptionListItemDto> Items { get; } = [];
 
     public ICollectionView ItemsView { get; }
 
-    public IReadOnlyList<string> Filters { get; }
+    public IReadOnlyList<OptionItem<SubscriptionFilter>> Filters
+    {
+        get => _filters;
+        private set => SetProperty(ref _filters, value);
+    }
 
     public string SearchText
     {
@@ -69,7 +76,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         }
     }
 
-    public string SelectedFilter
+    public OptionItem<SubscriptionFilter>? SelectedFilter
     {
         get => _selectedFilter;
         set
@@ -88,7 +95,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
 
     public decimal VisibleMonthlyTotal => ItemsView.Cast<SubscriptionListItemDto>().Sum(static item => item.MonthlyCostInBaseCurrency);
 
-    public string VisibleMonthlyTotalLabel => $"{VisibleMonthlyTotal:N2} RUB";
+    public string VisibleMonthlyTotalLabel => $"{VisibleMonthlyTotal:N2} {_appSettingsService.GetSettings().BaseCurrency}";
 
     public AsyncRelayCommand AddCommand { get; }
 
@@ -151,11 +158,12 @@ public sealed class SubscriptionsViewModel : ViewModelBase
             return false;
         }
 
-        var matchesFilter = SelectedFilter switch
+        var selectedFilter = SelectedFilter?.Value ?? SubscriptionFilter.All;
+        var matchesFilter = selectedFilter switch
         {
-            "Активные" => subscription.IsActive,
-            "Отключенные" => !subscription.IsActive,
-            "Скоро спишутся" => subscription.DueSoon,
+            SubscriptionFilter.Active => subscription.IsActive,
+            SubscriptionFilter.Disabled => !subscription.IsActive,
+            SubscriptionFilter.DueSoon => subscription.DueSoon,
             _ => true
         };
 
@@ -255,7 +263,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         var dialog = new SaveFileDialog
         {
             FileName = $"subscription-tracker-{DateTime.Now:yyyyMMdd-HHmm}.xlsx",
-            Filter = "Excel workbook (*.xlsx)|*.xlsx"
+            Filter = LocalizationCatalog.Get("ExcelFileDialogFilter")
         };
 
         if (dialog.ShowDialog() != true)
@@ -268,12 +276,29 @@ public sealed class SubscriptionsViewModel : ViewModelBase
             using var scope = _scopeFactory.CreateScope();
             var exportService = scope.ServiceProvider.GetRequiredService<IExportService>();
             await exportService.ExportAsync(dialog.FileName);
-            _notificationService.ShowInfo("Excel-файл успешно сохранен.", "Экспорт завершен");
+            _notificationService.ShowInfo(
+                LocalizationCatalog.Get("ExportCompletedMessage"),
+                LocalizationCatalog.Get("ExportCompletedTitle"));
         }
         catch (Exception exception)
         {
-            _notificationService.ShowError(exception.Message, "Ошибка экспорта");
+            _notificationService.ShowError(exception.Message, LocalizationCatalog.Get("ExportErrorTitle"));
         }
+    }
+
+    private void RebuildFilters()
+    {
+        var selectedValue = SelectedFilter?.Value ?? SubscriptionFilter.All;
+        Filters =
+        [
+            new OptionItem<SubscriptionFilter> { Value = SubscriptionFilter.All, Label = LocalizationCatalog.Get("FilterAll") },
+            new OptionItem<SubscriptionFilter> { Value = SubscriptionFilter.Active, Label = LocalizationCatalog.Get("FilterActive") },
+            new OptionItem<SubscriptionFilter> { Value = SubscriptionFilter.Disabled, Label = LocalizationCatalog.Get("FilterDisabled") },
+            new OptionItem<SubscriptionFilter> { Value = SubscriptionFilter.DueSoon, Label = LocalizationCatalog.Get("FilterDueSoon") }
+        ];
+
+        SelectedFilter = Filters.FirstOrDefault(item => item.Value == selectedValue) ?? Filters.First();
+        RaiseSummaryProperties();
     }
 
     private void RaiseSummaryProperties()
@@ -282,5 +307,13 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         RaisePropertyChanged(nameof(ActiveCount));
         RaisePropertyChanged(nameof(VisibleMonthlyTotal));
         RaisePropertyChanged(nameof(VisibleMonthlyTotalLabel));
+    }
+
+    public enum SubscriptionFilter
+    {
+        All = 1,
+        Active = 2,
+        Disabled = 3,
+        DueSoon = 4
     }
 }

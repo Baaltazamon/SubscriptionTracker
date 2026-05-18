@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Domain.Enums;
 using SubscriptionTracker.Domain.Services;
 using SubscriptionTracker.Infrastructure.Persistence;
@@ -94,7 +95,7 @@ public sealed class DashboardService(AppDbContext dbContext, IAppSettingsService
             MonthlyTotal = Math.Round(monthlyTotal, 2, MidpointRounding.AwayFromZero),
             YearlyTotal = Math.Round(yearlyTotal, 2, MidpointRounding.AwayFromZero),
             NextPayment = upcomingPayments.FirstOrDefault(),
-            MostExpensiveSubscriptionName = mostExpensive?.Subscription.Name ?? "—",
+            MostExpensiveSubscriptionName = mostExpensive?.Subscription.Name ?? LocalizationCatalog.Get("MostExpensiveFallback"),
             DailySpend = Math.Round(monthlyTotal / 30m, 2, MidpointRounding.AwayFromZero),
             PotentialSavingsMonthly = Math.Round(potentialSavingsMonthly, 2, MidpointRounding.AwayFromZero),
             BaseCurrency = settings.BaseCurrency,
@@ -134,7 +135,7 @@ public sealed class DashboardService(AppDbContext dbContext, IAppSettingsService
 
             result.Add(new MonthlyForecastPointDto
             {
-                MonthLabel = $"{start:MMM yy}",
+                MonthLabel = start.ToString("MMM yy"),
                 AmountInBaseCurrency = Math.Round(total, 2, MidpointRounding.AwayFromZero),
                 AmountLabel = $"{total:N2} {baseCurrency}"
             });

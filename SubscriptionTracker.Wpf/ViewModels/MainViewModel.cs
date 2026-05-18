@@ -1,14 +1,14 @@
-using SubscriptionTracker.Application.Interfaces;
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Wpf.Services;
 
 namespace SubscriptionTracker.Wpf.ViewModels;
 
 public sealed class MainViewModel : ViewModelBase
 {
-    private readonly IAppSettingsService _appSettingsService;
     private readonly IThemeService _themeService;
+    private readonly ILocalizationService _localizationService;
     private object? _currentViewModel;
-    private string _currentSectionTitle = "Панель управления";
+    private string _currentSectionTitle = string.Empty;
     private NavigationSection _currentSection = NavigationSection.Dashboard;
     private DateTime _lastRefreshAt = DateTime.Now;
 
@@ -20,11 +20,11 @@ public sealed class MainViewModel : ViewModelBase
         PaymentHistoryViewModel paymentHistoryViewModel,
         SettingsViewModel settingsViewModel,
         AppEventBus eventBus,
-        IAppSettingsService appSettingsService,
-        IThemeService themeService)
+        IThemeService themeService,
+        ILocalizationService localizationService)
     {
-        _appSettingsService = appSettingsService;
         _themeService = themeService;
+        _localizationService = localizationService;
         Dashboard = dashboardViewModel;
         Subscriptions = subscriptionsViewModel;
         Calendar = calendarViewModel;
@@ -32,17 +32,19 @@ public sealed class MainViewModel : ViewModelBase
         PaymentHistory = paymentHistoryViewModel;
         Settings = settingsViewModel;
 
-        NavigateDashboardCommand = new RelayCommand(() => Navigate(Dashboard, NavigationSection.Dashboard, "Панель управления"));
-        NavigateSubscriptionsCommand = new RelayCommand(() => Navigate(Subscriptions, NavigationSection.Subscriptions, "Подписки"));
-        NavigateCalendarCommand = new RelayCommand(() => Navigate(Calendar, NavigationSection.Calendar, "Календарь платежей"));
-        NavigateAnalyticsCommand = new RelayCommand(() => Navigate(Analytics, NavigationSection.Analytics, "Аналитика"));
-        NavigateHistoryCommand = new RelayCommand(() => Navigate(PaymentHistory, NavigationSection.History, "История платежей"));
-        NavigateSettingsCommand = new RelayCommand(() => Navigate(Settings, NavigationSection.Settings, "Настройки"));
+        NavigateDashboardCommand = new RelayCommand(() => Navigate(Dashboard, NavigationSection.Dashboard));
+        NavigateSubscriptionsCommand = new RelayCommand(() => Navigate(Subscriptions, NavigationSection.Subscriptions));
+        NavigateCalendarCommand = new RelayCommand(() => Navigate(Calendar, NavigationSection.Calendar));
+        NavigateAnalyticsCommand = new RelayCommand(() => Navigate(Analytics, NavigationSection.Analytics));
+        NavigateHistoryCommand = new RelayCommand(() => Navigate(PaymentHistory, NavigationSection.History));
+        NavigateSettingsCommand = new RelayCommand(() => Navigate(Settings, NavigationSection.Settings));
 
         eventBus.DataChanged += async (_, _) => await RefreshAllAsync();
+        eventBus.SettingsChanged += async (_, _) => await RefreshAllAsync();
         _themeService.ThemeChanged += (_, _) => RaiseBrandingProperties();
+        _localizationService.LanguageChanged += (_, _) => RaiseLocalizedProperties();
 
-        Navigate(Dashboard, NavigationSection.Dashboard, "Панель управления");
+        Navigate(Dashboard, NavigationSection.Dashboard);
     }
 
     public DashboardViewModel Dashboard { get; }
@@ -69,13 +71,13 @@ public sealed class MainViewModel : ViewModelBase
         private set => SetProperty(ref _currentSectionTitle, value);
     }
 
-    public string CurrentSectionSubtitle => "Персональный контроль подписок";
+    public string CurrentSectionSubtitle => LocalizationCatalog.Get("MainSubtitle");
 
-    public string HeaderBadgeText => "Локально · SQLite · Без облака";
+    public string HeaderBadgeText => LocalizationCatalog.Get("HeaderBadgeText");
 
-    public string SidebarStatusTitle => "Локальный режим";
+    public string SidebarStatusTitle => LocalizationCatalog.Get("SidebarStatusTitle");
 
-    public string SidebarStatusDetails => "База: SQLite";
+    public string SidebarStatusDetails => LocalizationCatalog.Get("SidebarStatusDetails");
 
     public string LastRefreshLabel => FormatLastRefresh(_lastRefreshAt);
 
@@ -130,11 +132,11 @@ public sealed class MainViewModel : ViewModelBase
         RaisePropertyChanged(nameof(LastRefreshLabel));
     }
 
-    private void Navigate(object viewModel, NavigationSection section, string title)
+    private void Navigate(object viewModel, NavigationSection section)
     {
         CurrentViewModel = viewModel;
-        CurrentSectionTitle = title;
         _currentSection = section;
+        CurrentSectionTitle = GetSectionTitle(section);
 
         RaisePropertyChanged(nameof(IsDashboardSelected));
         RaisePropertyChanged(nameof(IsSubscriptionsSelected));
@@ -150,17 +152,41 @@ public sealed class MainViewModel : ViewModelBase
         RaisePropertyChanged(nameof(SidebarLogoPath));
     }
 
+    private void RaiseLocalizedProperties()
+    {
+        CurrentSectionTitle = GetSectionTitle(_currentSection);
+        RaisePropertyChanged(nameof(CurrentSectionSubtitle));
+        RaisePropertyChanged(nameof(HeaderBadgeText));
+        RaisePropertyChanged(nameof(SidebarStatusTitle));
+        RaisePropertyChanged(nameof(SidebarStatusDetails));
+        RaisePropertyChanged(nameof(LastRefreshLabel));
+    }
+
     private static string FormatLastRefresh(DateTime timestamp)
     {
         var now = DateTime.Now;
         return timestamp.Date == now.Date
-            ? $"Последнее обновление: сегодня, {timestamp:HH:mm}"
-            : $"Последнее обновление: {timestamp:dd.MM.yyyy HH:mm}";
+            ? LocalizationCatalog.Format("LastRefreshTodayFormat", timestamp)
+            : LocalizationCatalog.Format("LastRefreshDateFormat", timestamp);
     }
 
     private static string GetPackUri(string fileName)
     {
         return $"pack://application:,,,/Assets/Branding/{fileName}";
+    }
+
+    private static string GetSectionTitle(NavigationSection section)
+    {
+        return section switch
+        {
+            NavigationSection.Dashboard => LocalizationCatalog.Get("DashboardNav"),
+            NavigationSection.Subscriptions => LocalizationCatalog.Get("SubscriptionsNav"),
+            NavigationSection.Calendar => LocalizationCatalog.Get("CalendarNav"),
+            NavigationSection.Analytics => LocalizationCatalog.Get("AnalyticsNav"),
+            NavigationSection.History => LocalizationCatalog.Get("HistoryNav"),
+            NavigationSection.Settings => LocalizationCatalog.Get("SettingsNav"),
+            _ => LocalizationCatalog.Get("DashboardNav")
+        };
     }
 
     private enum NavigationSection

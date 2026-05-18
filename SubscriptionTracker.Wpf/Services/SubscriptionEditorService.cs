@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Wpf.ViewModels;
 
 namespace SubscriptionTracker.Wpf.Services;
@@ -33,7 +34,7 @@ public sealed class SubscriptionEditorService(
         }
         catch (Exception exception)
         {
-            notificationService.ShowError(exception.Message, "Не удалось сохранить");
+            notificationService.ShowError(exception.Message, LocalizationCatalog.Get("SaveFailedTitle"));
             return false;
         }
     }

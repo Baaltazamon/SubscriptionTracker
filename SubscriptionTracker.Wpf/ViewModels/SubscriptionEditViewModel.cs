@@ -1,5 +1,6 @@
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Domain.Enums;
 using SubscriptionTracker.Domain.Services;
 using SubscriptionTracker.Wpf.Services;
@@ -104,28 +105,30 @@ public sealed class SubscriptionEditViewModel : ObservableObject
         set => SetProperty(ref _reminderDaysBefore, value);
     }
 
-    public string WindowTitle => Id.HasValue ? "Редактирование подписки" : "Новая подписка";
+    public string WindowTitle => Id.HasValue
+        ? LocalizationCatalog.Get("EditSubscriptionTitle")
+        : LocalizationCatalog.Get("NewSubscriptionTitle");
 
     public string? Validate()
     {
         if (string.IsNullOrWhiteSpace(Name))
         {
-            return "Укажите название подписки.";
+            return LocalizationCatalog.Get("ValidationNameRequired");
         }
 
         if (SelectedCategoryId == Guid.Empty)
         {
-            return "Выберите категорию.";
+            return LocalizationCatalog.Get("ValidationCategoryRequired");
         }
 
         if (Amount <= 0)
         {
-            return "Сумма должна быть больше нуля.";
+            return LocalizationCatalog.Get("ValidationAmountPositive");
         }
 
         if (ReminderDaysBefore < 0)
         {
-            return "Напоминание не может быть отрицательным.";
+            return LocalizationCatalog.Get("ValidationReminderNonNegative");
         }
 
         return null;

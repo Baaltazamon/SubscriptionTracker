@@ -1,4 +1,7 @@
+using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
+using SubscriptionTracker.Application.Localization;
+using SubscriptionTracker.Domain.Services;
 using SubscriptionTracker.Wpf.Services;
 
 namespace SubscriptionTracker.Wpf.ViewModels;
@@ -7,42 +10,169 @@ public sealed class SettingsViewModel : ViewModelBase
 {
     private readonly IAppSettingsService _appSettingsService;
     private readonly IThemeService _themeService;
+    private readonly ILocalizationService _localizationService;
+    private readonly AppEventBus _eventBus;
+    private IReadOnlyList<OptionItem<string>> _languageOptions = [];
+    private IReadOnlyList<OptionItem<string>> _currencyOptions = [];
+    private IReadOnlyList<OptionItem<int>> _reminderIntervalOptions = [];
+    private OptionItem<string>? _selectedLanguageOption;
+    private OptionItem<string>? _selectedCurrencyOption;
+    private OptionItem<int>? _selectedReminderIntervalOption;
+    private bool _areNotificationsEnabled;
 
-    public SettingsViewModel(IAppSettingsService appSettingsService, IThemeService themeService)
+    public SettingsViewModel(
+        IAppSettingsService appSettingsService,
+        IThemeService themeService,
+        ILocalizationService localizationService,
+        AppEventBus eventBus)
     {
         _appSettingsService = appSettingsService;
         _themeService = themeService;
+        _localizationService = localizationService;
+        _eventBus = eventBus;
 
-        UseDarkThemeCommand = new RelayCommand(() =>
-        {
-            _themeService.Apply(AppTheme.Dark);
-            RaisePropertyChanged(nameof(ThemeName));
-        });
+        SavePreferencesCommand = new AsyncRelayCommand(SavePreferencesAsync);
+        UseDarkThemeCommand = new AsyncRelayCommand(() => SetThemeAsync(AppTheme.Dark));
+        UseLightThemeCommand = new AsyncRelayCommand(() => SetThemeAsync(AppTheme.Light));
 
-        UseLightThemeCommand = new RelayCommand(() =>
-        {
-            _themeService.Apply(AppTheme.Light);
-            RaisePropertyChanged(nameof(ThemeName));
-        });
+        _localizationService.LanguageChanged += (_, _) => RebuildOptions();
+        LoadFromSettings(_appSettingsService.GetSettings());
+        RebuildOptions();
     }
 
-    public string BaseCurrency => _appSettingsService.GetSettings().BaseCurrency;
+    public IReadOnlyList<OptionItem<string>> LanguageOptions
+    {
+        get => _languageOptions;
+        private set => SetProperty(ref _languageOptions, value);
+    }
+
+    public IReadOnlyList<OptionItem<string>> CurrencyOptions
+    {
+        get => _currencyOptions;
+        private set => SetProperty(ref _currencyOptions, value);
+    }
+
+    public IReadOnlyList<OptionItem<int>> ReminderIntervalOptions
+    {
+        get => _reminderIntervalOptions;
+        private set => SetProperty(ref _reminderIntervalOptions, value);
+    }
+
+    public OptionItem<string>? SelectedLanguageOption
+    {
+        get => _selectedLanguageOption;
+        set => SetProperty(ref _selectedLanguageOption, value);
+    }
+
+    public OptionItem<string>? SelectedCurrencyOption
+    {
+        get => _selectedCurrencyOption;
+        set => SetProperty(ref _selectedCurrencyOption, value);
+    }
+
+    public OptionItem<int>? SelectedReminderIntervalOption
+    {
+        get => _selectedReminderIntervalOption;
+        set => SetProperty(ref _selectedReminderIntervalOption, value);
+    }
+
+    public bool AreNotificationsEnabled
+    {
+        get => _areNotificationsEnabled;
+        set => SetProperty(ref _areNotificationsEnabled, value);
+    }
 
     public string DatabasePath => _appSettingsService.GetSettings().DatabasePath;
 
-    public int ReminderCheckIntervalMinutes => _appSettingsService.GetSettings().ReminderCheckIntervalMinutes;
+    public string ThemeName => _themeService.CurrentTheme == AppTheme.Dark
+        ? LocalizationCatalog.Get("ThemeDark")
+        : LocalizationCatalog.Get("ThemeLight");
 
-    public bool NotificationsEnabled => _appSettingsService.GetSettings().NotificationsEnabled;
+    public string StorageMode => LocalizationCatalog.Get("StorageMode");
 
-    public string ThemeName => _themeService.CurrentTheme == AppTheme.Dark ? "Темная" : "Светлая";
+    public string BackupStatus => LocalizationCatalog.Get("BackupStatus");
 
-    public string StorageMode => "SQLite, локально на устройстве";
+    public string AppVersion => LocalizationCatalog.Get("AppVersion");
 
-    public string BackupStatus => "Резервное копирование пока не настроено";
+    public string DataProfileText => LocalizationCatalog.Get("DataProfileText");
 
-    public string AppVersion => ".NET 8 · MVP build";
+    public AsyncRelayCommand SavePreferencesCommand { get; }
 
-    public RelayCommand UseDarkThemeCommand { get; }
+    public AsyncRelayCommand UseDarkThemeCommand { get; }
 
-    public RelayCommand UseLightThemeCommand { get; }
+    public AsyncRelayCommand UseLightThemeCommand { get; }
+
+    private async Task SavePreferencesAsync()
+    {
+        var current = _appSettingsService.GetSettings();
+        var updated = current with
+        {
+            BaseCurrency = SelectedCurrencyOption?.Value ?? current.BaseCurrency,
+            LanguageCode = SelectedLanguageOption?.Value ?? current.LanguageCode,
+            ReminderCheckIntervalMinutes = SelectedReminderIntervalOption?.Value ?? current.ReminderCheckIntervalMinutes,
+            NotificationsEnabled = AreNotificationsEnabled
+        };
+
+        await _appSettingsService.SaveAsync(updated);
+        _localizationService.ApplyLanguage(updated.LanguageCode);
+        _eventBus.PublishSettingsChanged();
+        RaiseReadonlyProperties();
+    }
+
+    private async Task SetThemeAsync(AppTheme theme)
+    {
+        _themeService.Apply(theme);
+        RaisePropertyChanged(nameof(ThemeName));
+
+        var current = _appSettingsService.GetSettings();
+        await _appSettingsService.SaveAsync(current with
+        {
+            Theme = theme == AppTheme.Dark ? "Dark" : "Light"
+        });
+    }
+
+    private void LoadFromSettings(AppSettingsDto settings)
+    {
+        AreNotificationsEnabled = settings.NotificationsEnabled;
+    }
+
+    private void RebuildOptions()
+    {
+        var settings = _appSettingsService.GetSettings();
+
+        LanguageOptions =
+        [
+            new OptionItem<string> { Value = "ru-RU", Label = LocalizationCatalog.Get("LanguageRussian") },
+            new OptionItem<string> { Value = "en-US", Label = LocalizationCatalog.Get("LanguageEnglish") }
+        ];
+
+        CurrencyOptions = CurrencyConverter.GetSupportedCurrencies()
+            .Select(currency => new OptionItem<string> { Value = currency, Label = currency })
+            .ToArray();
+
+        ReminderIntervalOptions =
+        [
+            new OptionItem<int> { Value = 15, Label = LocalizationCatalog.Format("ReminderCheckIntervalFormat", 15) },
+            new OptionItem<int> { Value = 30, Label = LocalizationCatalog.Format("ReminderCheckIntervalFormat", 30) },
+            new OptionItem<int> { Value = 60, Label = LocalizationCatalog.Format("ReminderCheckIntervalFormat", 60) },
+            new OptionItem<int> { Value = 180, Label = LocalizationCatalog.Format("ReminderCheckIntervalFormat", 180) }
+        ];
+
+        SelectedLanguageOption = LanguageOptions.FirstOrDefault(item => item.Value == settings.LanguageCode) ?? LanguageOptions.First();
+        SelectedCurrencyOption = CurrencyOptions.FirstOrDefault(item => item.Value == settings.BaseCurrency) ?? CurrencyOptions.First();
+        SelectedReminderIntervalOption = ReminderIntervalOptions.FirstOrDefault(item => item.Value == settings.ReminderCheckIntervalMinutes) ?? ReminderIntervalOptions[2];
+        AreNotificationsEnabled = settings.NotificationsEnabled;
+
+        RaiseReadonlyProperties();
+    }
+
+    private void RaiseReadonlyProperties()
+    {
+        RaisePropertyChanged(nameof(DatabasePath));
+        RaisePropertyChanged(nameof(ThemeName));
+        RaisePropertyChanged(nameof(StorageMode));
+        RaisePropertyChanged(nameof(BackupStatus));
+        RaisePropertyChanged(nameof(AppVersion));
+        RaisePropertyChanged(nameof(DataProfileText));
+    }
 }

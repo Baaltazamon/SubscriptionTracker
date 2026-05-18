@@ -58,15 +58,15 @@
                       Margin="0,0,12,0">
             <Button Style="{StaticResource TitleBarButtonStyle}"
                     Click="MinimizeClick"
-                    ToolTip="Свернуть"
+                    ToolTip="{DynamicResource TitleBarMinimizeTooltip}"
                     Content="-" />
             <Button Style="{StaticResource TitleBarButtonStyle}"
                     Click="MaximizeRestoreClick"
-                    ToolTip="Развернуть или восстановить"
+                    ToolTip="{DynamicResource TitleBarMaximizeTooltip}"
                     Content="[ ]" />
             <Button Style="{StaticResource DangerTitleBarButtonStyle}"
                     Click="CloseClick"
-                    ToolTip="Закрыть"
+                    ToolTip="{DynamicResource TitleBarCloseTooltip}"
                     Content="X" />
           </StackPanel>
         </Grid>

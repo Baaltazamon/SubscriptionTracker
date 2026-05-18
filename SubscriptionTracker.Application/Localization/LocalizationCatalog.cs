@@ -1,0 +1,211 @@
+using System.Globalization;
+
+namespace SubscriptionTracker.Application.Localization;
+
+public static class LocalizationCatalog
+{
+    private static readonly IReadOnlyDictionary<string, string> Ru = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["MainSubtitle"] = "Персональный контроль подписок",
+        ["HeaderBadgeText"] = "Локально · SQLite · Без облака",
+        ["SidebarStatusTitle"] = "Локальный режим",
+        ["SidebarStatusDetails"] = "База: SQLite",
+        ["LastRefreshTodayFormat"] = "Последнее обновление: сегодня, {0:HH:mm}",
+        ["LastRefreshDateFormat"] = "Последнее обновление: {0:dd.MM.yyyy HH:mm}",
+        ["ThemeDark"] = "Темная",
+        ["ThemeLight"] = "Светлая",
+        ["StorageMode"] = "SQLite, локально на устройстве",
+        ["BackupStatus"] = "Резервное копирование пока не настроено",
+        ["AppVersion"] = ".NET 8 · MVP build",
+        ["NoComment"] = "Без комментария",
+        ["NoUpcomingPayments"] = "Нет ближайших списаний",
+        ["AddFirstSubscription"] = "Добавьте первую подписку",
+        ["EmptyState"] = "Пусто",
+        ["PerMonthSuffix"] = "{0}/мес",
+        ["NotCounted"] = "Не учитывается",
+        ["StatusActive"] = "Активна",
+        ["StatusInactive"] = "Отключена",
+        ["CountdownOverdue"] = "Просрочено на {0} дн.",
+        ["CountdownToday"] = "Сегодня",
+        ["CountdownInOneDay"] = "Через 1 день",
+        ["CountdownInFewDays"] = "Через {0} дня",
+        ["CountdownInManyDays"] = "Через {0} дней",
+        ["UrgencyOverdue"] = "Просрочен",
+        ["UrgencyToday"] = "Сегодня",
+        ["UrgencySoon"] = "Скоро",
+        ["UrgencyThisWeek"] = "На неделе",
+        ["UrgencyPlanned"] = "Запланирован",
+        ["MostExpensiveFallback"] = "—",
+        ["SubscriptionNameRequired"] = "Название подписки обязательно.",
+        ["AmountMustBePositive"] = "Сумма должна быть больше нуля.",
+        ["MarkedPaidNote"] = "Отмечено как оплачено",
+        ["PaymentSkippedNote"] = "Платеж пропущен",
+        ["SubscriptionDisabledNote"] = "Подписка отключена",
+        ["ValidationNameRequired"] = "Укажите название подписки.",
+        ["ValidationCategoryRequired"] = "Выберите категорию.",
+        ["ValidationAmountPositive"] = "Сумма должна быть больше нуля.",
+        ["ValidationReminderNonNegative"] = "Напоминание не может быть отрицательным.",
+        ["EditSubscriptionTitle"] = "Редактирование подписки",
+        ["NewSubscriptionTitle"] = "Новая подписка",
+        ["ValidateDataTitle"] = "Проверьте данные",
+        ["SaveFailedTitle"] = "Не удалось сохранить",
+        ["ExportCompletedMessage"] = "Excel-файл успешно сохранен.",
+        ["ExportCompletedTitle"] = "Экспорт завершен",
+        ["ExportErrorTitle"] = "Ошибка экспорта",
+        ["ReminderNotificationTitle"] = "Ближайшие списания",
+        ["ReminderMessageFormat"] = "Списание {0:N2} {1} запланировано на {2:d}",
+        ["ReminderCheckIntervalFormat"] = "Раз в {0} минут",
+        ["NotificationsEnabledFormat"] = "Включены: {0}",
+        ["DataProfileText"] = "Без облака, данные остаются на этом компьютере.",
+        ["LanguageRussian"] = "Русский",
+        ["LanguageEnglish"] = "Английский",
+        ["FilterAll"] = "Все",
+        ["FilterActive"] = "Активные",
+        ["FilterDisabled"] = "Отключенные",
+        ["FilterDueSoon"] = "Скоро спишутся",
+        ["BillingCycleMonthly"] = "Каждый месяц",
+        ["BillingCycleQuarterly"] = "Каждый квартал",
+        ["BillingCycleSemiAnnual"] = "Раз в полгода",
+        ["BillingCycleYearly"] = "Раз в год",
+        ["Unknown"] = "Неизвестно",
+        ["PaymentStatusPlanned"] = "Запланирован",
+        ["PaymentStatusPaid"] = "Оплачен",
+        ["PaymentStatusSkipped"] = "Пропущен",
+        ["PaymentStatusCancelled"] = "Отменен",
+        ["PaymentStatusFailed"] = "Ошибка",
+        ["ExcelSheetSubscriptions"] = "Подписки",
+        ["ExcelSheetHistory"] = "История",
+        ["ExcelHeaderName"] = "Название",
+        ["ExcelHeaderCategory"] = "Категория",
+        ["ExcelHeaderAmount"] = "Сумма",
+        ["ExcelHeaderCurrency"] = "Валюта",
+        ["ExcelHeaderCycle"] = "Период",
+        ["ExcelHeaderNextPayment"] = "Следующее списание",
+        ["ExcelHeaderStatus"] = "Статус",
+        ["ExcelHeaderDate"] = "Дата",
+        ["ExcelHeaderSubscription"] = "Подписка",
+        ["ExcelHeaderComment"] = "Комментарий",
+        ["ExcelStatusActive"] = "Активна",
+        ["ExcelStatusDisabled"] = "Отключена",
+        ["ExcelFileDialogFilter"] = "Книга Excel (*.xlsx)|*.xlsx"
+    };
+
+    private static readonly IReadOnlyDictionary<string, string> En = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["MainSubtitle"] = "Personal subscription control",
+        ["HeaderBadgeText"] = "Local · SQLite · No cloud",
+        ["SidebarStatusTitle"] = "Local mode",
+        ["SidebarStatusDetails"] = "Database: SQLite",
+        ["LastRefreshTodayFormat"] = "Last refresh: today, {0:HH:mm}",
+        ["LastRefreshDateFormat"] = "Last refresh: {0:g}",
+        ["ThemeDark"] = "Dark",
+        ["ThemeLight"] = "Light",
+        ["StorageMode"] = "SQLite, stored locally on this device",
+        ["BackupStatus"] = "Backups are not configured yet",
+        ["AppVersion"] = ".NET 8 · MVP build",
+        ["NoComment"] = "No comment",
+        ["NoUpcomingPayments"] = "No upcoming payments",
+        ["AddFirstSubscription"] = "Add your first subscription",
+        ["EmptyState"] = "Empty",
+        ["PerMonthSuffix"] = "{0}/mo",
+        ["NotCounted"] = "Excluded",
+        ["StatusActive"] = "Active",
+        ["StatusInactive"] = "Disabled",
+        ["CountdownOverdue"] = "Overdue by {0} days",
+        ["CountdownToday"] = "Today",
+        ["CountdownInOneDay"] = "In 1 day",
+        ["CountdownInFewDays"] = "In {0} days",
+        ["CountdownInManyDays"] = "In {0} days",
+        ["UrgencyOverdue"] = "Overdue",
+        ["UrgencyToday"] = "Today",
+        ["UrgencySoon"] = "Soon",
+        ["UrgencyThisWeek"] = "This week",
+        ["UrgencyPlanned"] = "Planned",
+        ["MostExpensiveFallback"] = "—",
+        ["SubscriptionNameRequired"] = "Subscription name is required.",
+        ["AmountMustBePositive"] = "Amount must be greater than zero.",
+        ["MarkedPaidNote"] = "Marked as paid",
+        ["PaymentSkippedNote"] = "Payment skipped",
+        ["SubscriptionDisabledNote"] = "Subscription disabled",
+        ["ValidationNameRequired"] = "Enter a subscription name.",
+        ["ValidationCategoryRequired"] = "Select a category.",
+        ["ValidationAmountPositive"] = "Amount must be greater than zero.",
+        ["ValidationReminderNonNegative"] = "Reminder cannot be negative.",
+        ["EditSubscriptionTitle"] = "Edit subscription",
+        ["NewSubscriptionTitle"] = "New subscription",
+        ["ValidateDataTitle"] = "Check your data",
+        ["SaveFailedTitle"] = "Unable to save",
+        ["ExportCompletedMessage"] = "The Excel file has been saved.",
+        ["ExportCompletedTitle"] = "Export completed",
+        ["ExportErrorTitle"] = "Export error",
+        ["ReminderNotificationTitle"] = "Upcoming payments",
+        ["ReminderMessageFormat"] = "A charge of {0:N2} {1} is scheduled for {2:d}",
+        ["ReminderCheckIntervalFormat"] = "Every {0} minutes",
+        ["NotificationsEnabledFormat"] = "Enabled: {0}",
+        ["DataProfileText"] = "No cloud sync, data stays on this computer.",
+        ["LanguageRussian"] = "Russian",
+        ["LanguageEnglish"] = "English",
+        ["FilterAll"] = "All",
+        ["FilterActive"] = "Active",
+        ["FilterDisabled"] = "Disabled",
+        ["FilterDueSoon"] = "Due soon",
+        ["BillingCycleMonthly"] = "Every month",
+        ["BillingCycleQuarterly"] = "Every quarter",
+        ["BillingCycleSemiAnnual"] = "Every half-year",
+        ["BillingCycleYearly"] = "Every year",
+        ["Unknown"] = "Unknown",
+        ["PaymentStatusPlanned"] = "Planned",
+        ["PaymentStatusPaid"] = "Paid",
+        ["PaymentStatusSkipped"] = "Skipped",
+        ["PaymentStatusCancelled"] = "Cancelled",
+        ["PaymentStatusFailed"] = "Failed",
+        ["ExcelSheetSubscriptions"] = "Subscriptions",
+        ["ExcelSheetHistory"] = "History",
+        ["ExcelHeaderName"] = "Name",
+        ["ExcelHeaderCategory"] = "Category",
+        ["ExcelHeaderAmount"] = "Amount",
+        ["ExcelHeaderCurrency"] = "Currency",
+        ["ExcelHeaderCycle"] = "Cycle",
+        ["ExcelHeaderNextPayment"] = "Next payment",
+        ["ExcelHeaderStatus"] = "Status",
+        ["ExcelHeaderDate"] = "Date",
+        ["ExcelHeaderSubscription"] = "Subscription",
+        ["ExcelHeaderComment"] = "Comment",
+        ["ExcelStatusActive"] = "Active",
+        ["ExcelStatusDisabled"] = "Disabled",
+        ["ExcelFileDialogFilter"] = "Excel workbook (*.xlsx)|*.xlsx"
+    };
+
+    private static string _currentLanguageCode = "ru-RU";
+
+    public static string CurrentLanguageCode => _currentLanguageCode;
+
+    public static string NormalizeLanguageCode(string? languageCode)
+    {
+        return string.Equals(languageCode, "en", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(languageCode, "en-US", StringComparison.OrdinalIgnoreCase)
+            ? "en-US"
+            : "ru-RU";
+    }
+
+    public static void SetLanguage(string? languageCode)
+    {
+        _currentLanguageCode = NormalizeLanguageCode(languageCode);
+    }
+
+    public static string Get(string key)
+    {
+        var dictionary = _currentLanguageCode == "en-US" ? En : Ru;
+        if (dictionary.TryGetValue(key, out var value))
+        {
+            return value;
+        }
+
+        return Ru.TryGetValue(key, out var fallback) ? fallback : key;
+    }
+
+    public static string Format(string key, params object[] args)
+    {
+        return string.Format(CultureInfo.CurrentCulture, Get(key), args);
+    }
+}

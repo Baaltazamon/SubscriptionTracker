@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Infrastructure.Persistence;
 
 namespace SubscriptionTracker.Infrastructure.Notifications;
@@ -20,7 +21,11 @@ public sealed class ReminderService(AppDbContext dbContext) : IReminderService
             .Select(static subscription => new ReminderNotificationDto
             {
                 Title = subscription.Name,
-                Message = $"Списание {subscription.Amount:N2} {subscription.Currency} запланировано на {subscription.NextPaymentDate:dd.MM.yyyy}",
+                Message = LocalizationCatalog.Format(
+                    "ReminderMessageFormat",
+                    subscription.Amount,
+                    subscription.Currency,
+                    subscription.NextPaymentDate.ToDateTime(TimeOnly.MinValue)),
                 PaymentDate = subscription.NextPaymentDate
             })
             .ToListAsync(cancellationToken);

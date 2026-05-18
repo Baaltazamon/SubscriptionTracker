@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Domain.Entities;
 using SubscriptionTracker.Domain.Enums;
 using SubscriptionTracker.Domain.Services;
@@ -95,12 +96,12 @@ public sealed class SubscriptionService(AppDbContext dbContext, IAppSettingsServ
     {
         if (string.IsNullOrWhiteSpace(request.Name))
         {
-            throw new InvalidOperationException("Название подписки обязательно.");
+            throw new InvalidOperationException(LocalizationCatalog.Get("SubscriptionNameRequired"));
         }
 
         if (request.Amount <= 0m)
         {
-            throw new InvalidOperationException("Сумма должна быть больше нуля.");
+            throw new InvalidOperationException(LocalizationCatalog.Get("AmountMustBePositive"));
         }
 
         var today = DateOnly.FromDateTime(DateTime.Today);
@@ -199,7 +200,7 @@ public sealed class SubscriptionService(AppDbContext dbContext, IAppSettingsServ
         }
 
         plannedPayment.Status = PaymentStatus.Paid;
-        plannedPayment.Note = "Отмечено как оплачено";
+        plannedPayment.Note = LocalizationCatalog.Get("MarkedPaidNote");
         subscription.LastUsedDate = DateOnly.FromDateTime(DateTime.Today);
 
         await ScheduleNextPaymentAsync(subscription, plannedPayment.PaymentDate, cancellationToken);
@@ -223,7 +224,7 @@ public sealed class SubscriptionService(AppDbContext dbContext, IAppSettingsServ
         }
 
         plannedPayment.Status = PaymentStatus.Skipped;
-        plannedPayment.Note = "Платеж пропущен";
+        plannedPayment.Note = LocalizationCatalog.Get("PaymentSkippedNote");
 
         await ScheduleNextPaymentAsync(subscription, plannedPayment.PaymentDate, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -262,7 +263,7 @@ public sealed class SubscriptionService(AppDbContext dbContext, IAppSettingsServ
             foreach (var payment in subscription.Payments.Where(payment => payment.Status == PaymentStatus.Planned))
             {
                 payment.Status = PaymentStatus.Cancelled;
-                payment.Note = "Подписка отключена";
+                payment.Note = LocalizationCatalog.Get("SubscriptionDisabledNote");
             }
         }
 

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
+using SubscriptionTracker.Application.Localization;
 
 namespace SubscriptionTracker.Wpf.ViewModels;
 
@@ -36,17 +37,19 @@ public sealed class DashboardViewModel(IServiceScopeFactory scopeFactory) : View
 
     public string DailySpendLabel => $"{Summary.DailySpend:N2} {Summary.BaseCurrency}";
 
-    public string PotentialSavingsLabel => $"{Summary.PotentialSavingsMonthly:N2} {Summary.BaseCurrency}/мес";
+    public string PotentialSavingsLabel => LocalizationCatalog.Format(
+        "PerMonthSuffix",
+        $"{Summary.PotentialSavingsMonthly:N2} {Summary.BaseCurrency}");
 
-    public string NextPaymentName => Summary.NextPayment?.SubscriptionName ?? "Нет ближайших списаний";
+    public string NextPaymentName => Summary.NextPayment?.SubscriptionName ?? LocalizationCatalog.Get("NoUpcomingPayments");
 
     public string NextPaymentDateLabel => Summary.NextPayment?.PaymentDateLabel ?? "—";
 
     public string NextPaymentAmountLabel => Summary.NextPayment?.AmountLabel ?? "—";
 
-    public string NextPaymentCountdownLabel => Summary.NextPayment?.CountdownLabel ?? "Добавьте первую подписку";
+    public string NextPaymentCountdownLabel => Summary.NextPayment?.CountdownLabel ?? LocalizationCatalog.Get("AddFirstSubscription");
 
-    public string NextPaymentUrgencyLabel => Summary.NextPayment?.UrgencyLabel ?? "Пусто";
+    public string NextPaymentUrgencyLabel => Summary.NextPayment?.UrgencyLabel ?? LocalizationCatalog.Get("EmptyState");
 
     public string NextPaymentUrgencyColorHex => Summary.NextPayment?.UrgencyColorHex ?? "#475569";
 

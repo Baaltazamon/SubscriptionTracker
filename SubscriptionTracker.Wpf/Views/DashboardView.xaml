@@ -6,19 +6,19 @@
       <UniformGrid Columns="4" Margin="0,0,0,16">
         <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
           <StackPanel>
-            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Активные подписки" />
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource DashboardActiveSubscriptions}" />
             <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding Summary.ActiveSubscriptionsCount}" />
           </StackPanel>
         </Border>
         <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
           <StackPanel>
-            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Расходы в месяц" />
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource DashboardMonthlySpend}" />
             <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding MonthlyTotalLabel}" />
           </StackPanel>
         </Border>
         <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
           <StackPanel>
-            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Расходы в год" />
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource DashboardYearlySpend}" />
             <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding YearlyTotalLabel}" />
           </StackPanel>
         </Border>
@@ -31,7 +31,7 @@
               <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <DockPanel>
-              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Следующий платеж" />
+              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource DashboardNextPayment}" />
               <Border DockPanel.Dock="Right"
                       Style="{StaticResource StatusBadgeBorderStyle}"
                       Background="{Binding NextPaymentUrgencyColorHex, Converter={StaticResource HexToBrushConverter}}"
@@ -131,12 +131,12 @@
         <StackPanel Grid.Column="1">
           <Border Style="{StaticResource CardBorderStyle}">
             <StackPanel>
-              <TextBlock FontSize="20" FontWeight="SemiBold" Text="Фокус месяца" />
-              <TextBlock Margin="0,12,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Самая дорогая подписка" />
+              <TextBlock FontSize="20" FontWeight="SemiBold" Text="{DynamicResource DashboardFocusMonth}" />
+              <TextBlock Margin="0,12,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource DashboardMostExpensive}" />
               <TextBlock Margin="0,6,0,0" FontSize="24" FontWeight="Bold" Text="{Binding Summary.MostExpensiveSubscriptionName}" />
-              <TextBlock Margin="0,16,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Средний расход в день" />
+              <TextBlock Margin="0,16,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource DashboardAverageDaily}" />
               <TextBlock Margin="0,6,0,0" FontSize="24" FontWeight="Bold" Text="{Binding DailySpendLabel}" />
-              <TextBlock Margin="0,16,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Потенциальная экономия" />
+              <TextBlock Margin="0,16,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource DashboardPotentialSavings}" />
               <TextBlock Margin="0,6,0,0" FontSize="24" FontWeight="Bold" Text="{Binding PotentialSavingsLabel}" />
             </StackPanel>
           </Border>
@@ -192,7 +192,7 @@
       <Border Style="{StaticResource CardBorderStyle}">
         <StackPanel>
           <DockPanel>
-            <TextBlock FontSize="20" FontWeight="SemiBold" Text="Прогноз расходов на 6 месяцев" />
+            <TextBlock FontSize="20" FontWeight="SemiBold" Text="{DynamicResource DashboardForecast6Months}" />
             <TextBlock DockPanel.Dock="Right"
                        Foreground="{DynamicResource AppMutedBrush}"
                        Text="{Binding Summary.BaseCurrency}" />

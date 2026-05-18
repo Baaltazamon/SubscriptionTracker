@@ -46,7 +46,7 @@
             <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource HistoryTitle}" />
             <TextBlock Margin="0,4,0,0"
                        Foreground="{DynamicResource AppMutedBrush}"
-                       Text="История запланированных, оплаченных и пропущенных платежей." />
+                       Text="{DynamicResource HistorySubtitle}" />
           </StackPanel>
 
           <TextBox Grid.Column="1"
@@ -55,6 +55,7 @@
                    Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
 
           <ComboBox Grid.Column="2"
+                    DisplayMemberPath="Label"
                     ItemsSource="{Binding StatusFilters}"
                     SelectedItem="{Binding SelectedStatusFilter}" />
         </Grid>
@@ -62,19 +63,19 @@
         <UniformGrid Margin="0,16,0,0" Columns="3">
           <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,12,0" Padding="14">
             <StackPanel>
-              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="В выборке" />
+              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource HistoryVisible}" />
               <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold" Text="{Binding VisibleCount}" />
             </StackPanel>
           </Border>
           <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,12,0" Padding="14">
             <StackPanel>
-              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Оплачено" />
+              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource HistoryPaid}" />
               <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold" Text="{Binding PaidCount}" />
             </StackPanel>
           </Border>
           <Border Style="{StaticResource CardBorderStyle}" Padding="14">
             <StackPanel>
-              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Запланировано" />
+              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource HistoryPlanned}" />
               <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold" Text="{Binding PlannedCount}" />
             </StackPanel>
           </Border>
@@ -99,22 +100,22 @@
               </Grid.ColumnDefinitions>
 
               <StackPanel Grid.Column="0">
-                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Дата" />
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource HistoryDate}" />
                 <TextBlock Margin="0,4,0,0" FontWeight="SemiBold" Text="{Binding PaymentDateLabel}" />
               </StackPanel>
 
               <StackPanel Grid.Column="1" Margin="16,0,16,0">
-                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Подписка" />
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource HistorySubscription}" />
                 <TextBlock Margin="0,4,0,0" FontSize="16" FontWeight="SemiBold" Text="{Binding SubscriptionName}" />
               </StackPanel>
 
               <StackPanel Grid.Column="2">
-                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Сумма" />
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource HistoryAmount}" />
                 <TextBlock Margin="0,4,0,0" FontWeight="SemiBold" Text="{Binding AmountLabel}" />
               </StackPanel>
 
               <StackPanel Grid.Column="3">
-                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Статус" />
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource HistoryStatus}" />
                 <Border Margin="0,4,0,0"
                         HorizontalAlignment="Left"
                         Style="{StaticResource StatusBadgeBorderStyle}"
@@ -124,7 +125,7 @@
               </StackPanel>
 
               <StackPanel Grid.Column="4">
-                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Комментарий" />
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource HistoryComment}" />
                 <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Text="{Binding NoteLabel}" />
               </StackPanel>
             </Grid>

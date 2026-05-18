@@ -6,106 +6,92 @@
         Height="720"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">
-  <ScrollViewer VerticalScrollBarVisibility="Auto">
-    <Grid Margin="24">
+  <Border Background="{DynamicResource AppBackgroundBrush}" Padding="24">
+    <Grid>
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
         <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
 
-      <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="Название" />
-      <TextBox Grid.Row="1" Margin="0,8,0,14" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+      <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+          <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionEditorName}" />
+          <TextBox Margin="0,6,0,14" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
 
-      <TextBlock Grid.Row="2" FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="Описание" />
-      <TextBox Grid.Row="3" Margin="0,8,0,14" Height="80" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" />
+          <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionEditorDescription}" />
+          <TextBox Margin="0,6,0,14"
+                   Height="70"
+                   AcceptsReturn="True"
+                   TextWrapping="Wrap"
+                   VerticalContentAlignment="Top"
+                   Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" />
 
-      <Grid Grid.Row="4" Margin="0,0,0,14">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <StackPanel Margin="0,0,8,0">
-          <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="Категория" />
-          <ComboBox Margin="0,8,0,0"
-                    ItemsSource="{Binding Categories}"
-                    DisplayMemberPath="Name"
-                    SelectedValuePath="Id"
-                    SelectedValue="{Binding SelectedCategoryId}" />
-        </StackPanel>
-        <StackPanel Grid.Column="1" Margin="8,0,0,0">
-          <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="Периодичность" />
-          <ComboBox Margin="0,8,0,0"
-                    ItemsSource="{Binding BillingCycles}"
-                    SelectedItem="{Binding SelectedBillingCycle}">
-            <ComboBox.ItemTemplate>
-              <DataTemplate>
-                <TextBlock Text="{Binding Converter={StaticResource BillingCycleToLabelConverter}}" />
-              </DataTemplate>
-            </ComboBox.ItemTemplate>
-          </ComboBox>
-        </StackPanel>
-      </Grid>
+          <Grid Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-      <Grid Grid.Row="5" Margin="0,0,0,14">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <StackPanel Margin="0,0,8,0">
-          <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="Сумма" />
-          <TextBox Margin="0,8,0,0" Text="{Binding Amount}" />
-        </StackPanel>
-        <StackPanel Grid.Column="1" Margin="8,0,0,0">
-          <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="Валюта" />
-          <ComboBox Margin="0,8,0,0"
-                    ItemsSource="{Binding Currencies}"
-                    SelectedItem="{Binding SelectedCurrency}" />
-        </StackPanel>
-      </Grid>
+            <StackPanel Margin="0,0,10,0">
+              <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionEditorCategory}" />
+              <ComboBox Margin="0,6,0,14"
+                        DisplayMemberPath="Name"
+                        SelectedValuePath="Id"
+                        ItemsSource="{Binding Categories}"
+                        SelectedValue="{Binding SelectedCategoryId}" />
 
-      <Grid Grid.Row="6" Margin="0,0,0,14">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <StackPanel Margin="0,0,8,0">
-          <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="Дата первого платежа" />
-          <DatePicker Margin="0,8,0,0" SelectedDate="{Binding FirstPaymentDate}" />
-        </StackPanel>
-        <StackPanel Grid.Column="1" Margin="8,0,0,0">
-          <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="Дата следующего платежа" />
-          <DatePicker Margin="0,8,0,0" SelectedDate="{Binding NextPaymentDate}" />
-        </StackPanel>
-      </Grid>
+              <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionEditorBillingCycle}" />
+              <ComboBox Margin="0,6,0,0"
+                        ItemsSource="{Binding BillingCycles}"
+                        SelectedItem="{Binding SelectedBillingCycle}">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BillingCycleToLabelConverter}}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </StackPanel>
 
-      <Grid Grid.Row="7" Margin="0,0,0,14">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <StackPanel Margin="0,0,8,0">
-          <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="Напоминать за N дней" />
-          <TextBox Margin="0,8,0,0" Text="{Binding ReminderDaysBefore}" />
-        </StackPanel>
-        <StackPanel Grid.Column="1" Margin="8,28,0,0">
-          <CheckBox Margin="0,0,0,10" IsChecked="{Binding AutoRenewal}" Content="Автопродление" />
-          <CheckBox IsChecked="{Binding IsActive}" Content="Подписка активна" />
-        </StackPanel>
-      </Grid>
+            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+              <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionEditorAmount}" />
+              <TextBox Margin="0,6,0,14" Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}" />
 
-      <WrapPanel Grid.Row="8" HorizontalAlignment="Right">
-        <Button Width="120" Click="SaveClick" Style="{StaticResource PrimaryButtonStyle}" Content="Сохранить" />
-        <Button Width="120" IsCancel="True" Content="Отмена" />
-      </WrapPanel>
+              <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionEditorCurrency}" />
+              <ComboBox Margin="0,6,0,0"
+                        ItemsSource="{Binding Currencies}"
+                        SelectedItem="{Binding SelectedCurrency}" />
+            </StackPanel>
+          </Grid>
+
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Margin="0,0,10,0">
+              <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionEditorFirstPaymentDate}" />
+              <DatePicker Margin="0,6,0,14" SelectedDate="{Binding FirstPaymentDate}" />
+
+              <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionEditorReminderDays}" />
+              <TextBox Margin="0,6,0,14" Text="{Binding ReminderDaysBefore, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+              <TextBlock FontSize="14" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionEditorNextPaymentDate}" />
+              <DatePicker Margin="0,6,0,14" SelectedDate="{Binding NextPaymentDate}" />
+
+              <CheckBox Margin="0,18,0,10" IsChecked="{Binding AutoRenewal}" Content="{DynamicResource SubscriptionEditorAutoRenewal}" />
+              <CheckBox IsChecked="{Binding IsActive}" Content="{DynamicResource SubscriptionEditorIsActive}" />
+            </StackPanel>
+          </Grid>
+        </StackPanel>
+      </ScrollViewer>
+
+      <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+        <Button Width="120" Click="SaveClick" Style="{StaticResource PrimaryButtonStyle}" Content="{DynamicResource SubscriptionEditorSave}" />
+        <Button Width="120" IsCancel="True" Content="{DynamicResource SubscriptionEditorCancel}" />
+      </StackPanel>
     </Grid>
-  </ScrollViewer>
+  </Border>
 </Window>

@@ -1,4 +1,5 @@
 using System.Windows;
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Wpf.ViewModels;
 
 namespace SubscriptionTracker.Wpf;
@@ -20,7 +21,7 @@ public partial class SubscriptionEditWindow : Window
         var validationError = viewModel.Validate();
         if (validationError is not null)
         {
-            MessageBox.Show(validationError, "Проверьте данные", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(validationError, LocalizationCatalog.Get("ValidateDataTitle"), MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 

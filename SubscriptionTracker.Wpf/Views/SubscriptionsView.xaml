@@ -46,7 +46,7 @@
             <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource SubscriptionsTitle}" />
             <TextBlock Margin="0,4,0,0"
                        Foreground="{DynamicResource AppMutedBrush}"
-                       Text="Рабочий список подписок с быстрыми действиями и фильтрацией." />
+                       Text="{DynamicResource SubscriptionsSubtitle}" />
           </StackPanel>
 
           <TextBox Grid.Column="1"
@@ -55,6 +55,7 @@
                    Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
 
           <ComboBox Grid.Column="2"
+                    DisplayMemberPath="Label"
                     ItemsSource="{Binding Filters}"
                     SelectedItem="{Binding SelectedFilter}" />
         </Grid>
@@ -62,32 +63,32 @@
         <UniformGrid Margin="0,16,0,0" Columns="3">
           <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,12,0" Padding="14">
             <StackPanel>
-              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="В списке" />
+              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionsInList}" />
               <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold" Text="{Binding VisibleCount}" />
             </StackPanel>
           </Border>
           <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,12,0" Padding="14">
             <StackPanel>
-              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Активных" />
+              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionsActive}" />
               <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold" Text="{Binding ActiveCount}" />
             </StackPanel>
           </Border>
           <Border Style="{StaticResource CardBorderStyle}" Padding="14">
             <StackPanel>
-              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Месячная нагрузка" />
+              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionsMonthlyLoad}" />
               <TextBlock Margin="0,6,0,0" FontSize="22" FontWeight="Bold" Text="{Binding VisibleMonthlyTotalLabel}" />
             </StackPanel>
           </Border>
         </UniformGrid>
 
         <WrapPanel Margin="0,16,0,0">
-          <Button Style="{StaticResource PrimaryButtonStyle}" Command="{Binding AddCommand}" Content="Добавить" />
-          <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding EditCommand}" Content="Редактировать" />
-          <Button Style="{StaticResource NeutralButtonStyle}" Command="{Binding MarkPaidCommand}" Content="Отметить как оплачено" />
-          <Button Style="{StaticResource NeutralButtonStyle}" Command="{Binding SkipCommand}" Content="Пропустить" />
-          <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleActiveCommand}" Content="Вкл/выкл" />
-          <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ExportCommand}" Content="Экспорт в Excel" />
-          <Button Style="{StaticResource DangerButtonStyle}" Command="{Binding DeleteCommand}" Content="Удалить" />
+          <Button Style="{StaticResource PrimaryButtonStyle}" Command="{Binding AddCommand}" Content="{DynamicResource SubscriptionsAdd}" />
+          <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding EditCommand}" Content="{DynamicResource SubscriptionsEdit}" />
+          <Button Style="{StaticResource NeutralButtonStyle}" Command="{Binding MarkPaidCommand}" Content="{DynamicResource SubscriptionsMarkPaid}" />
+          <Button Style="{StaticResource NeutralButtonStyle}" Command="{Binding SkipCommand}" Content="{DynamicResource SubscriptionsSkip}" />
+          <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleActiveCommand}" Content="{DynamicResource SubscriptionsToggle}" />
+          <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ExportCommand}" Content="{DynamicResource SubscriptionsExport}" />
+          <Button Style="{StaticResource DangerButtonStyle}" Command="{Binding DeleteCommand}" Content="{DynamicResource SubscriptionsDelete}" />
         </WrapPanel>
       </StackPanel>
     </Border>
@@ -115,28 +116,28 @@
               </StackPanel>
 
               <StackPanel Grid.Column="1">
-                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Категория" />
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionsCategory}" />
                 <TextBlock Margin="0,4,0,0" FontWeight="SemiBold" Text="{Binding CategoryName}" />
-                <TextBlock Margin="0,10,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Период" />
+                <TextBlock Margin="0,10,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionsCycle}" />
                 <TextBlock Margin="0,4,0,0" Text="{Binding CycleLabel}" />
               </StackPanel>
 
               <StackPanel Grid.Column="2">
-                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Сумма" />
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionsAmount}" />
                 <TextBlock Margin="0,4,0,0" FontWeight="SemiBold" Text="{Binding AmountLabel}" />
-                <TextBlock Margin="0,10,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="В месяц" />
+                <TextBlock Margin="0,10,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionsMonthlyAmount}" />
                 <TextBlock Margin="0,4,0,0" Text="{Binding MonthlyCostLabel}" />
               </StackPanel>
 
               <StackPanel Grid.Column="3">
-                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Следующее списание" />
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionsNextCharge}" />
                 <TextBlock Margin="0,4,0,0" FontWeight="SemiBold" Text="{Binding NextPaymentLabel}" />
-                <TextBlock Margin="0,10,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Статус срока" />
+                <TextBlock Margin="0,10,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SubscriptionsDeadlineStatus}" />
                 <TextBlock Margin="0,4,0,0" Text="{Binding CountdownLabel}" />
               </StackPanel>
 
               <StackPanel Grid.Column="4" HorizontalAlignment="Right">
-                <TextBlock Foreground="{DynamicResource AppMutedBrush}" HorizontalAlignment="Right" Text="Состояние" />
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" HorizontalAlignment="Right" Text="{DynamicResource SubscriptionsState}" />
                 <Border Margin="0,4,0,0"
                         Style="{StaticResource StatusBadgeBorderStyle}"
                         Background="{Binding StatusColorHex, Converter={StaticResource HexToBrushConverter}}">

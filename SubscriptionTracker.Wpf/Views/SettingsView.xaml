@@ -8,14 +8,14 @@
           <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource SettingsTitle}" />
           <TextBlock Margin="0,6,0,0"
                      Foreground="{DynamicResource AppMutedBrush}"
-                     Text="Базовые параметры приложения, напоминаний и локального хранения." />
+                     Text="{DynamicResource SettingsSubtitle}" />
         </StackPanel>
       </Border>
 
       <UniformGrid Columns="2" Margin="0,0,0,14">
         <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,0">
           <StackPanel>
-            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="Общие" />
+            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{DynamicResource SettingsGeneral}" />
             <Grid Margin="0,14,0,0">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="170" />
@@ -24,24 +24,44 @@
               <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
 
-              <TextBlock Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource AppMutedBrush}" Text="Основная валюта" />
-              <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding BaseCurrency}" />
+              <TextBlock Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsBaseCurrency}" />
+              <ComboBox Grid.Row="0" Grid.Column="1"
+                        DisplayMemberPath="Label"
+                        ItemsSource="{Binding CurrencyOptions}"
+                        SelectedItem="{Binding SelectedCurrencyOption}" />
 
-              <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Тема" />
-              <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,14,0,0" Orientation="Horizontal">
+              <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsLanguage}" />
+              <ComboBox Grid.Row="1" Grid.Column="1"
+                        Margin="0,14,0,0"
+                        DisplayMemberPath="Label"
+                        ItemsSource="{Binding LanguageOptions}"
+                        SelectedItem="{Binding SelectedLanguageOption}" />
+
+              <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsTheme}" />
+              <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,14,0,0" Orientation="Horizontal">
                 <TextBlock VerticalAlignment="Center" Margin="0,0,16,0" Text="{Binding ThemeName}" />
-                <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding UseDarkThemeCommand}" Content="Темная" />
-                <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding UseLightThemeCommand}" Content="Светлая" />
+                <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding UseDarkThemeCommand}" Content="{DynamicResource SettingsDarkTheme}" />
+                <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding UseLightThemeCommand}" Content="{DynamicResource SettingsLightTheme}" />
               </StackPanel>
+
+              <Button Grid.Row="3"
+                      Grid.Column="1"
+                      Margin="0,18,0,0"
+                      HorizontalAlignment="Left"
+                      Style="{StaticResource PrimaryButtonStyle}"
+                      Command="{Binding SavePreferencesCommand}"
+                      Content="{DynamicResource SettingsSavePreferences}" />
             </Grid>
           </StackPanel>
         </Border>
 
         <Border Style="{StaticResource CardBorderStyle}">
           <StackPanel>
-            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="Напоминания" />
+            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{DynamicResource SettingsReminders}" />
             <Grid Margin="0,14,0,0">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="190" />
@@ -52,11 +72,16 @@
                 <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
 
-              <TextBlock Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource AppMutedBrush}" Text="Проверка платежей" />
-              <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ReminderCheckIntervalMinutes, StringFormat=Раз в {0} минут}" />
+              <TextBlock Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsReminderCheck}" />
+              <ComboBox Grid.Row="0" Grid.Column="1"
+                        DisplayMemberPath="Label"
+                        ItemsSource="{Binding ReminderIntervalOptions}"
+                        SelectedItem="{Binding SelectedReminderIntervalOption}" />
 
-              <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Уведомления" />
-              <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,14,0,0" Text="{Binding NotificationsEnabled, StringFormat=Включены: {0}}" />
+              <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsNotifications}" />
+              <CheckBox Grid.Row="1" Grid.Column="1"
+                        Margin="0,14,0,0"
+                        IsChecked="{Binding AreNotificationsEnabled}" />
             </Grid>
           </StackPanel>
         </Border>
@@ -65,7 +90,7 @@
       <UniformGrid Columns="2">
         <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,0">
           <StackPanel>
-            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="Хранилище" />
+            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{DynamicResource SettingsStorage}" />
             <Grid Margin="0,14,0,0">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="170" />
@@ -77,13 +102,13 @@
                 <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
 
-              <TextBlock Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource AppMutedBrush}" Text="Режим" />
+              <TextBlock Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsMode}" />
               <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding StorageMode}" />
 
-              <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Путь к БД" />
+              <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsDatabasePath}" />
               <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,14,0,0" TextWrapping="Wrap" Text="{Binding DatabasePath}" />
 
-              <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Резервные копии" />
+              <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsBackups}" />
               <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,14,0,0" Text="{Binding BackupStatus}" />
             </Grid>
           </StackPanel>
@@ -91,7 +116,7 @@
 
         <Border Style="{StaticResource CardBorderStyle}">
           <StackPanel>
-            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="О приложении" />
+            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{DynamicResource SettingsAbout}" />
             <Grid Margin="0,14,0,0">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="170" />
@@ -102,11 +127,11 @@
                 <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
 
-              <TextBlock Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource AppMutedBrush}" Text="Версия" />
+              <TextBlock Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsVersion}" />
               <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding AppVersion}" />
 
-              <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Профиль данных" />
-              <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,14,0,0" Text="Без облака, данные остаются на этом компьютере." />
+              <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsDataProfile}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,14,0,0" Text="{Binding DataProfileText}" />
             </Grid>
           </StackPanel>
         </Border>

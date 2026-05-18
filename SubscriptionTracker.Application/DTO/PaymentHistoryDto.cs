@@ -1,3 +1,4 @@
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Domain.Enums;
 
 namespace SubscriptionTracker.Application.DTO;
@@ -26,7 +27,7 @@ public sealed class PaymentHistoryDto
 
     public string StatusLabel { get; init; } = string.Empty;
 
-    public string NoteLabel => string.IsNullOrWhiteSpace(Note) ? "Без комментария" : Note;
+    public string NoteLabel => string.IsNullOrWhiteSpace(Note) ? LocalizationCatalog.Get("NoComment") : Note;
 
     public string StatusColorHex => Status switch
     {

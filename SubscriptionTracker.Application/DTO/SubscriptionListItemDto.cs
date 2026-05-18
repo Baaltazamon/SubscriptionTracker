@@ -1,3 +1,4 @@
+using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Application.Services;
 using SubscriptionTracker.Domain.Enums;
 
@@ -41,30 +42,32 @@ public sealed class SubscriptionListItemDto
 
     public string CycleLabel => BillingCycleDisplayFormatter.ToLabel(BillingCycle);
 
-    public string NextPaymentLabel => NextPaymentDate.ToString("dd.MM.yyyy");
+    public string NextPaymentLabel => NextPaymentDate.ToString("d");
 
-    public string StatusLabel => IsActive ? "Активна" : "Отключена";
+    public string StatusLabel => IsActive
+        ? LocalizationCatalog.Get("StatusActive")
+        : LocalizationCatalog.Get("StatusInactive");
 
     public string MonthlyCostLabel => $"{MonthlyCostInBaseCurrency:N2} {BaseCurrency}";
 
     public int DaysUntil => NextPaymentDate.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber;
 
     public string CountdownLabel => !IsActive
-        ? "Не учитывается"
+        ? LocalizationCatalog.Get("NotCounted")
         : DaysUntil switch
         {
-            < 0 => $"Просрочено на {Math.Abs(DaysUntil)} дн.",
-            0 => "Сегодня",
-            1 => "Через 1 день",
-            < 5 => $"Через {DaysUntil} дня",
-            _ => $"Через {DaysUntil} дней"
+            < 0 => LocalizationCatalog.Format("CountdownOverdue", Math.Abs(DaysUntil)),
+            0 => LocalizationCatalog.Get("CountdownToday"),
+            1 => LocalizationCatalog.Get("CountdownInOneDay"),
+            < 5 => LocalizationCatalog.Format("CountdownInFewDays", DaysUntil),
+            _ => LocalizationCatalog.Format("CountdownInManyDays", DaysUntil)
         };
 
     public string StatusBadgeLabel => !IsActive
-        ? "Отключена"
+        ? LocalizationCatalog.Get("StatusInactive")
         : DaysUntil <= 3
-            ? "Скоро"
-            : "Активна";
+            ? LocalizationCatalog.Get("UrgencySoon")
+            : LocalizationCatalog.Get("StatusActive");
 
     public string StatusColorHex => !IsActive
         ? "#475569"

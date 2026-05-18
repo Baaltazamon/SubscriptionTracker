@@ -6,23 +6,23 @@
       <UniformGrid Columns="3">
         <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
           <StackPanel>
-            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Прогноз на год" />
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource AnalyticsYearForecast}" />
             <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding Summary.YearlyTotal, StringFormat={}{0:N2}}" />
             <TextBlock Margin="0,6,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{Binding Summary.BaseCurrency}" />
           </StackPanel>
         </Border>
         <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
           <StackPanel>
-            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Средний расход в день" />
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource AnalyticsDailyAverage}" />
             <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding Summary.DailySpend, StringFormat={}{0:N2}}" />
             <TextBlock Margin="0,6,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{Binding Summary.BaseCurrency}" />
           </StackPanel>
         </Border>
         <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,14">
           <StackPanel>
-            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Если отключить топ-3" />
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource AnalyticsDisableTop3}" />
             <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding PotentialSavingsLabel}" />
-            <TextBlock Margin="0,6,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Потенциальная экономия в месяц" />
+            <TextBlock Margin="0,6,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource AnalyticsMonthlySavings}" />
           </StackPanel>
         </Border>
       </UniformGrid>
