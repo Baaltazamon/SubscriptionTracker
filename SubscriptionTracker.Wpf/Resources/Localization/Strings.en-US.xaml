@@ -82,6 +82,8 @@
   <sys:String x:Key="SettingsMode">Mode</sys:String>
   <sys:String x:Key="SettingsDatabasePath">Database path</sys:String>
   <sys:String x:Key="SettingsBackups">Backups</sys:String>
+  <sys:String x:Key="SettingsCreateBackup">Create backup</sys:String>
+  <sys:String x:Key="SettingsRestoreBackup">Restore backup</sys:String>
   <sys:String x:Key="SettingsAbout">About</sys:String>
   <sys:String x:Key="SettingsVersion">Version</sys:String>
   <sys:String x:Key="SettingsDataProfile">Data profile</sys:String>

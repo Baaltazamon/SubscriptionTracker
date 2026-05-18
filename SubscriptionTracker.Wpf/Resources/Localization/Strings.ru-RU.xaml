@@ -82,6 +82,8 @@
   <sys:String x:Key="SettingsMode">Режим</sys:String>
   <sys:String x:Key="SettingsDatabasePath">Путь к БД</sys:String>
   <sys:String x:Key="SettingsBackups">Резервные копии</sys:String>
+  <sys:String x:Key="SettingsCreateBackup">Создать резервную копию</sys:String>
+  <sys:String x:Key="SettingsRestoreBackup">Восстановить из копии</sys:String>
   <sys:String x:Key="SettingsAbout">О приложении</sys:String>
   <sys:String x:Key="SettingsVersion">Версия</sys:String>
   <sys:String x:Key="SettingsDataProfile">Профиль данных</sys:String>

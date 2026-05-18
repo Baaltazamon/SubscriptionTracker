@@ -3,12 +3,16 @@ using SubscriptionTracker.Application.Interfaces;
 using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Domain.Services;
 using SubscriptionTracker.Wpf.Services;
+using Microsoft.Win32;
 
 namespace SubscriptionTracker.Wpf.ViewModels;
 
 public sealed class SettingsViewModel : ViewModelBase
 {
     private readonly IAppSettingsService _appSettingsService;
+    private readonly IDatabaseBackupService _databaseBackupService;
+    private readonly INotificationService _notificationService;
+    private readonly IApplicationLifecycleService _applicationLifecycleService;
     private readonly IThemeService _themeService;
     private readonly ILocalizationService _localizationService;
     private readonly AppEventBus _eventBus;
@@ -22,16 +26,24 @@ public sealed class SettingsViewModel : ViewModelBase
 
     public SettingsViewModel(
         IAppSettingsService appSettingsService,
+        IDatabaseBackupService databaseBackupService,
+        INotificationService notificationService,
+        IApplicationLifecycleService applicationLifecycleService,
         IThemeService themeService,
         ILocalizationService localizationService,
         AppEventBus eventBus)
     {
         _appSettingsService = appSettingsService;
+        _databaseBackupService = databaseBackupService;
+        _notificationService = notificationService;
+        _applicationLifecycleService = applicationLifecycleService;
         _themeService = themeService;
         _localizationService = localizationService;
         _eventBus = eventBus;
 
         SavePreferencesCommand = new AsyncRelayCommand(SavePreferencesAsync);
+        CreateBackupCommand = new AsyncRelayCommand(CreateBackupAsync);
+        RestoreBackupCommand = new AsyncRelayCommand(RestoreBackupAsync);
         UseDarkThemeCommand = new AsyncRelayCommand(() => SetThemeAsync(AppTheme.Dark));
         UseLightThemeCommand = new AsyncRelayCommand(() => SetThemeAsync(AppTheme.Light));
 
@@ -98,6 +110,10 @@ public sealed class SettingsViewModel : ViewModelBase
 
     public AsyncRelayCommand SavePreferencesCommand { get; }
 
+    public AsyncRelayCommand CreateBackupCommand { get; }
+
+    public AsyncRelayCommand RestoreBackupCommand { get; }
+
     public AsyncRelayCommand UseDarkThemeCommand { get; }
 
     public AsyncRelayCommand UseLightThemeCommand { get; }
@@ -129,6 +145,67 @@ public sealed class SettingsViewModel : ViewModelBase
         {
             Theme = theme == AppTheme.Dark ? "Dark" : "Light"
         });
+    }
+
+    private async Task CreateBackupAsync()
+    {
+        var dialog = new SaveFileDialog
+        {
+            FileName = $"subscription_tracker_backup_{DateTime.Now:yyyy-MM-dd_HH-mm}.sqlite",
+            DefaultExt = ".sqlite",
+            Filter = LocalizationCatalog.Get("BackupFileDialogFilter")
+        };
+
+        if (dialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        try
+        {
+            await _databaseBackupService.CreateBackupAsync(dialog.FileName);
+            _notificationService.ShowInfo(
+                LocalizationCatalog.Format("BackupCreatedMessage", dialog.FileName),
+                LocalizationCatalog.Get("BackupCreatedTitle"));
+        }
+        catch (Exception exception)
+        {
+            _notificationService.ShowError(exception.Message, LocalizationCatalog.Get("BackupFailedTitle"));
+        }
+    }
+
+    private async Task RestoreBackupAsync()
+    {
+        var dialog = new OpenFileDialog
+        {
+            CheckFileExists = true,
+            Filter = LocalizationCatalog.Get("BackupFileDialogFilter")
+        };
+
+        if (dialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        if (!_notificationService.Confirm(
+                LocalizationCatalog.Get("BackupRestoreConfirmMessage"),
+                LocalizationCatalog.Get("BackupRestoreConfirmTitle")))
+        {
+            return;
+        }
+
+        try
+        {
+            await _databaseBackupService.RestoreBackupAsync(dialog.FileName);
+            _notificationService.ShowInfo(
+                LocalizationCatalog.Get("BackupRestoredMessage"),
+                LocalizationCatalog.Get("BackupRestoredTitle"));
+            _applicationLifecycleService.Restart();
+        }
+        catch (Exception exception)
+        {
+            _notificationService.ShowError(exception.Message, LocalizationCatalog.Get("BackupFailedTitle"));
+        }
     }
 
     private void LoadFromSettings(AppSettingsDto settings)

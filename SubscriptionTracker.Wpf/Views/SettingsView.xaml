@@ -109,7 +109,17 @@
               <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,14,0,0" TextWrapping="Wrap" Text="{Binding DatabasePath}" />
 
               <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,14,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{DynamicResource SettingsBackups}" />
-              <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,14,0,0" Text="{Binding BackupStatus}" />
+              <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,14,0,0">
+                <TextBlock TextWrapping="Wrap" Text="{Binding BackupStatus}" />
+                <WrapPanel Margin="0,12,0,0">
+                  <Button Style="{StaticResource SecondaryButtonStyle}"
+                          Command="{Binding CreateBackupCommand}"
+                          Content="{DynamicResource SettingsCreateBackup}" />
+                  <Button Style="{StaticResource SecondaryButtonStyle}"
+                          Command="{Binding RestoreBackupCommand}"
+                          Content="{DynamicResource SettingsRestoreBackup}" />
+                </WrapPanel>
+              </StackPanel>
             </Grid>
           </StackPanel>
         </Border>

@@ -13,4 +13,9 @@ public sealed class MessageBoxNotificationService : INotificationService
     {
         MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
     }
+
+    public bool Confirm(string message, string title)
+    {
+        return MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
+    }
 }

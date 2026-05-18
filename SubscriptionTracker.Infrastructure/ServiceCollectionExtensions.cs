@@ -12,6 +12,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
         services.AddSingleton<IAppSettingsService, AppSettingsService>();
+        services.AddSingleton<IDatabaseBackupService, DatabaseBackupService>();
 
         services.AddDbContext<AppDbContext>((serviceProvider, options) =>
         {

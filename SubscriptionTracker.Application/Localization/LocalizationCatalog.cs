@@ -93,7 +93,18 @@ public static class LocalizationCatalog
         ["ExcelHeaderComment"] = "Комментарий",
         ["ExcelStatusActive"] = "Активна",
         ["ExcelStatusDisabled"] = "Отключена",
-        ["ExcelFileDialogFilter"] = "Книга Excel (*.xlsx)|*.xlsx"
+        ["ExcelFileDialogFilter"] = "Книга Excel (*.xlsx)|*.xlsx",
+        ["BackupStatus"] = "Резервные копии позволяют сохранить и восстановить локальную базу.",
+        ["BackupCreateButton"] = "Создать резервную копию",
+        ["BackupRestoreButton"] = "Восстановить из копии",
+        ["BackupFileDialogFilter"] = "SQLite backup (*.sqlite;*.db)|*.sqlite;*.db",
+        ["BackupCreatedTitle"] = "Резервная копия создана",
+        ["BackupCreatedMessage"] = "Резервная копия сохранена в:\n{0}",
+        ["BackupFailedTitle"] = "Ошибка резервного копирования",
+        ["BackupRestoreConfirmTitle"] = "Восстановление базы",
+        ["BackupRestoreConfirmMessage"] = "Текущие данные будут заменены содержимым выбранной резервной копии. Продолжить?",
+        ["BackupRestoredTitle"] = "База восстановлена",
+        ["BackupRestoredMessage"] = "Резервная копия восстановлена. Приложение будет перезапущено."
     };
 
     private static readonly IReadOnlyDictionary<string, string> En = new Dictionary<string, string>(StringComparer.Ordinal)
@@ -185,7 +196,18 @@ public static class LocalizationCatalog
         ["ExcelHeaderComment"] = "Comment",
         ["ExcelStatusActive"] = "Active",
         ["ExcelStatusDisabled"] = "Disabled",
-        ["ExcelFileDialogFilter"] = "Excel workbook (*.xlsx)|*.xlsx"
+        ["ExcelFileDialogFilter"] = "Excel workbook (*.xlsx)|*.xlsx",
+        ["BackupStatus"] = "Backups let you save and restore the local database.",
+        ["BackupCreateButton"] = "Create backup",
+        ["BackupRestoreButton"] = "Restore backup",
+        ["BackupFileDialogFilter"] = "SQLite backup (*.sqlite;*.db)|*.sqlite;*.db",
+        ["BackupCreatedTitle"] = "Backup created",
+        ["BackupCreatedMessage"] = "Backup saved to:\n{0}",
+        ["BackupFailedTitle"] = "Backup error",
+        ["BackupRestoreConfirmTitle"] = "Restore database",
+        ["BackupRestoreConfirmMessage"] = "Current data will be replaced with the selected backup. Continue?",
+        ["BackupRestoredTitle"] = "Database restored",
+        ["BackupRestoredMessage"] = "Backup restored successfully. The application will restart now."
     };
 
     private static string _currentLanguageCode = "ru-RU";
