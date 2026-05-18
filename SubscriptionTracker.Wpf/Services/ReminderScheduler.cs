@@ -9,7 +9,8 @@ namespace SubscriptionTracker.Wpf.Services;
 public sealed class ReminderScheduler(
     IServiceScopeFactory scopeFactory,
     IAppSettingsService settingsService,
-    INotificationService notificationService)
+    IToastNotificationService toastNotificationService,
+    IDialogService dialogService)
 {
     private readonly DispatcherTimer _timer = new();
 
@@ -47,7 +48,10 @@ public sealed class ReminderScheduler(
             return;
         }
 
-        var message = string.Join(Environment.NewLine, reminders.Select(static item => $"{item.Title}: {item.Message}"));
-        notificationService.ShowInfo(message, LocalizationCatalog.Get("ReminderNotificationTitle"));
+        if (!toastNotificationService.ShowUpcomingPayments(reminders))
+        {
+            var message = string.Join(Environment.NewLine, reminders.Select(static item => $"{item.Title}: {item.Message}"));
+            dialogService.ShowInfo(message, LocalizationCatalog.Get("ReminderNotificationTitle"));
+        }
     }
 }

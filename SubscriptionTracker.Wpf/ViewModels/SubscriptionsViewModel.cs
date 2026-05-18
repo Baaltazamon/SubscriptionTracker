@@ -6,6 +6,7 @@ using Microsoft.Win32;
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
 using SubscriptionTracker.Application.Localization;
+using SubscriptionTracker.Wpf.Dialogs;
 using SubscriptionTracker.Wpf.Services;
 
 namespace SubscriptionTracker.Wpf.ViewModels;
@@ -15,7 +16,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly AppEventBus _eventBus;
     private readonly ISubscriptionEditorService _subscriptionEditorService;
-    private readonly INotificationService _notificationService;
+    private readonly IDialogService _dialogService;
     private readonly IAppSettingsService _appSettingsService;
     private readonly ILocalizationService _localizationService;
     private SubscriptionListItemDto? _selectedItem;
@@ -27,14 +28,14 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         IServiceScopeFactory scopeFactory,
         AppEventBus eventBus,
         ISubscriptionEditorService subscriptionEditorService,
-        INotificationService notificationService,
+        IDialogService dialogService,
         IAppSettingsService appSettingsService,
         ILocalizationService localizationService)
     {
         _scopeFactory = scopeFactory;
         _eventBus = eventBus;
         _subscriptionEditorService = subscriptionEditorService;
-        _notificationService = notificationService;
+        _dialogService = dialogService;
         _appSettingsService = appSettingsService;
         _localizationService = localizationService;
 
@@ -205,6 +206,16 @@ public sealed class SubscriptionsViewModel : ViewModelBase
             return;
         }
 
+        if (!_dialogService.Confirm(
+                LocalizationCatalog.Format("DeleteSubscriptionConfirmMessage", SelectedItem.Name),
+                LocalizationCatalog.Get("DeleteSubscriptionConfirmTitle"),
+                DialogKind.Warning,
+                DialogButton.Delete,
+                DialogButton.Cancel))
+        {
+            return;
+        }
+
         using var scope = _scopeFactory.CreateScope();
         var service = scope.ServiceProvider.GetRequiredService<ISubscriptionService>();
 
@@ -276,13 +287,13 @@ public sealed class SubscriptionsViewModel : ViewModelBase
             using var scope = _scopeFactory.CreateScope();
             var exportService = scope.ServiceProvider.GetRequiredService<IExportService>();
             await exportService.ExportAsync(dialog.FileName);
-            _notificationService.ShowInfo(
+            _dialogService.ShowInfo(
                 LocalizationCatalog.Get("ExportCompletedMessage"),
                 LocalizationCatalog.Get("ExportCompletedTitle"));
         }
         catch (Exception exception)
         {
-            _notificationService.ShowError(exception.Message, LocalizationCatalog.Get("ExportErrorTitle"));
+            _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("ExportErrorTitle"));
         }
     }
 

@@ -2,6 +2,7 @@ using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
 using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Domain.Services;
+using SubscriptionTracker.Wpf.Dialogs;
 using SubscriptionTracker.Wpf.Services;
 using Microsoft.Win32;
 
@@ -11,7 +12,7 @@ public sealed class SettingsViewModel : ViewModelBase
 {
     private readonly IAppSettingsService _appSettingsService;
     private readonly IDatabaseBackupService _databaseBackupService;
-    private readonly INotificationService _notificationService;
+    private readonly IDialogService _dialogService;
     private readonly IApplicationLifecycleService _applicationLifecycleService;
     private readonly IThemeService _themeService;
     private readonly ILocalizationService _localizationService;
@@ -27,7 +28,7 @@ public sealed class SettingsViewModel : ViewModelBase
     public SettingsViewModel(
         IAppSettingsService appSettingsService,
         IDatabaseBackupService databaseBackupService,
-        INotificationService notificationService,
+        IDialogService dialogService,
         IApplicationLifecycleService applicationLifecycleService,
         IThemeService themeService,
         ILocalizationService localizationService,
@@ -35,7 +36,7 @@ public sealed class SettingsViewModel : ViewModelBase
     {
         _appSettingsService = appSettingsService;
         _databaseBackupService = databaseBackupService;
-        _notificationService = notificationService;
+        _dialogService = dialogService;
         _applicationLifecycleService = applicationLifecycleService;
         _themeService = themeService;
         _localizationService = localizationService;
@@ -164,13 +165,13 @@ public sealed class SettingsViewModel : ViewModelBase
         try
         {
             await _databaseBackupService.CreateBackupAsync(dialog.FileName);
-            _notificationService.ShowInfo(
+            _dialogService.ShowInfo(
                 LocalizationCatalog.Format("BackupCreatedMessage", dialog.FileName),
                 LocalizationCatalog.Get("BackupCreatedTitle"));
         }
         catch (Exception exception)
         {
-            _notificationService.ShowError(exception.Message, LocalizationCatalog.Get("BackupFailedTitle"));
+            _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("BackupFailedTitle"));
         }
     }
 
@@ -187,9 +188,12 @@ public sealed class SettingsViewModel : ViewModelBase
             return;
         }
 
-        if (!_notificationService.Confirm(
+        if (!_dialogService.Confirm(
                 LocalizationCatalog.Get("BackupRestoreConfirmMessage"),
-                LocalizationCatalog.Get("BackupRestoreConfirmTitle")))
+                LocalizationCatalog.Get("BackupRestoreConfirmTitle"),
+                DialogKind.Warning,
+                DialogButton.Restore,
+                DialogButton.Cancel))
         {
             return;
         }
@@ -197,14 +201,14 @@ public sealed class SettingsViewModel : ViewModelBase
         try
         {
             await _databaseBackupService.RestoreBackupAsync(dialog.FileName);
-            _notificationService.ShowInfo(
+            _dialogService.ShowInfo(
                 LocalizationCatalog.Get("BackupRestoredMessage"),
                 LocalizationCatalog.Get("BackupRestoredTitle"));
             _applicationLifecycleService.Restart();
         }
         catch (Exception exception)
         {
-            _notificationService.ShowError(exception.Message, LocalizationCatalog.Get("BackupFailedTitle"));
+            _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("BackupFailedTitle"));
         }
     }
 

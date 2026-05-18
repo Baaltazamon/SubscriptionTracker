@@ -21,7 +21,7 @@ public static class LocalizationCatalog
         ["ThemeDark"] = "Темная",
         ["ThemeLight"] = "Светлая",
         ["StorageMode"] = "SQLite, локально на устройстве",
-        ["BackupStatus"] = "Резервное копирование пока не настроено",
+        ["BackupStatus"] = "Резервные копии позволяют сохранить и восстановить локальную базу.",
         ["AppVersion"] = ".NET 8 · MVP build",
         ["NoComment"] = "Без комментария",
         ["NoUpcomingPayments"] = "Нет ближайших списаний",
@@ -61,7 +61,6 @@ public static class LocalizationCatalog
         ["ReminderNotificationTitle"] = "Ближайшие списания",
         ["ReminderMessageFormat"] = "Списание {0:N2} {1} запланировано на {2:d}",
         ["ReminderCheckIntervalFormat"] = "Раз в {0} минут",
-        ["NotificationsEnabledFormat"] = "Включены: {0}",
         ["DataProfileText"] = "Без облака, данные остаются на этом компьютере.",
         ["LanguageRussian"] = "Русский",
         ["LanguageEnglish"] = "Английский",
@@ -94,7 +93,6 @@ public static class LocalizationCatalog
         ["ExcelStatusActive"] = "Активна",
         ["ExcelStatusDisabled"] = "Отключена",
         ["ExcelFileDialogFilter"] = "Книга Excel (*.xlsx)|*.xlsx",
-        ["BackupStatus"] = "Резервные копии позволяют сохранить и восстановить локальную базу.",
         ["BackupCreateButton"] = "Создать резервную копию",
         ["BackupRestoreButton"] = "Восстановить из копии",
         ["BackupFileDialogFilter"] = "SQLite backup (*.sqlite;*.db)|*.sqlite;*.db",
@@ -104,7 +102,18 @@ public static class LocalizationCatalog
         ["BackupRestoreConfirmTitle"] = "Восстановление базы",
         ["BackupRestoreConfirmMessage"] = "Текущие данные будут заменены содержимым выбранной резервной копии. Продолжить?",
         ["BackupRestoredTitle"] = "База восстановлена",
-        ["BackupRestoredMessage"] = "Резервная копия восстановлена. Приложение будет перезапущено."
+        ["BackupRestoredMessage"] = "Резервная копия восстановлена. Приложение будет перезапущено.",
+        ["DialogKindInfo"] = "Информация",
+        ["DialogKindWarning"] = "Предупреждение",
+        ["DialogKindError"] = "Ошибка",
+        ["DialogKindConfirm"] = "Подтверждение",
+        ["DialogOk"] = "ОК",
+        ["DialogCancel"] = "Отмена",
+        ["DialogDelete"] = "Удалить",
+        ["DialogRestore"] = "Восстановить",
+        ["DeleteSubscriptionConfirmTitle"] = "Удаление подписки",
+        ["DeleteSubscriptionConfirmMessage"] = "Удалить подписку \"{0}\"? Это действие нельзя отменить.",
+        ["ReminderToastMoreFormat"] = "И еще {0} платеж(а)."
     };
 
     private static readonly IReadOnlyDictionary<string, string> En = new Dictionary<string, string>(StringComparer.Ordinal)
@@ -124,7 +133,7 @@ public static class LocalizationCatalog
         ["ThemeDark"] = "Dark",
         ["ThemeLight"] = "Light",
         ["StorageMode"] = "SQLite, stored locally on this device",
-        ["BackupStatus"] = "Backups are not configured yet",
+        ["BackupStatus"] = "Backups let you save and restore the local database.",
         ["AppVersion"] = ".NET 8 · MVP build",
         ["NoComment"] = "No comment",
         ["NoUpcomingPayments"] = "No upcoming payments",
@@ -164,7 +173,6 @@ public static class LocalizationCatalog
         ["ReminderNotificationTitle"] = "Upcoming payments",
         ["ReminderMessageFormat"] = "A charge of {0:N2} {1} is scheduled for {2:d}",
         ["ReminderCheckIntervalFormat"] = "Every {0} minutes",
-        ["NotificationsEnabledFormat"] = "Enabled: {0}",
         ["DataProfileText"] = "No cloud sync, data stays on this computer.",
         ["LanguageRussian"] = "Russian",
         ["LanguageEnglish"] = "English",
@@ -197,7 +205,6 @@ public static class LocalizationCatalog
         ["ExcelStatusActive"] = "Active",
         ["ExcelStatusDisabled"] = "Disabled",
         ["ExcelFileDialogFilter"] = "Excel workbook (*.xlsx)|*.xlsx",
-        ["BackupStatus"] = "Backups let you save and restore the local database.",
         ["BackupCreateButton"] = "Create backup",
         ["BackupRestoreButton"] = "Restore backup",
         ["BackupFileDialogFilter"] = "SQLite backup (*.sqlite;*.db)|*.sqlite;*.db",
@@ -207,7 +214,18 @@ public static class LocalizationCatalog
         ["BackupRestoreConfirmTitle"] = "Restore database",
         ["BackupRestoreConfirmMessage"] = "Current data will be replaced with the selected backup. Continue?",
         ["BackupRestoredTitle"] = "Database restored",
-        ["BackupRestoredMessage"] = "Backup restored successfully. The application will restart now."
+        ["BackupRestoredMessage"] = "Backup restored successfully. The application will restart now.",
+        ["DialogKindInfo"] = "Information",
+        ["DialogKindWarning"] = "Warning",
+        ["DialogKindError"] = "Error",
+        ["DialogKindConfirm"] = "Confirmation",
+        ["DialogOk"] = "OK",
+        ["DialogCancel"] = "Cancel",
+        ["DialogDelete"] = "Delete",
+        ["DialogRestore"] = "Restore",
+        ["DeleteSubscriptionConfirmTitle"] = "Delete subscription",
+        ["DeleteSubscriptionConfirmMessage"] = "Delete \"{0}\"? This action cannot be undone.",
+        ["ReminderToastMoreFormat"] = "And {0} more payment(s)."
     };
 
     private static string _currentLanguageCode = "ru-RU";
