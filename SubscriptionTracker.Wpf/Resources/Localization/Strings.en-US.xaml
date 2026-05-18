@@ -19,8 +19,14 @@
   <sys:String x:Key="ForecastTitle">12-month forecast</sys:String>
   <sys:String x:Key="SubscriptionsTitle">All subscriptions</sys:String>
   <sys:String x:Key="CalendarTitle">Monthly payments</sys:String>
+  <sys:String x:Key="CalendarSubtitle">Search and filter planned charges by period and category.</sys:String>
   <sys:String x:Key="AnalyticsTitle">Spending analytics</sys:String>
   <sys:String x:Key="HistoryTitle">Activity history</sys:String>
+  <sys:String x:Key="FilterDateFrom">From</sys:String>
+  <sys:String x:Key="FilterDateTo">To</sys:String>
+  <sys:String x:Key="CalendarVisiblePayments">Visible payments</sys:String>
+  <sys:String x:Key="CalendarVisibleMonths">Months</sys:String>
+  <sys:String x:Key="CalendarScheduledTotal">Scheduled total</sys:String>
   <sys:String x:Key="SettingsTitle">Application settings</sys:String>
 
   <sys:String x:Key="DashboardActiveSubscriptions">Active subscriptions</sys:String>

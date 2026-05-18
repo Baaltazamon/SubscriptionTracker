@@ -17,6 +17,10 @@ public sealed class PaymentHistoryViewModel : ViewModelBase
     private string _searchText = string.Empty;
     private OptionItem<HistoryFilter>? _selectedStatusFilter;
     private IReadOnlyList<OptionItem<HistoryFilter>> _statusFilters = [];
+    private OptionItem<string>? _selectedCategoryFilter;
+    private IReadOnlyList<OptionItem<string>> _categoryFilters = [];
+    private DateTime? _fromDate;
+    private DateTime? _toDate;
 
     public PaymentHistoryViewModel(IServiceScopeFactory scopeFactory, ILocalizationService localizationService)
     {
@@ -40,6 +44,12 @@ public sealed class PaymentHistoryViewModel : ViewModelBase
         private set => SetProperty(ref _statusFilters, value);
     }
 
+    public IReadOnlyList<OptionItem<string>> CategoryFilters
+    {
+        get => _categoryFilters;
+        private set => SetProperty(ref _categoryFilters, value);
+    }
+
     public string SearchText
     {
         get => _searchText;
@@ -47,8 +57,7 @@ public sealed class PaymentHistoryViewModel : ViewModelBase
         {
             if (SetProperty(ref _searchText, value))
             {
-                ItemsView.Refresh();
-                RaiseSummaryProperties();
+                RefreshFilters();
             }
         }
     }
@@ -60,17 +69,52 @@ public sealed class PaymentHistoryViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedStatusFilter, value))
             {
-                ItemsView.Refresh();
-                RaiseSummaryProperties();
+                RefreshFilters();
             }
         }
     }
 
-    public int VisibleCount => ItemsView.Cast<object>().Count();
+    public OptionItem<string>? SelectedCategoryFilter
+    {
+        get => _selectedCategoryFilter;
+        set
+        {
+            if (SetProperty(ref _selectedCategoryFilter, value))
+            {
+                RefreshFilters();
+            }
+        }
+    }
 
-    public int PaidCount => Items.Count(static item => item.Status == PaymentStatus.Paid);
+    public DateTime? FromDate
+    {
+        get => _fromDate;
+        set
+        {
+            if (SetProperty(ref _fromDate, value))
+            {
+                RefreshFilters();
+            }
+        }
+    }
 
-    public int PlannedCount => Items.Count(static item => item.Status == PaymentStatus.Planned);
+    public DateTime? ToDate
+    {
+        get => _toDate;
+        set
+        {
+            if (SetProperty(ref _toDate, value))
+            {
+                RefreshFilters();
+            }
+        }
+    }
+
+    public int VisibleCount => ItemsView.Cast<PaymentHistoryDto>().Count();
+
+    public int PaidCount => ItemsView.Cast<PaymentHistoryDto>().Count(static item => item.Status == PaymentStatus.Paid);
+
+    public int PlannedCount => ItemsView.Cast<PaymentHistoryDto>().Count(static item => item.Status == PaymentStatus.Planned);
 
     public override async Task RefreshAsync()
     {
@@ -87,8 +131,8 @@ public sealed class PaymentHistoryViewModel : ViewModelBase
                 Items.Add(item);
             }
 
-            ItemsView.Refresh();
-            RaiseSummaryProperties();
+            RebuildFilters();
+            RefreshFilters();
         }
         finally
         {
@@ -113,17 +157,27 @@ public sealed class PaymentHistoryViewModel : ViewModelBase
             _ => true
         };
 
+        var selectedCategory = SelectedCategoryFilter?.Value;
+        var matchesCategory = string.IsNullOrWhiteSpace(selectedCategory)
+            || string.Equals(historyItem.CategoryName, selectedCategory, StringComparison.OrdinalIgnoreCase);
+
         var matchesSearch = string.IsNullOrWhiteSpace(SearchText)
             || historyItem.SubscriptionName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+            || historyItem.CategoryName.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
             || historyItem.NoteLabel.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
             || historyItem.AmountLabel.Contains(SearchText, StringComparison.OrdinalIgnoreCase);
 
-        return matchesStatus && matchesSearch;
+        var matchesFromDate = FromDate is null || historyItem.PaymentDate >= DateOnly.FromDateTime(FromDate.Value);
+        var matchesToDate = ToDate is null || historyItem.PaymentDate <= DateOnly.FromDateTime(ToDate.Value);
+
+        return matchesStatus && matchesCategory && matchesSearch && matchesFromDate && matchesToDate;
     }
 
     private void RebuildFilters()
     {
-        var selectedValue = SelectedStatusFilter?.Value ?? HistoryFilter.All;
+        var selectedStatusValue = SelectedStatusFilter?.Value ?? HistoryFilter.All;
+        var selectedCategoryValue = SelectedCategoryFilter?.Value;
+
         StatusFilters =
         [
             new OptionItem<HistoryFilter> { Value = HistoryFilter.All, Label = LocalizationCatalog.Get("FilterAll") },
@@ -134,7 +188,31 @@ public sealed class PaymentHistoryViewModel : ViewModelBase
             new OptionItem<HistoryFilter> { Value = HistoryFilter.Failed, Label = LocalizationCatalog.Get("PaymentStatusFailed") }
         ];
 
-        SelectedStatusFilter = StatusFilters.FirstOrDefault(item => item.Value == selectedValue) ?? StatusFilters.First();
+        var categoryOptions = Items
+            .Select(static item => item.CategoryName)
+            .Where(static category => !string.IsNullOrWhiteSpace(category))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(static category => category)
+            .Select(category => new OptionItem<string> { Value = category, Label = category })
+            .ToList();
+
+        categoryOptions.Insert(0, new OptionItem<string>
+        {
+            Value = string.Empty,
+            Label = LocalizationCatalog.Get("FilterAllCategories")
+        });
+
+        CategoryFilters = categoryOptions;
+
+        SelectedStatusFilter = StatusFilters.FirstOrDefault(item => item.Value == selectedStatusValue) ?? StatusFilters.First();
+        SelectedCategoryFilter = CategoryFilters.FirstOrDefault(item => string.Equals(item.Value, selectedCategoryValue, StringComparison.OrdinalIgnoreCase))
+            ?? CategoryFilters.First();
+        RaiseSummaryProperties();
+    }
+
+    private void RefreshFilters()
+    {
+        ItemsView.Refresh();
         RaiseSummaryProperties();
     }
 

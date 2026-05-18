@@ -11,6 +11,8 @@ public sealed class PaymentHistoryDto
 
     public string SubscriptionName { get; init; } = string.Empty;
 
+    public string CategoryName { get; init; } = string.Empty;
+
     public decimal Amount { get; init; }
 
     public string Currency { get; init; } = "RUB";
