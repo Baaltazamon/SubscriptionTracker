@@ -1,0 +1,232 @@
+<UserControl x:Class="SubscriptionTracker.Wpf.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel>
+      <UniformGrid Columns="4" Margin="0,0,0,16">
+        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
+          <StackPanel>
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Активные подписки" />
+            <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding Summary.ActiveSubscriptionsCount}" />
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
+          <StackPanel>
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Расходы в месяц" />
+            <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding MonthlyTotalLabel}" />
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
+          <StackPanel>
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Расходы в год" />
+            <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding YearlyTotalLabel}" />
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,14">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <DockPanel>
+              <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Следующий платеж" />
+              <Border DockPanel.Dock="Right"
+                      Style="{StaticResource StatusBadgeBorderStyle}"
+                      Background="{Binding NextPaymentUrgencyColorHex, Converter={StaticResource HexToBrushConverter}}"
+                      CornerRadius="11">
+                <TextBlock Style="{StaticResource StatusBadgeTextStyle}"
+                           Text="{Binding NextPaymentUrgencyLabel}" />
+              </Border>
+            </DockPanel>
+            <TextBlock Grid.Row="1"
+                       Margin="0,10,0,0"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Text="{Binding NextPaymentName}" />
+            <TextBlock Grid.Row="2"
+                       Margin="0,6,0,0"
+                       Foreground="{DynamicResource AppMutedBrush}"
+                       Text="{Binding NextPaymentDateLabel}" />
+            <Grid Grid.Row="3" Margin="0,10,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBlock FontWeight="SemiBold" Text="{Binding NextPaymentAmountLabel}" />
+              <TextBlock Grid.Column="1"
+                         Margin="16,0,0,0"
+                         Foreground="{DynamicResource AppMutedBrush}"
+                         Text="{Binding NextPaymentCountdownLabel}" />
+            </Grid>
+          </Grid>
+        </Border>
+      </UniformGrid>
+
+      <Grid Margin="0,0,0,16">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1.2*" />
+          <ColumnDefinition Width="0.8*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,14,0">
+          <StackPanel>
+            <TextBlock FontSize="20" FontWeight="SemiBold" Text="{DynamicResource UpcomingPaymentsTitle}" />
+            <ItemsControl Margin="0,12,0,0" ItemsSource="{Binding Summary.UpcomingPayments}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Margin="0,0,0,10"
+                          Padding="14"
+                          Background="{DynamicResource AppSecondaryCardBrush}"
+                          CornerRadius="14"
+                          BorderBrush="{DynamicResource AppBorderBrush}"
+                          BorderThickness="1">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="170" />
+                        <ColumnDefinition Width="130" />
+                        <ColumnDefinition Width="120" />
+                      </Grid.ColumnDefinitions>
+
+                      <StackPanel Grid.Column="0">
+                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding SubscriptionName}" />
+                        <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{Binding CategoryName}" />
+                      </StackPanel>
+
+                      <TextBlock Grid.Column="1"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Right"
+                                 FontWeight="SemiBold"
+                                 Text="{Binding AmountLabel}" />
+
+                      <TextBlock Grid.Column="2"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Right"
+                                 Foreground="{DynamicResource AppMutedBrush}"
+                                 Text="{Binding PaymentDateLabel}" />
+
+                      <StackPanel Grid.Column="3" HorizontalAlignment="Right">
+                        <Border Style="{StaticResource StatusBadgeBorderStyle}"
+                                Background="{Binding UrgencyColorHex, Converter={StaticResource HexToBrushConverter}}"
+                                CornerRadius="11">
+                          <TextBlock HorizontalAlignment="Center"
+                                     Style="{StaticResource StatusBadgeTextStyle}"
+                                     Text="{Binding UrgencyLabel}" />
+                        </Border>
+                        <TextBlock Margin="0,6,0,0"
+                                   HorizontalAlignment="Right"
+                                   Foreground="{DynamicResource AppMutedBrush}"
+                                   Text="{Binding CountdownLabel}" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Column="1">
+          <Border Style="{StaticResource CardBorderStyle}">
+            <StackPanel>
+              <TextBlock FontSize="20" FontWeight="SemiBold" Text="Фокус месяца" />
+              <TextBlock Margin="0,12,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Самая дорогая подписка" />
+              <TextBlock Margin="0,6,0,0" FontSize="24" FontWeight="Bold" Text="{Binding Summary.MostExpensiveSubscriptionName}" />
+              <TextBlock Margin="0,16,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Средний расход в день" />
+              <TextBlock Margin="0,6,0,0" FontSize="24" FontWeight="Bold" Text="{Binding DailySpendLabel}" />
+              <TextBlock Margin="0,16,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Потенциальная экономия" />
+              <TextBlock Margin="0,6,0,0" FontSize="24" FontWeight="Bold" Text="{Binding PotentialSavingsLabel}" />
+            </StackPanel>
+          </Border>
+
+          <Border Style="{StaticResource CardBorderStyle}">
+            <StackPanel>
+              <TextBlock FontSize="20" FontWeight="SemiBold" Text="{DynamicResource CategoriesTitle}" />
+              <ItemsControl Margin="0,14,0,0" ItemsSource="{Binding Summary.CategoryExpenses}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Grid Margin="0,0,0,14">
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                      </Grid.RowDefinitions>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+
+                      <TextBlock Grid.Column="0" FontWeight="SemiBold" Text="{Binding CategoryName}" />
+                      <TextBlock Grid.Column="1"
+                                 Margin="14,0,0,0"
+                                 FontWeight="SemiBold"
+                                 Text="{Binding AmountLabel}" />
+                      <TextBlock Grid.Column="2"
+                                 Margin="12,0,0,0"
+                                 VerticalAlignment="Center"
+                                 FontSize="12"
+                                 Foreground="{DynamicResource AppMutedBrush}"
+                                 Text="{Binding ShareLabel}" />
+
+                      <Grid Grid.Row="1" Grid.ColumnSpan="3" Height="10" Margin="0,10,0,0" ClipToBounds="True">
+                        <Border Background="{DynamicResource AppInputBackgroundBrush}" CornerRadius="5" />
+                        <Border Background="{Binding ColorHex, Converter={StaticResource HexToBrushConverter}}"
+                                CornerRadius="5"
+                                RenderTransformOrigin="0,0.5">
+                          <Border.RenderTransform>
+                            <ScaleTransform ScaleX="{Binding SharePercent, Converter={StaticResource PercentageToScaleConverter}}" />
+                          </Border.RenderTransform>
+                        </Border>
+                      </Grid>
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Grid>
+
+      <Border Style="{StaticResource CardBorderStyle}">
+        <StackPanel>
+          <DockPanel>
+            <TextBlock FontSize="20" FontWeight="SemiBold" Text="Прогноз расходов на 6 месяцев" />
+            <TextBlock DockPanel.Dock="Right"
+                       Foreground="{DynamicResource AppMutedBrush}"
+                       Text="{Binding Summary.BaseCurrency}" />
+          </DockPanel>
+          <ItemsControl Margin="0,16,0,0" ItemsSource="{Binding ForecastPreview}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Grid Margin="0,0,0,14">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="160" />
+                  </Grid.ColumnDefinitions>
+
+                  <TextBlock Grid.Column="0"
+                             VerticalAlignment="Center"
+                             FontWeight="SemiBold"
+                             Text="{Binding MonthLabel}" />
+                  <ProgressBar Grid.Column="1"
+                               Margin="14,0"
+                               Height="12"
+                               Maximum="{Binding DataContext.Summary.YearlyTotal, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               Value="{Binding AmountInBaseCurrency}" />
+                  <TextBlock Grid.Column="2"
+                             HorizontalAlignment="Right"
+                             VerticalAlignment="Center"
+                             Foreground="{DynamicResource AppMutedBrush}"
+                             Text="{Binding AmountLabel}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

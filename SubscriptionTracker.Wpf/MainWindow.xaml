@@ -1,0 +1,200 @@
+<Window x:Class="SubscriptionTracker.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="{DynamicResource AppTitle}"
+        Icon="{Binding WindowIconPath}"
+        Width="1500"
+        Height="920"
+        MinWidth="1200"
+        MinHeight="760"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        AllowsTransparency="False">
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="0"
+                        CornerRadius="0"
+                        GlassFrameThickness="0"
+                        ResizeBorderThickness="8"
+                        UseAeroCaptionButtons="False" />
+  </shell:WindowChrome.WindowChrome>
+
+  <Border Background="{DynamicResource AppBackgroundBrush}"
+          BorderBrush="{DynamicResource AppBorderBrush}"
+          BorderThickness="1">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="58" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      <Border Grid.Row="0"
+              Background="{DynamicResource AppTitleBarBrush}"
+              BorderBrush="{DynamicResource AppBorderBrush}"
+              BorderThickness="0,0,0,1"
+              MouseLeftButtonDown="TitleBarMouseLeftButtonDown">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
+            <Image Width="18"
+                   Height="18"
+                   Margin="0,0,10,0"
+                   Source="{Binding TitleBarIconPath}" />
+            <TextBlock VerticalAlignment="Center"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Text="{DynamicResource AppTitle}" />
+          </StackPanel>
+
+          <StackPanel Grid.Column="1"
+                      Orientation="Horizontal"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Center"
+                      Margin="0,0,12,0">
+            <Button Style="{StaticResource TitleBarButtonStyle}"
+                    Click="MinimizeClick"
+                    ToolTip="Свернуть"
+                    Content="-" />
+            <Button Style="{StaticResource TitleBarButtonStyle}"
+                    Click="MaximizeRestoreClick"
+                    ToolTip="Развернуть или восстановить"
+                    Content="[ ]" />
+            <Button Style="{StaticResource DangerTitleBarButtonStyle}"
+                    Click="CloseClick"
+                    ToolTip="Закрыть"
+                    Content="X" />
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <Grid Grid.Row="1" Background="{DynamicResource AppBackgroundBrush}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="286" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Margin="20"
+                Background="{DynamicResource AppPanelBrush}"
+                CornerRadius="24"
+                Padding="22">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Top">
+              <Border Margin="0,0,0,22"
+                      Background="{DynamicResource AppCardBrush}"
+                      CornerRadius="18"
+                      BorderBrush="{DynamicResource AppBorderBrush}"
+                      BorderThickness="1"
+                      Padding="12">
+                <Image Height="72"
+                       Stretch="Uniform"
+                       Source="{Binding SidebarLogoPath}" />
+              </Border>
+
+              <ToggleButton Style="{StaticResource NavigationToggleButtonStyle}"
+                            IsChecked="{Binding IsDashboardSelected, Mode=OneWay}"
+                            Command="{Binding NavigateDashboardCommand}"
+                            Tag="D"
+                            Content="{DynamicResource DashboardNav}" />
+              <ToggleButton Style="{StaticResource NavigationToggleButtonStyle}"
+                            IsChecked="{Binding IsSubscriptionsSelected, Mode=OneWay}"
+                            Command="{Binding NavigateSubscriptionsCommand}"
+                            Tag="S"
+                            Content="{DynamicResource SubscriptionsNav}" />
+              <ToggleButton Style="{StaticResource NavigationToggleButtonStyle}"
+                            IsChecked="{Binding IsCalendarSelected, Mode=OneWay}"
+                            Command="{Binding NavigateCalendarCommand}"
+                            Tag="C"
+                            Content="{DynamicResource CalendarNav}" />
+              <ToggleButton Style="{StaticResource NavigationToggleButtonStyle}"
+                            IsChecked="{Binding IsAnalyticsSelected, Mode=OneWay}"
+                            Command="{Binding NavigateAnalyticsCommand}"
+                            Tag="A"
+                            Content="{DynamicResource AnalyticsNav}" />
+              <ToggleButton Style="{StaticResource NavigationToggleButtonStyle}"
+                            IsChecked="{Binding IsHistorySelected, Mode=OneWay}"
+                            Command="{Binding NavigateHistoryCommand}"
+                            Tag="H"
+                            Content="{DynamicResource HistoryNav}" />
+              <ToggleButton Style="{StaticResource NavigationToggleButtonStyle}"
+                            IsChecked="{Binding IsSettingsSelected, Mode=OneWay}"
+                            Command="{Binding NavigateSettingsCommand}"
+                            Tag="G"
+                            Content="{DynamicResource SettingsNav}" />
+            </StackPanel>
+
+            <Border DockPanel.Dock="Bottom"
+                    Margin="0,24,0,0"
+                    Padding="14"
+                    Background="{DynamicResource AppCardBrush}"
+                    CornerRadius="16"
+                    BorderBrush="{DynamicResource AppBorderBrush}"
+                    BorderThickness="1">
+              <StackPanel>
+                <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{Binding SidebarStatusTitle}" />
+                <TextBlock Margin="0,6,0,0"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Text="{Binding SidebarStatusDetails}" />
+                <TextBlock Margin="0,8,0,0"
+                           FontSize="11"
+                           Foreground="{DynamicResource AppMutedBrush}"
+                           Text="{Binding LastRefreshLabel}" />
+              </StackPanel>
+            </Border>
+          </DockPanel>
+        </Border>
+
+        <Grid Grid.Column="1" Margin="0,20,20,20">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+
+          <Border Padding="24"
+                  Background="{DynamicResource AppCardBrush}"
+                  CornerRadius="24"
+                  BorderBrush="{DynamicResource AppBorderBrush}"
+                  BorderThickness="1">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0">
+                <TextBlock FontSize="28"
+                           FontWeight="Bold"
+                           Text="{Binding CurrentSectionTitle}" />
+                <TextBlock Margin="0,6,0,0"
+                           Foreground="{DynamicResource AppMutedBrush}"
+                           Text="{Binding CurrentSectionSubtitle}" />
+              </StackPanel>
+              <TextBlock Grid.Column="1"
+                         VerticalAlignment="Center"
+                         Margin="16,0,0,0"
+                         FontSize="12"
+                         FontWeight="SemiBold"
+                         Foreground="{DynamicResource AppMutedBrush}"
+                         Text="{Binding HeaderBadgeText}" />
+            </Grid>
+          </Border>
+
+          <Border Grid.Row="1"
+                  Margin="0,16,0,0"
+                  Background="{DynamicResource AppSecondaryCardBrush}"
+                  CornerRadius="24"
+                  Padding="20"
+                  BorderBrush="{DynamicResource AppBorderBrush}"
+                  BorderThickness="1">
+            <ContentControl Content="{Binding CurrentViewModel}" />
+          </Border>
+        </Grid>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

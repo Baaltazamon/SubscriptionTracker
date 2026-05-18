@@ -1,0 +1,34 @@
+<UserControl x:Class="SubscriptionTracker.Wpf.Views.CalendarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel>
+      <Border Style="{StaticResource CardBorderStyle}">
+        <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource CalendarTitle}" />
+      </Border>
+      <ItemsControl ItemsSource="{Binding Months}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border Style="{StaticResource CardBorderStyle}">
+              <StackPanel>
+                <TextBlock FontSize="20" FontWeight="SemiBold" Text="{Binding Title}" />
+                <ItemsControl Margin="0,12,0,0" ItemsSource="{Binding Payments}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <DockPanel Margin="0,0,0,10">
+                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding PaymentDateLabel}" Width="120" />
+                        <TextBlock Text="{Binding SubscriptionName}" Width="240" />
+                        <TextBlock Text="{Binding CategoryName}" Foreground="{DynamicResource AppMutedBrush}" Width="220" />
+                        <TextBlock DockPanel.Dock="Right" HorizontalAlignment="Right" Text="{Binding AmountLabel}" />
+                      </DockPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

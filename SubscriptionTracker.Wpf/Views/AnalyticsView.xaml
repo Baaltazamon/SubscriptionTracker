@@ -1,0 +1,79 @@
+<UserControl x:Class="SubscriptionTracker.Wpf.Views.AnalyticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel>
+      <UniformGrid Columns="3">
+        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
+          <StackPanel>
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Прогноз на год" />
+            <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding Summary.YearlyTotal, StringFormat={}{0:N2}}" />
+            <TextBlock Margin="0,6,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{Binding Summary.BaseCurrency}" />
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
+          <StackPanel>
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Средний расход в день" />
+            <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding Summary.DailySpend, StringFormat={}{0:N2}}" />
+            <TextBlock Margin="0,6,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="{Binding Summary.BaseCurrency}" />
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,14">
+          <StackPanel>
+            <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="Если отключить топ-3" />
+            <TextBlock Margin="0,8,0,0" FontSize="28" FontWeight="Bold" Text="{Binding PotentialSavingsLabel}" />
+            <TextBlock Margin="0,6,0,0" Foreground="{DynamicResource AppMutedBrush}" Text="Потенциальная экономия в месяц" />
+          </StackPanel>
+        </Border>
+      </UniformGrid>
+
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1.2*" />
+          <ColumnDefinition Width="0.8*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,14,0">
+          <StackPanel>
+            <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource ForecastTitle}" />
+            <ItemsControl Margin="0,14,0,0" ItemsSource="{Binding Summary.MonthlyForecast}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Margin="0,0,0,10">
+                    <DockPanel>
+                      <TextBlock FontWeight="SemiBold" Text="{Binding MonthLabel}" Width="100" />
+                      <TextBlock DockPanel.Dock="Right" Foreground="{DynamicResource AppMutedBrush}" Text="{Binding AmountLabel}" />
+                    </DockPanel>
+                    <ProgressBar Margin="0,8,0,0"
+                                 Height="10"
+                                 Maximum="{Binding DataContext.Summary.YearlyTotal, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                 Value="{Binding AmountInBaseCurrency}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
+          <StackPanel>
+            <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource CategoriesTitle}" />
+            <ItemsControl Margin="0,14,0,0" ItemsSource="{Binding Summary.CategoryExpenses}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Margin="0,0,0,12">
+                    <DockPanel>
+                      <TextBlock Text="{Binding CategoryName}" />
+                      <TextBlock DockPanel.Dock="Right" Text="{Binding AmountLabel}" />
+                    </DockPanel>
+                    <ProgressBar Margin="0,8,0,0" Height="10" Maximum="100" Value="{Binding SharePercent}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
