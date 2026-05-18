@@ -13,4 +13,6 @@ public sealed record AppSettingsDto
     public string LanguageCode { get; init; } = "ru-RU";
 
     public string Theme { get; init; } = "Dark";
+
+    public bool LaunchOnStartup { get; init; }
 }

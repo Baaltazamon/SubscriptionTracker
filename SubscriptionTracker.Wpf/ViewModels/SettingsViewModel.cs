@@ -13,6 +13,7 @@ public sealed class SettingsViewModel : ViewModelBase
     private readonly IAppSettingsService _appSettingsService;
     private readonly IDatabaseBackupService _databaseBackupService;
     private readonly IDialogService _dialogService;
+    private readonly IAutoStartService _autoStartService;
     private readonly IApplicationLifecycleService _applicationLifecycleService;
     private readonly IThemeService _themeService;
     private readonly ILocalizationService _localizationService;
@@ -24,11 +25,13 @@ public sealed class SettingsViewModel : ViewModelBase
     private OptionItem<string>? _selectedCurrencyOption;
     private OptionItem<int>? _selectedReminderIntervalOption;
     private bool _areNotificationsEnabled;
+    private bool _launchOnStartup;
 
     public SettingsViewModel(
         IAppSettingsService appSettingsService,
         IDatabaseBackupService databaseBackupService,
         IDialogService dialogService,
+        IAutoStartService autoStartService,
         IApplicationLifecycleService applicationLifecycleService,
         IThemeService themeService,
         ILocalizationService localizationService,
@@ -37,6 +40,7 @@ public sealed class SettingsViewModel : ViewModelBase
         _appSettingsService = appSettingsService;
         _databaseBackupService = databaseBackupService;
         _dialogService = dialogService;
+        _autoStartService = autoStartService;
         _applicationLifecycleService = applicationLifecycleService;
         _themeService = themeService;
         _localizationService = localizationService;
@@ -95,6 +99,12 @@ public sealed class SettingsViewModel : ViewModelBase
         set => SetProperty(ref _areNotificationsEnabled, value);
     }
 
+    public bool LaunchOnStartup
+    {
+        get => _launchOnStartup;
+        set => SetProperty(ref _launchOnStartup, value);
+    }
+
     public string DatabasePath => _appSettingsService.GetSettings().DatabasePath;
 
     public string ThemeName => _themeService.CurrentTheme == AppTheme.Dark
@@ -127,10 +137,12 @@ public sealed class SettingsViewModel : ViewModelBase
             BaseCurrency = SelectedCurrencyOption?.Value ?? current.BaseCurrency,
             LanguageCode = SelectedLanguageOption?.Value ?? current.LanguageCode,
             ReminderCheckIntervalMinutes = SelectedReminderIntervalOption?.Value ?? current.ReminderCheckIntervalMinutes,
-            NotificationsEnabled = AreNotificationsEnabled
+            NotificationsEnabled = AreNotificationsEnabled,
+            LaunchOnStartup = LaunchOnStartup
         };
 
         await _appSettingsService.SaveAsync(updated);
+        await _autoStartService.SetEnabledAsync(updated.LaunchOnStartup);
         _localizationService.ApplyLanguage(updated.LanguageCode);
         _eventBus.PublishSettingsChanged();
         RaiseReadonlyProperties();
@@ -215,6 +227,7 @@ public sealed class SettingsViewModel : ViewModelBase
     private void LoadFromSettings(AppSettingsDto settings)
     {
         AreNotificationsEnabled = settings.NotificationsEnabled;
+        LaunchOnStartup = _autoStartService.IsEnabled();
     }
 
     private void RebuildOptions()
@@ -243,6 +256,7 @@ public sealed class SettingsViewModel : ViewModelBase
         SelectedCurrencyOption = CurrencyOptions.FirstOrDefault(item => item.Value == settings.BaseCurrency) ?? CurrencyOptions.First();
         SelectedReminderIntervalOption = ReminderIntervalOptions.FirstOrDefault(item => item.Value == settings.ReminderCheckIntervalMinutes) ?? ReminderIntervalOptions[2];
         AreNotificationsEnabled = settings.NotificationsEnabled;
+        LaunchOnStartup = _autoStartService.IsEnabled();
 
         RaiseReadonlyProperties();
     }

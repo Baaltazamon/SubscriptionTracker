@@ -45,7 +45,8 @@ public sealed class AppSettingsService : IAppSettingsService
             NotificationsEnabled = true,
             ReminderCheckIntervalMinutes = 60,
             LanguageCode = "ru-RU",
-            Theme = "Dark"
+            Theme = "Dark",
+            LaunchOnStartup = false
         };
 
         if (!File.Exists(_settingsPath))
@@ -85,7 +86,8 @@ public sealed class AppSettingsService : IAppSettingsService
             DatabasePath = string.IsNullOrWhiteSpace(settings.DatabasePath) ? settings.DatabasePath : settings.DatabasePath.Trim(),
             ReminderCheckIntervalMinutes = interval,
             LanguageCode = LocalizationCatalog.NormalizeLanguageCode(settings.LanguageCode),
-            Theme = theme
+            Theme = theme,
+            LaunchOnStartup = settings.LaunchOnStartup
         };
     }
 }
