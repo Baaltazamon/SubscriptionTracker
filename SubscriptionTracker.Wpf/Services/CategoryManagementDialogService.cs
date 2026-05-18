@@ -42,10 +42,14 @@ public sealed class CategoryManagementDialogService(IDialogService dialogService
     {
         var owner = System.Windows.Application.Current.Windows
             .OfType<Window>()
-            .FirstOrDefault(static item => item.IsActive)
-            ?? System.Windows.Application.Current.MainWindow;
+            .FirstOrDefault(item => item.IsActive && !ReferenceEquals(item, window));
 
-        if (owner is not null && owner != window)
+        if (owner is null && !ReferenceEquals(System.Windows.Application.Current.MainWindow, window))
+        {
+            owner = System.Windows.Application.Current.MainWindow;
+        }
+
+        if (owner is not null && !ReferenceEquals(owner, window))
         {
             window.Owner = owner;
         }

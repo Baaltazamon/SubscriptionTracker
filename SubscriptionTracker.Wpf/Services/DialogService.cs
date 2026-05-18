@@ -8,8 +8,8 @@ public sealed class DialogService : IDialogService
     public DialogResultKind Show(DialogRequest request)
     {
         var window = new DialogWindow(request);
-        var owner = GetOwnerWindow();
-        if (owner is not null)
+        var owner = GetOwnerWindow(window);
+        if (owner is not null && !ReferenceEquals(owner, window))
         {
             window.Owner = owner;
         }
@@ -67,12 +67,18 @@ public sealed class DialogService : IDialogService
         return result == MapResult(primaryButton);
     }
 
-    private static Window? GetOwnerWindow()
+    private static Window? GetOwnerWindow(Window dialogWindow)
     {
-        return System.Windows.Application.Current.Windows
+        var owner = System.Windows.Application.Current.Windows
             .OfType<Window>()
-            .FirstOrDefault(static window => window.IsActive)
-            ?? System.Windows.Application.Current.MainWindow;
+            .FirstOrDefault(window => window.IsActive && !ReferenceEquals(window, dialogWindow));
+
+        if (owner is null && !ReferenceEquals(System.Windows.Application.Current.MainWindow, dialogWindow))
+        {
+            owner = System.Windows.Application.Current.MainWindow;
+        }
+
+        return owner;
     }
 
     private static DialogResultKind MapResult(DialogButton button)
