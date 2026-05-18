@@ -127,6 +127,7 @@ public sealed class MainViewModel : ViewModelBase
         await Calendar.RefreshAsync();
         await Analytics.RefreshAsync();
         await PaymentHistory.RefreshAsync();
+        await Settings.RefreshAsync();
 
         _lastRefreshAt = DateTime.Now;
         RaisePropertyChanged(nameof(LastRefreshLabel));

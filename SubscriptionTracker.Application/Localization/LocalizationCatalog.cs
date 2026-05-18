@@ -114,7 +114,21 @@ public static class LocalizationCatalog
         ["DialogRestore"] = "Восстановить",
         ["DeleteSubscriptionConfirmTitle"] = "Удаление подписки",
         ["DeleteSubscriptionConfirmMessage"] = "Удалить подписку \"{0}\"? Это действие нельзя отменить.",
-        ["ReminderToastMoreFormat"] = "И еще {0} платеж(а)."
+        ["ReminderToastMoreFormat"] = "И еще {0} платеж(а).",
+        ["CategoryNameRequired"] = "Название категории обязательно.",
+        ["CategoryColorInvalid"] = "Цвет категории должен быть в формате #RRGGBB.",
+        ["CategoryDuplicateName"] = "Категория с таким названием уже существует.",
+        ["CategoryNotFound"] = "Категория не найдена.",
+        ["CategoryDeleteSystemError"] = "Системную категорию нельзя удалить.",
+        ["CategoryTransferRequired"] = "Выберите категорию, в которую нужно перенести подписки.",
+        ["CategoryTransferNotFound"] = "Категория для переноса не найдена.",
+        ["CategorySaveFailedTitle"] = "Не удалось сохранить категорию",
+        ["CategoryDeleteFailedTitle"] = "Не удалось удалить категорию",
+        ["CategoryEditDialogTitle"] = "Редактирование категории",
+        ["CategoryCreateDialogTitle"] = "Новая категория",
+        ["CategoryDeleteDialogTitle"] = "Удаление категории",
+        ["CategoryDeleteConfirmMessage"] = "Удалить категорию \"{0}\"?",
+        ["CategoryDeleteTransferMessage"] = "Категория \"{0}\" используется в {1} подписк(ах). Выберите новую категорию для переноса перед удалением."
     };
 
     private static readonly IReadOnlyDictionary<string, string> En = new Dictionary<string, string>(StringComparer.Ordinal)
@@ -227,7 +241,21 @@ public static class LocalizationCatalog
         ["DialogRestore"] = "Restore",
         ["DeleteSubscriptionConfirmTitle"] = "Delete subscription",
         ["DeleteSubscriptionConfirmMessage"] = "Delete \"{0}\"? This action cannot be undone.",
-        ["ReminderToastMoreFormat"] = "And {0} more payment(s)."
+        ["ReminderToastMoreFormat"] = "And {0} more payment(s).",
+        ["CategoryNameRequired"] = "Category name is required.",
+        ["CategoryColorInvalid"] = "Category color must use the #RRGGBB format.",
+        ["CategoryDuplicateName"] = "A category with this name already exists.",
+        ["CategoryNotFound"] = "Category was not found.",
+        ["CategoryDeleteSystemError"] = "System categories cannot be deleted.",
+        ["CategoryTransferRequired"] = "Choose a category to transfer subscriptions to.",
+        ["CategoryTransferNotFound"] = "Transfer category was not found.",
+        ["CategorySaveFailedTitle"] = "Unable to save category",
+        ["CategoryDeleteFailedTitle"] = "Unable to delete category",
+        ["CategoryEditDialogTitle"] = "Edit category",
+        ["CategoryCreateDialogTitle"] = "New category",
+        ["CategoryDeleteDialogTitle"] = "Delete category",
+        ["CategoryDeleteConfirmMessage"] = "Delete category \"{0}\"?",
+        ["CategoryDeleteTransferMessage"] = "Category \"{0}\" is used by {1} subscription(s). Choose a new category to move them before deletion."
     };
 
     private static string _currentLanguageCode = "ru-RU";
