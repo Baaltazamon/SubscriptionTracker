@@ -30,6 +30,8 @@ public sealed class Subscription
 
     public int ReminderDaysBefore { get; set; } = 3;
 
+    public bool IsLowUsage { get; set; }
+
     public DateOnly? LastUsedDate { get; set; }
 
     public DateTime CreatedAtUtc { get; set; }

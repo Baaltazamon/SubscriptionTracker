@@ -19,6 +19,7 @@ public sealed class SubscriptionEditViewModel : ObservableObject
     private DateTime _nextPaymentDate = DateTime.Today;
     private bool _isActive = true;
     private bool _autoRenewal = true;
+    private bool _isLowUsage;
     private int _reminderDaysBefore = 3;
 
     private SubscriptionEditViewModel()
@@ -105,6 +106,12 @@ public sealed class SubscriptionEditViewModel : ObservableObject
         set => SetProperty(ref _reminderDaysBefore, value);
     }
 
+    public bool IsLowUsage
+    {
+        get => _isLowUsage;
+        set => SetProperty(ref _isLowUsage, value);
+    }
+
     public string WindowTitle => Id.HasValue
         ? LocalizationCatalog.Get("EditSubscriptionTitle")
         : LocalizationCatalog.Get("NewSubscriptionTitle");
@@ -149,7 +156,8 @@ public sealed class SubscriptionEditViewModel : ObservableObject
             NextPaymentDate = DateOnly.FromDateTime(NextPaymentDate.Date),
             IsActive = IsActive,
             AutoRenewal = AutoRenewal,
-            ReminderDaysBefore = ReminderDaysBefore
+            ReminderDaysBefore = ReminderDaysBefore,
+            IsLowUsage = IsLowUsage
         };
     }
 
@@ -173,6 +181,7 @@ public sealed class SubscriptionEditViewModel : ObservableObject
             NextPaymentDate = currentItem?.NextPaymentDate.ToDateTime(TimeOnly.MinValue) ?? DateTime.Today,
             IsActive = currentItem?.IsActive ?? true,
             AutoRenewal = currentItem?.AutoRenewal ?? true,
+            IsLowUsage = currentItem?.IsLowUsage ?? false,
             ReminderDaysBefore = currentItem?.ReminderDaysBefore ?? 3
         };
 

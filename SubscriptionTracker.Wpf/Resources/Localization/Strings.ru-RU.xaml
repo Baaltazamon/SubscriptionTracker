@@ -37,6 +37,8 @@
   <sys:String x:Key="DashboardMostExpensive">Самая дорогая подписка</sys:String>
   <sys:String x:Key="DashboardAverageDaily">Средний расход в день</sys:String>
   <sys:String x:Key="DashboardPotentialSavings">Потенциальная экономия</sys:String>
+  <sys:String x:Key="DashboardCancelRecommendationsTitle">Что можно отключить</sys:String>
+  <sys:String x:Key="DashboardCancelRecommendationsSubtitle">Подписки, которые вы отметили как редко используемые и с которых логично начать экономию.</sys:String>
   <sys:String x:Key="DashboardForecast6Months">Прогноз расходов на 6 месяцев</sys:String>
 
   <sys:String x:Key="SubscriptionsSubtitle">Рабочий список подписок с быстрыми действиями и фильтрацией.</sys:String>
@@ -128,6 +130,7 @@
   <sys:String x:Key="SubscriptionEditorNextPaymentDate">Дата следующего платежа</sys:String>
   <sys:String x:Key="SubscriptionEditorReminderDays">Напоминать за N дней</sys:String>
   <sys:String x:Key="SubscriptionEditorAutoRenewal">Автопродление</sys:String>
+  <sys:String x:Key="SubscriptionEditorLowUsage">Я редко использую эту подписку</sys:String>
   <sys:String x:Key="SubscriptionEditorIsActive">Подписка активна</sys:String>
   <sys:String x:Key="SubscriptionEditorSave">Сохранить</sys:String>
   <sys:String x:Key="SubscriptionEditorCancel">Отмена</sys:String>

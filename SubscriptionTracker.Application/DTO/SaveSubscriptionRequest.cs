@@ -27,4 +27,6 @@ public sealed class SaveSubscriptionRequest
     public bool AutoRenewal { get; init; } = true;
 
     public int ReminderDaysBefore { get; init; } = 3;
+
+    public bool IsLowUsage { get; init; }
 }

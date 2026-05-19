@@ -30,6 +30,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             builder.Property(static subscription => subscription.Description).HasMaxLength(1000);
             builder.Property(static subscription => subscription.Currency).HasMaxLength(8).IsRequired();
             builder.Property(static subscription => subscription.Amount).HasPrecision(18, 2);
+            builder.Property(static subscription => subscription.IsLowUsage).HasDefaultValue(false);
             builder.HasOne(static subscription => subscription.Category)
                 .WithMany(static category => category.Subscriptions)
                 .HasForeignKey(static subscription => subscription.CategoryId)

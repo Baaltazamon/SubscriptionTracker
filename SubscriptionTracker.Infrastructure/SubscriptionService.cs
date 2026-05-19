@@ -36,6 +36,7 @@ public sealed class SubscriptionService(AppDbContext dbContext, IAppSettingsServ
                 IsActive = subscription.IsActive,
                 AutoRenewal = subscription.AutoRenewal,
                 ReminderDaysBefore = subscription.ReminderDaysBefore,
+                IsLowUsage = subscription.IsLowUsage,
                 MonthlyCostInBaseCurrency = CurrencyConverter.Convert(
                     RecurringPaymentCalculator.GetMonthlyCost(subscription.Amount, subscription.BillingCycle),
                     subscription.Currency,
@@ -129,6 +130,7 @@ public sealed class SubscriptionService(AppDbContext dbContext, IAppSettingsServ
             entity.IsActive = request.IsActive;
             entity.AutoRenewal = request.AutoRenewal;
             entity.ReminderDaysBefore = request.ReminderDaysBefore;
+            entity.IsLowUsage = request.IsLowUsage;
             entity.UpdatedAtUtc = DateTime.UtcNow;
 
             var futurePlannedPayments = entity.Payments
@@ -153,6 +155,7 @@ public sealed class SubscriptionService(AppDbContext dbContext, IAppSettingsServ
                 IsActive = request.IsActive,
                 AutoRenewal = request.AutoRenewal,
                 ReminderDaysBefore = request.ReminderDaysBefore,
+                IsLowUsage = request.IsLowUsage,
                 CreatedAtUtc = DateTime.UtcNow
             };
 

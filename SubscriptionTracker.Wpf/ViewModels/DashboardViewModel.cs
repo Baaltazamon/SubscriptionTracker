@@ -27,6 +27,7 @@ public sealed class DashboardViewModel(IServiceScopeFactory scopeFactory) : View
                 RaisePropertyChanged(nameof(NextPaymentUrgencyLabel));
                 RaisePropertyChanged(nameof(NextPaymentUrgencyColorHex));
                 RaisePropertyChanged(nameof(ForecastPreview));
+                RaisePropertyChanged(nameof(CancellationRecommendationsEmptyText));
             }
         }
     }
@@ -54,6 +55,10 @@ public sealed class DashboardViewModel(IServiceScopeFactory scopeFactory) : View
     public string NextPaymentUrgencyColorHex => Summary.NextPayment?.UrgencyColorHex ?? "#475569";
 
     public IReadOnlyList<MonthlyForecastPointDto> ForecastPreview => Summary.MonthlyForecast.Take(6).ToArray();
+
+    public string CancellationRecommendationsEmptyText => Summary.CancellationRecommendations.Count == 0
+        ? LocalizationCatalog.Get("DashboardCancelRecommendationsEmpty")
+        : string.Empty;
 
     public override async Task RefreshAsync()
     {

@@ -84,10 +84,27 @@ public sealed class DashboardService(AppDbContext dbContext, IAppSettingsService
             })
             .ToArray();
 
-        var potentialSavingsMonthly = monthlyCosts
+        var cancellationRecommendations = monthlyCosts
+            .Where(static item => item.Subscription.IsLowUsage)
             .OrderByDescending(static item => item.MonthlyCost)
             .Take(3)
-            .Sum(static item => item.MonthlyCost);
+            .Select(item => new CancellationRecommendationDto
+            {
+                SubscriptionId = item.Subscription.Id,
+                SubscriptionName = item.Subscription.Name,
+                CategoryName = item.Subscription.Category.Name,
+                MonthlyCostInBaseCurrency = Math.Round(item.MonthlyCost, 2, MidpointRounding.AwayFromZero),
+                BaseCurrency = settings.BaseCurrency,
+                ReasonLabel = LocalizationCatalog.Get("DashboardCancellationReasonLowUsage")
+            })
+            .ToArray();
+
+        var potentialSavingsMonthly = cancellationRecommendations.Length > 0
+            ? cancellationRecommendations.Sum(static item => item.MonthlyCostInBaseCurrency)
+            : monthlyCosts
+                .OrderByDescending(static item => item.MonthlyCost)
+                .Take(3)
+                .Sum(static item => item.MonthlyCost);
 
         return new DashboardSummaryDto
         {
@@ -101,7 +118,8 @@ public sealed class DashboardService(AppDbContext dbContext, IAppSettingsService
             BaseCurrency = settings.BaseCurrency,
             UpcomingPayments = upcomingPayments,
             CategoryExpenses = categoryExpenses,
-            MonthlyForecast = BuildForecast(subscriptions, today, settings.BaseCurrency)
+            MonthlyForecast = BuildForecast(subscriptions, today, settings.BaseCurrency),
+            CancellationRecommendations = cancellationRecommendations
         };
     }
 

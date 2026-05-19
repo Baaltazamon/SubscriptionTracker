@@ -23,4 +23,6 @@ public sealed class DashboardSummaryDto
     public IReadOnlyList<CategoryExpenseDto> CategoryExpenses { get; init; } = Array.Empty<CategoryExpenseDto>();
 
     public IReadOnlyList<MonthlyForecastPointDto> MonthlyForecast { get; init; } = Array.Empty<MonthlyForecastPointDto>();
+
+    public IReadOnlyList<CancellationRecommendationDto> CancellationRecommendations { get; init; } = Array.Empty<CancellationRecommendationDto>();
 }
