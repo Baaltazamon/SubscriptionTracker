@@ -65,13 +65,13 @@ public partial class App : System.Windows.Application
         localizationService.ApplyLanguage(settings.LanguageCode);
         themeService.Apply(string.Equals(settings.Theme, "Light", StringComparison.OrdinalIgnoreCase) ? AppTheme.Light : AppTheme.Dark);
 
-        var scheduler = _host.Services.GetRequiredService<ReminderScheduler>();
-        await scheduler.RunStartupCheckAsync();
-        scheduler.Start();
-
         var window = _host.Services.GetRequiredService<MainWindow>();
         MainWindow = window;
         window.Show();
+
+        var scheduler = _host.Services.GetRequiredService<ReminderScheduler>();
+        await scheduler.RunStartupCheckAsync();
+        scheduler.Start();
     }
 
     protected override async void OnExit(ExitEventArgs e)
