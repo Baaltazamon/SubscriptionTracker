@@ -1,109 +1,232 @@
 # Subscription Tracker
 
-Desktop WPF application for tracking recurring subscriptions, domains, hosting, VPN services, loans, and installment payments.
+![Subscription Tracker](SubscriptionTracker.Wpf/Assets/Branding/LogoMenuLight.png)
 
-## What the app does
+Subscription Tracker is a local-first desktop application for tracking recurring expenses such as subscriptions, domains, hosting, VPN services, loans, and installment payments.
 
-- Adds and edits subscriptions with billing cycle, amount, currency, next payment date, and reminder settings
-- Shows a dashboard with monthly/yearly totals, upcoming charges, top spending categories, and 6-month forecast
-- Displays subscription list, payment calendar, analytics, payment history, and settings
-- Stores data locally in SQLite
-- Exports subscriptions and payment history to Excel
-- Supports dark and light themes
-- Supports UI localization:
-  - `Русский`
-  - `English`
-- Supports base currency switching:
-  - `RUB`
-  - `USD`
-  - `EUR`
-  - `GBP`
+The project is built as a real WPF product MVP rather than a demo CRUD app: it includes layered architecture, SQLite persistence, analytics, reminders, export, backup/restore, localization, theming, and custom desktop UX.
 
-## Tech stack
+## Highlights
+
+- Local-only storage with `SQLite`
+- Clean layered architecture: `Wpf / Application / Domain / Infrastructure / Tests`
+- Dashboard with key metrics, upcoming charges, category breakdown, savings insights, and forecast
+- Subscription management with billing cycles, reminders, categories, currencies, and low-usage flags
+- Payment flows: mark as paid, skip payment, disable/enable subscription
+- Payment history and monthly payment calendar with search and filters
+- Analytics with `LiveCharts2`
+- Export to `Excel`
+- Backup and restore for the local database
+- Reminder checks on startup and during app runtime
+- Windows toast notifications with custom dialog fallback
+- Launch with Windows
+- Dark and light themes
+- Localization: `ru-RU` and `en-US`
+
+## Showcase
+
+### Dark Theme
+
+#### Dashboard
+
+![Dashboard Dark](docs/screenshots/dashboard-dark.png)
+
+#### Subscriptions
+
+![Subscriptions Dark](docs/screenshots/subscriptions-dark.png)
+
+#### Payment Calendar
+
+![Calendar Dark](docs/screenshots/calendar-dark.png)
+
+#### Analytics
+
+![Analytics Dark](docs/screenshots/analytics-dark.png)
+
+#### Payment History
+
+![History Dark](docs/screenshots/history-dark.png)
+
+#### Settings
+
+![Settings Dark](docs/screenshots/settings-dark.png)
+
+### Light Theme
+
+#### Dashboard
+
+![Dashboard Light](docs/screenshots/dashboard-light.png)
+
+#### Subscriptions
+
+![Subscriptions Light](docs/screenshots/subscriptions-light.png)
+
+#### Analytics
+
+![Analytics Light](docs/screenshots/analytics-light.png)
+
+## Feature Set
+
+### Dashboard
+
+- Active subscriptions count
+- Monthly and yearly spend
+- Next payment with urgency state
+- Upcoming payment list
+- Monthly focus block
+- Category spending breakdown
+- 6-month forecast preview
+- Cancellation insights for rarely used subscriptions
+
+### Subscription Management
+
+- Add, edit, delete subscriptions
+- Set amount, currency, billing cycle, first payment date, next payment date
+- Configure reminder days
+- Toggle auto-renewal and active state
+- Mark a subscription as rarely used
+- Mark payment as paid
+- Skip next payment
+- Disable and re-enable subscriptions
+
+### Finance and Planning
+
+- Base currency switching
+- Monthly and yearly projections
+- Category analytics
+- Upcoming charges overview
+- Potential savings calculation
+
+### Desktop-Native Features
+
+- Custom app shell and title bar
+- Custom dialog infrastructure
+- Windows toast reminders
+- Launch with Windows
+- SQLite backup and restore
+
+## Technology Stack
 
 - `.NET 8`
 - `WPF`
-- `SQLite`
 - `Entity Framework Core`
+- `SQLite`
 - `Microsoft.Extensions.Hosting`
 - `Microsoft.Extensions.DependencyInjection`
+- `LiveCharts2`
 - `EPPlus`
+- `Microsoft.Toolkit.Uwp.Notifications`
 
-## Solution structure
+## Solution Structure
 
 ```text
 SubscriptionTracker
-├── SubscriptionTracker.Wpf
-├── SubscriptionTracker.Application
-├── SubscriptionTracker.Domain
-├── SubscriptionTracker.Infrastructure
-└── SubscriptionTracker.Tests
+|-- SubscriptionTracker.Wpf
+|-- SubscriptionTracker.Application
+|-- SubscriptionTracker.Domain
+|-- SubscriptionTracker.Infrastructure
+`-- SubscriptionTracker.Tests
 ```
 
 ## Architecture
 
-- `Domain`: entities, enums, domain services
-- `Application`: DTOs, interfaces, localization catalog, formatting helpers
-- `Infrastructure`: EF Core, SQLite, services, reminders, Excel export
-- `Wpf`: views, view models, theme/localization services, window shell
-- `Tests`: unit tests for recurring payment calculation
+- `SubscriptionTracker.Domain`
+  Core entities, enums, and payment calculation rules.
+- `SubscriptionTracker.Application`
+  DTOs, interfaces, localization catalog, and application-level contracts.
+- `SubscriptionTracker.Infrastructure`
+  EF Core persistence, SQLite access, export, reminders, backup/restore, and service implementations.
+- `SubscriptionTracker.Wpf`
+  Views, view models, custom shell, dialogs, theme/localization services, and desktop UI behavior.
+- `SubscriptionTracker.Tests`
+  Unit and service-level tests for payment and dashboard scenarios.
 
-## Main screens
+## Current Screens
 
-- `Dashboard`
-- `Subscriptions`
-- `Payment Calendar`
-- `Analytics`
-- `Payment History`
-- `Settings`
+- Dashboard
+- Subscriptions
+- Payment Calendar
+- Analytics
+- Payment History
+- Settings
 
-## Settings
+## Local Storage
 
-The settings screen currently allows:
-
-- switching the app language
-- switching the base currency for analytics and totals
-- switching the theme
-- changing reminder check interval
-- enabling or disabling reminders
-
-Settings are stored locally in:
+Application settings are stored in:
 
 ```text
 %LocalAppData%\SubscriptionTracker\settings.json
 ```
 
-The SQLite database is stored locally in:
+SQLite database is stored in:
 
 ```text
 %LocalAppData%\SubscriptionTracker\subscription_tracker.db
 ```
 
-## Running the project
+## Run the Project
 
 ```bash
 dotnet build SubscriptionTracker.sln
 dotnet run --project SubscriptionTracker.Wpf
 ```
 
-## Tests
+## Release Build
+
+Create a local publish build with:
+
+```bash
+dotnet publish SubscriptionTracker.Wpf\SubscriptionTracker.Wpf.csproj -c Release -o artifacts\publish\wpf
+```
+
+The current workspace already contains a generated publish output in:
+
+```text
+artifacts\publish\wpf
+```
+
+## Run Tests
 
 ```bash
 dotnet test SubscriptionTracker.Tests\SubscriptionTracker.Tests.csproj
 ```
 
-## Current MVP scope
+## Test Coverage Focus
 
-- Local-only desktop app
+The current automated tests cover:
+
+- recurring payment date calculation
+- monthly cost normalization by billing cycle
+- subscription creation with initial planned payment
+- mark-as-paid flow
+- skip-payment flow
+- disable and re-enable flow
+- cancellation recommendation logic on the dashboard
+
+## Current Product Scope
+
+- Local-first desktop application
 - Offline currency conversion with fixed rates
-- Reminder checks on startup and by timer while the app is open
-- Excel export for subscriptions and payment history
+- Reminder checks on startup and during runtime
+- Backup/restore for the local SQLite database
+- English and Russian UI localization
+- Product-style analytics and custom desktop UI
 
-## Future improvements
+## Roadmap
 
-- Native toast notifications
-- Auto-start with Windows
-- Richer charts
-- Import/export backup flow
-- Editable system categories
-- More languages and live exchange rates
+### Near-term
+
+- Additional release polish for light theme and visual consistency
+- Packaging and release build preparation
+
+### Future
+
+- More payment scenario tests
+- Optional live exchange rates
+- Installer/distribution workflow
+- Richer reporting templates
+- Additional languages
+
+## Repository Workflow
+
+This repository uses feature branches and pull requests for implementation steps. Merged feature branches are intentionally preserved to keep the development history readable.
