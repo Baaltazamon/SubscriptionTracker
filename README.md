@@ -2,6 +2,11 @@
 
 ![Subscription Tracker](SubscriptionTracker.Wpf/Assets/Branding/LogoMenuLight.png)
 
+![.NET](https://img.shields.io/badge/.NET-8-512BD4?logo=dotnet&logoColor=white)
+![WPF](https://img.shields.io/badge/WPF-Windows%20Desktop-0C7BDC)
+![License](https://img.shields.io/github/license/Baaltazamon/SubscriptionTracker)
+![Build](https://github.com/Baaltazamon/SubscriptionTracker/actions/workflows/build.yml/badge.svg)
+
 Subscription Tracker is a local-first desktop application for tracking recurring expenses such as subscriptions, domains, hosting, VPN services, loans, and installment payments.
 
 The project is built as a real WPF product MVP rather than a demo CRUD app: it includes layered architecture, SQLite persistence, analytics, reminders, export, backup/restore, localization, theming, and custom desktop UX.
@@ -24,6 +29,10 @@ The project is built as a real WPF product MVP rather than a demo CRUD app: it i
 - Localization: `ru-RU` and `en-US`
 
 ## Showcase
+
+### GIF Demo
+
+![Demo](docs/screenshots/demo-dark.gif)
 
 ### Dark Theme
 
@@ -183,6 +192,18 @@ The current workspace already contains a generated publish output in:
 
 ```text
 artifacts\publish\wpf
+```
+
+Create a ZIP bundle for release distribution from the publish output:
+
+```powershell
+Compress-Archive -Path artifacts\publish\wpf\* -DestinationPath artifacts\release\SubscriptionTracker-v0.1.0-win-x64.zip -Force
+```
+
+Release notes for the first public build are stored in:
+
+```text
+docs\release-notes\v0.1.0.md
 ```
 
 ## Run Tests
