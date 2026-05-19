@@ -1,6 +1,7 @@
 <UserControl x:Class="SubscriptionTracker.Wpf.Views.AnalyticsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF">
   <ScrollViewer VerticalScrollBarVisibility="Auto">
     <StackPanel>
       <UniformGrid Columns="3">
@@ -29,26 +30,121 @@
 
       <Grid>
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="1.2*" />
-          <ColumnDefinition Width="0.8*" />
+          <ColumnDefinition Width="1.25*" />
+          <ColumnDefinition Width="0.75*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
+          <StackPanel>
+            <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource ForecastTitle}" />
+            <TextBlock Margin="0,6,0,0"
+                       Foreground="{DynamicResource AppMutedBrush}"
+                       Text="{DynamicResource AnalyticsForecastSubtitle}" />
+            <lvc:CartesianChart Margin="0,18,0,0"
+                                Height="290"
+                                Series="{Binding ForecastSeries}"
+                                XAxes="{Binding ForecastXAxes}"
+                                YAxes="{Binding ForecastYAxes}"
+                                LegendPosition="Hidden"
+                                TooltipPosition="Hidden" />
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Margin="0,0,0,14">
+          <StackPanel>
+            <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource CategoriesTitle}" />
+            <TextBlock Margin="0,6,0,0"
+                       Foreground="{DynamicResource AppMutedBrush}"
+                       Text="{DynamicResource AnalyticsCategorySubtitle}" />
+            <lvc:PieChart Margin="0,18,0,0"
+                          Height="290"
+                          Series="{Binding CategorySeries}"
+                          LegendPosition="Hidden"
+                          TooltipPosition="Hidden"
+                          InitialRotation="-90" />
+            <ItemsControl Margin="0,12,0,0" ItemsSource="{Binding Summary.CategoryExpenses}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <DockPanel Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal">
+                      <Border Width="12"
+                              Height="12"
+                              Margin="0,3,10,0"
+                              CornerRadius="6"
+                              Background="{Binding ColorHex, Converter={StaticResource HexToBrushConverter}}" />
+                      <TextBlock FontWeight="SemiBold" Text="{Binding CategoryName}" />
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                      <TextBlock Foreground="{DynamicResource AppMutedBrush}" Text="{Binding ShareLabel}" />
+                      <TextBlock Margin="12,0,0,0" Text="{Binding AmountLabel}" />
+                    </StackPanel>
+                  </DockPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1.15*" />
+          <ColumnDefinition Width="0.85*" />
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,14,0">
           <StackPanel>
-            <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource ForecastTitle}" />
-            <ItemsControl Margin="0,14,0,0" ItemsSource="{Binding Summary.MonthlyForecast}">
+            <DockPanel>
+              <StackPanel>
+                <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource AnalyticsUpcomingTitle}" />
+                <TextBlock Margin="0,6,0,0"
+                           Foreground="{DynamicResource AppMutedBrush}"
+                           Text="{DynamicResource AnalyticsUpcomingSubtitle}" />
+              </StackPanel>
+              <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
+                <TextBlock HorizontalAlignment="Right"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Text="{Binding Upcoming30DaysTotalLabel}" />
+                <TextBlock Margin="0,6,0,0"
+                           HorizontalAlignment="Right"
+                           Foreground="{DynamicResource AppMutedBrush}"
+                           Text="{Binding Upcoming30DaysCountLabel}" />
+              </StackPanel>
+            </DockPanel>
+
+            <lvc:CartesianChart Margin="0,18,0,0"
+                                Height="250"
+                                Series="{Binding UpcomingSeries}"
+                                XAxes="{Binding UpcomingXAxes}"
+                                YAxes="{Binding UpcomingYAxes}"
+                                LegendPosition="Hidden"
+                                TooltipPosition="Hidden" />
+
+            <ItemsControl Margin="0,16,0,0" ItemsSource="{Binding UpcomingCharges}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <StackPanel Margin="0,0,0,10">
-                    <DockPanel>
-                      <TextBlock FontWeight="SemiBold" Text="{Binding MonthLabel}" Width="100" />
-                      <TextBlock DockPanel.Dock="Right" Foreground="{DynamicResource AppMutedBrush}" Text="{Binding AmountLabel}" />
-                    </DockPanel>
-                    <ProgressBar Margin="0,8,0,0"
-                                 Height="10"
-                                 Maximum="{Binding DataContext.Summary.YearlyTotal, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                 Value="{Binding AmountInBaseCurrency}" />
-                  </StackPanel>
+                  <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                      <TextBlock FontWeight="SemiBold" Text="{Binding SubscriptionName}" />
+                      <TextBlock Margin="0,4,0,0"
+                                 Foreground="{DynamicResource AppMutedBrush}"
+                                 Text="{Binding CategoryName}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                      <TextBlock HorizontalAlignment="Right" Text="{Binding AmountLabel}" />
+                      <TextBlock Margin="0,4,0,0"
+                                 HorizontalAlignment="Right"
+                                 Foreground="{DynamicResource AppMutedBrush}"
+                                 Text="{Binding DateLabel}" />
+                    </StackPanel>
+                  </Grid>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -57,17 +153,53 @@
 
         <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}">
           <StackPanel>
-            <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource CategoriesTitle}" />
-            <ItemsControl Margin="0,14,0,0" ItemsSource="{Binding Summary.CategoryExpenses}">
+            <TextBlock FontSize="22" FontWeight="SemiBold" Text="{DynamicResource AnalyticsTopSubscriptionsTitle}" />
+            <TextBlock Margin="0,6,0,0"
+                       Foreground="{DynamicResource AppMutedBrush}"
+                       Text="{DynamicResource AnalyticsTopSubscriptionsSubtitle}" />
+            <ItemsControl Margin="0,18,0,0" ItemsSource="{Binding TopSubscriptions}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <StackPanel Margin="0,0,0,12">
-                    <DockPanel>
-                      <TextBlock Text="{Binding CategoryName}" />
-                      <TextBlock DockPanel.Dock="Right" Text="{Binding AmountLabel}" />
-                    </DockPanel>
-                    <ProgressBar Margin="0,8,0,0" Height="10" Maximum="100" Value="{Binding SharePercent}" />
-                  </StackPanel>
+                  <Border Margin="0,0,0,12"
+                          Padding="14"
+                          Background="{DynamicResource AppCardBrush}"
+                          BorderBrush="{DynamicResource AppBorderBrush}"
+                          BorderThickness="1"
+                          CornerRadius="14">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+
+                      <Border Width="34"
+                              Height="34"
+                              Margin="0,0,12,0"
+                              Background="{DynamicResource AppSecondaryCardBrush}"
+                              CornerRadius="17">
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   Text="{Binding Rank}" />
+                      </Border>
+
+                      <StackPanel Grid.Column="1">
+                        <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Foreground="{DynamicResource AppMutedBrush}"
+                                   Text="{Binding CategoryName}" />
+                      </StackPanel>
+
+                      <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                        <TextBlock HorizontalAlignment="Right" Text="{Binding MonthlyCostLabel}" />
+                        <TextBlock Margin="0,4,0,0"
+                                   HorizontalAlignment="Right"
+                                   Foreground="{DynamicResource AppMutedBrush}"
+                                   Text="{Binding ShareLabel}" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
             </ItemsControl>
