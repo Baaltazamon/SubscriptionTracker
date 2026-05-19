@@ -7,6 +7,8 @@ namespace SubscriptionTracker.Infrastructure;
 
 public sealed class AppSettingsService : IAppSettingsService
 {
+    public const string AppDataDirectoryOverrideEnvironmentVariable = "SUBSCRIPTION_TRACKER_APPDATA_DIR";
+
     private readonly string _settingsPath;
     private AppSettingsDto _settings;
 
@@ -14,7 +16,7 @@ public sealed class AppSettingsService : IAppSettingsService
 
     public AppSettingsService()
     {
-        var appDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SubscriptionTracker");
+        var appDirectory = ResolveAppDirectory();
         Directory.CreateDirectory(appDirectory);
         _settingsPath = Path.Combine(appDirectory, "settings.json");
 
@@ -34,6 +36,17 @@ public sealed class AppSettingsService : IAppSettingsService
         await JsonSerializer.SerializeAsync(stream, _settings, cancellationToken: cancellationToken);
 
         SettingsChanged?.Invoke(this, GetSettings());
+    }
+
+    private static string ResolveAppDirectory()
+    {
+        var overrideDirectory = Environment.GetEnvironmentVariable(AppDataDirectoryOverrideEnvironmentVariable);
+        if (!string.IsNullOrWhiteSpace(overrideDirectory))
+        {
+            return overrideDirectory.Trim();
+        }
+
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SubscriptionTracker");
     }
 
     private AppSettingsDto LoadSettings(string appDirectory)
