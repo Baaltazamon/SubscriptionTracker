@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using SubscriptionTracker.Application.Localization;
 
@@ -62,6 +63,14 @@ public partial class DialogWindow : Window
     {
         Result = MapButton(_secondaryButton ?? DialogButton.Cancel);
         Close();
+    }
+
+    private void HeaderMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.LeftButton == MouseButtonState.Pressed)
+        {
+            DragMove();
+        }
     }
 
     protected override void OnClosing(CancelEventArgs e)

@@ -24,7 +24,8 @@
         <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
 
-      <Grid Grid.Row="0">
+      <Grid Grid.Row="0"
+            MouseLeftButtonDown="HeaderMouseLeftButtonDown">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto" />
           <ColumnDefinition Width="*" />
