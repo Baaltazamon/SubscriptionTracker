@@ -82,6 +82,7 @@
               <DatePicker Margin="0,6,0,14" SelectedDate="{Binding NextPaymentDate}" />
 
               <CheckBox Margin="0,18,0,10" IsChecked="{Binding AutoRenewal}" Content="{DynamicResource SubscriptionEditorAutoRenewal}" />
+              <CheckBox Margin="0,0,0,10" IsChecked="{Binding IsLowUsage}" Content="{DynamicResource SubscriptionEditorLowUsage}" />
               <CheckBox IsChecked="{Binding IsActive}" Content="{DynamicResource SubscriptionEditorIsActive}" />
             </StackPanel>
           </Grid>

@@ -16,6 +16,7 @@ public sealed class DatabaseInitializer(AppDbContext dbContext)
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+        await EnsureSubscriptionSchemaAsync(cancellationToken);
 
         if (!await dbContext.Categories.AnyAsync(cancellationToken))
         {
@@ -27,6 +28,54 @@ public sealed class DatabaseInitializer(AppDbContext dbContext)
         {
             await dbContext.Subscriptions.AddRangeAsync(GetSampleSubscriptions(), cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private async Task EnsureSubscriptionSchemaAsync(CancellationToken cancellationToken)
+    {
+        if (await ColumnExistsAsync("Subscriptions", "IsLowUsage", cancellationToken))
+        {
+            return;
+        }
+
+        await dbContext.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE Subscriptions ADD COLUMN IsLowUsage INTEGER NOT NULL DEFAULT 0;",
+            cancellationToken);
+    }
+
+    private async Task<bool> ColumnExistsAsync(string tableName, string columnName, CancellationToken cancellationToken)
+    {
+        var connection = dbContext.Database.GetDbConnection();
+        var shouldClose = false;
+
+        if (connection.State != System.Data.ConnectionState.Open)
+        {
+            await connection.OpenAsync(cancellationToken);
+            shouldClose = true;
+        }
+
+        try
+        {
+            await using var command = connection.CreateCommand();
+            command.CommandText = $"PRAGMA table_info({tableName});";
+
+            await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                if (string.Equals(reader["name"]?.ToString(), columnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        finally
+        {
+            if (shouldClose)
+            {
+                await connection.CloseAsync();
+            }
         }
     }
 
@@ -50,9 +99,9 @@ public sealed class DatabaseInitializer(AppDbContext dbContext)
         return
         [
             CreateSubscription("ChatGPT Plus", "Основная AI-подписка", AiCategoryId, 20m, "USD", BillingCycle.Monthly, new DateOnly(2026, 5, 17), new DateOnly(2026, 6, 17), 3, createdAtUtc),
-            CreateSubscription("Spotify", "Семейный музыкальный тариф", StreamingCategoryId, 10.99m, "USD", BillingCycle.Monthly, new DateOnly(2026, 5, 21), new DateOnly(2026, 5, 21), 2, createdAtUtc),
+            CreateSubscription("Spotify", "Семейный музыкальный тариф", StreamingCategoryId, 10.99m, "USD", BillingCycle.Monthly, new DateOnly(2026, 5, 21), new DateOnly(2026, 5, 21), 2, createdAtUtc, isLowUsage: true),
             CreateSubscription("Домен", "Продление основного домена", HostingCategoryId, 1200m, "RUB", BillingCycle.Yearly, new DateOnly(2026, 6, 1), new DateOnly(2026, 6, 1), 14, createdAtUtc),
-            CreateSubscription("Хостинг", "VPS для pet-проектов", HostingCategoryId, 600m, "RUB", BillingCycle.Monthly, new DateOnly(2026, 6, 1), new DateOnly(2026, 6, 1), 5, createdAtUtc)
+            CreateSubscription("Хостинг", "VPS для pet-проектов", HostingCategoryId, 600m, "RUB", BillingCycle.Monthly, new DateOnly(2026, 6, 1), new DateOnly(2026, 6, 1), 5, createdAtUtc, isLowUsage: true)
         ];
     }
 
@@ -66,7 +115,8 @@ public sealed class DatabaseInitializer(AppDbContext dbContext)
         DateOnly firstPaymentDate,
         DateOnly nextPaymentDate,
         int reminderDaysBefore,
-        DateTime createdAtUtc)
+        DateTime createdAtUtc,
+        bool isLowUsage = false)
     {
         var subscriptionId = Guid.NewGuid();
 
@@ -84,6 +134,7 @@ public sealed class DatabaseInitializer(AppDbContext dbContext)
             IsActive = true,
             AutoRenewal = true,
             ReminderDaysBefore = reminderDaysBefore,
+            IsLowUsage = isLowUsage,
             CreatedAtUtc = createdAtUtc,
             Payments =
             [

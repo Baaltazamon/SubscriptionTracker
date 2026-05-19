@@ -37,6 +37,8 @@
   <sys:String x:Key="DashboardMostExpensive">Most expensive subscription</sys:String>
   <sys:String x:Key="DashboardAverageDaily">Average daily spend</sys:String>
   <sys:String x:Key="DashboardPotentialSavings">Potential savings</sys:String>
+  <sys:String x:Key="DashboardCancelRecommendationsTitle">Worth reviewing</sys:String>
+  <sys:String x:Key="DashboardCancelRecommendationsSubtitle">Subscriptions marked as rarely used and likely worth cancelling first.</sys:String>
   <sys:String x:Key="DashboardForecast6Months">6-month spending forecast</sys:String>
 
   <sys:String x:Key="SubscriptionsSubtitle">Working subscription list with quick actions and filtering.</sys:String>
@@ -128,6 +130,7 @@
   <sys:String x:Key="SubscriptionEditorNextPaymentDate">Next payment date</sys:String>
   <sys:String x:Key="SubscriptionEditorReminderDays">Remind before N days</sys:String>
   <sys:String x:Key="SubscriptionEditorAutoRenewal">Auto renewal</sys:String>
+  <sys:String x:Key="SubscriptionEditorLowUsage">I rarely use this subscription</sys:String>
   <sys:String x:Key="SubscriptionEditorIsActive">Subscription is active</sys:String>
   <sys:String x:Key="SubscriptionEditorSave">Save</sys:String>
   <sys:String x:Key="SubscriptionEditorCancel">Cancel</sys:String>

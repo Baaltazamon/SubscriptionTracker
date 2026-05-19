@@ -32,6 +32,8 @@ public sealed class SubscriptionListItemDto
 
     public int ReminderDaysBefore { get; init; }
 
+    public bool IsLowUsage { get; init; }
+
     public decimal MonthlyCostInBaseCurrency { get; init; }
 
     public string BaseCurrency { get; init; } = "RUB";
