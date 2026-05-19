@@ -72,6 +72,13 @@
   <sys:String x:Key="AnalyticsDailyAverage">Средний расход в день</sys:String>
   <sys:String x:Key="AnalyticsDisableTop3">Если отключить топ-3</sys:String>
   <sys:String x:Key="AnalyticsMonthlySavings">Потенциальная экономия в месяц</sys:String>
+  <sys:String x:Key="AnalyticsForecastSubtitle">Прогноз регулярных списаний на 12 месяцев в базовой валюте.</sys:String>
+  <sys:String x:Key="AnalyticsCategorySubtitle">Помесячная структура расходов по категориям и их долям.</sys:String>
+  <sys:String x:Key="AnalyticsUpcomingTitle">Ближайшие 30 дней</sys:String>
+  <sys:String x:Key="AnalyticsUpcomingSubtitle">Предстоящие списания, сгруппированные по датам платежей.</sys:String>
+  <sys:String x:Key="AnalyticsTopSubscriptionsTitle">Топ подписок</sys:String>
+  <sys:String x:Key="AnalyticsTopSubscriptionsSubtitle">Подписки, которые сильнее всего нагружают месячный бюджет.</sys:String>
+  <sys:String x:Key="AnalyticsChargesSuffix">списаний</sys:String>
 
   <sys:String x:Key="SettingsSubtitle">Базовые параметры приложения, напоминаний и локального хранения.</sys:String>
   <sys:String x:Key="SettingsGeneral">Общие</sys:String>

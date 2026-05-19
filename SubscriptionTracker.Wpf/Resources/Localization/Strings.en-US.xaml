@@ -72,6 +72,13 @@
   <sys:String x:Key="AnalyticsDailyAverage">Average daily spend</sys:String>
   <sys:String x:Key="AnalyticsDisableTop3">If you cancel the top 3</sys:String>
   <sys:String x:Key="AnalyticsMonthlySavings">Potential monthly savings</sys:String>
+  <sys:String x:Key="AnalyticsForecastSubtitle">A 12-month projection of recurring charges in your base currency.</sys:String>
+  <sys:String x:Key="AnalyticsCategorySubtitle">Monthly breakdown by category with a quick share overview.</sys:String>
+  <sys:String x:Key="AnalyticsUpcomingTitle">Next 30 days</sys:String>
+  <sys:String x:Key="AnalyticsUpcomingSubtitle">Upcoming charges grouped by charge date.</sys:String>
+  <sys:String x:Key="AnalyticsTopSubscriptionsTitle">Top subscriptions</sys:String>
+  <sys:String x:Key="AnalyticsTopSubscriptionsSubtitle">The subscriptions creating the biggest monthly load.</sys:String>
+  <sys:String x:Key="AnalyticsChargesSuffix">charges</sys:String>
 
   <sys:String x:Key="SettingsSubtitle">Base app, reminder, and local storage settings.</sys:String>
   <sys:String x:Key="SettingsGeneral">General</sys:String>
