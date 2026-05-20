@@ -16,6 +16,7 @@ namespace SubscriptionTracker.Wpf.ViewModels;
 public sealed class AnalyticsViewModel : ViewModelBase
 {
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IAppSettingsService _appSettingsService;
     private DashboardSummaryDto _summary = new();
     private decimal _potentialSavings;
     private ISeries[] _forecastSeries = [];
@@ -32,9 +33,11 @@ public sealed class AnalyticsViewModel : ViewModelBase
 
     public AnalyticsViewModel(
         IServiceScopeFactory scopeFactory,
+        IAppSettingsService appSettingsService,
         IThemeService themeService)
     {
         _scopeFactory = scopeFactory;
+        _appSettingsService = appSettingsService;
         themeService.ThemeChanged += (_, _) => RebuildCharts();
     }
 
@@ -175,6 +178,7 @@ public sealed class AnalyticsViewModel : ViewModelBase
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
         var rangeEnd = today.AddDays(30);
+        var rates = _appSettingsService.GetSettings().ExchangeRatesToRub;
         var charges = new List<(DateOnly PaymentDate, string Name, string Category, decimal Amount, string BaseCurrency)>();
 
         foreach (var subscription in subscriptions.Where(static item => item.IsActive))
@@ -188,7 +192,7 @@ public sealed class AnalyticsViewModel : ViewModelBase
                         occurrence,
                         subscription.Name,
                         subscription.CategoryName,
-                        CurrencyConverter.Convert(subscription.Amount, subscription.Currency, Summary.BaseCurrency),
+                        CurrencyConverter.Convert(subscription.Amount, subscription.Currency, Summary.BaseCurrency, rates),
                         Summary.BaseCurrency));
                 }
 

@@ -108,6 +108,10 @@
   <sys:String x:Key="SettingsAbout">О приложении</sys:String>
   <sys:String x:Key="SettingsVersion">Версия</sys:String>
   <sys:String x:Key="SettingsDataProfile">Профиль данных</sys:String>
+  <sys:String x:Key="SettingsExchangeRates">Курсы валют</sys:String>
+  <sys:String x:Key="SettingsExchangeRatesSubtitle">Поддерживайте офлайн-курсы вручную относительно RUB. Эти значения используются в прогнозах, аналитике и итогах в выбранной базовой валюте.</sys:String>
+  <sys:String x:Key="SettingsExchangeRatesUpdated">Последнее обновление курсов</sys:String>
+  <sys:String x:Key="SettingsExchangeRatesReset">Сбросить по умолчанию</sys:String>
 
   <sys:String x:Key="CategoryAdd">Добавить категорию</sys:String>
   <sys:String x:Key="CategoryEdit">Переименовать</sys:String>

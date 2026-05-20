@@ -1,6 +1,7 @@
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
 using SubscriptionTracker.Application.Localization;
+using SubscriptionTracker.Domain.Services;
 using System.Text.Json;
 
 namespace SubscriptionTracker.Infrastructure;
@@ -54,6 +55,8 @@ public sealed class AppSettingsService : IAppSettingsService
         var defaults = new AppSettingsDto
         {
             BaseCurrency = "RUB",
+            ExchangeRatesToRub = CurrencyConverter.GetDefaultRatesToRub(),
+            ExchangeRatesUpdatedAtUtc = null,
             DatabasePath = Path.Combine(appDirectory, "subscription_tracker.db"),
             NotificationsEnabled = true,
             ReminderCheckIntervalMinutes = 60,
@@ -96,6 +99,8 @@ public sealed class AppSettingsService : IAppSettingsService
         return settings with
         {
             BaseCurrency = currency,
+            ExchangeRatesToRub = CurrencyConverter.NormalizeRatesToRub(settings.ExchangeRatesToRub),
+            ExchangeRatesUpdatedAtUtc = settings.ExchangeRatesUpdatedAtUtc,
             DatabasePath = string.IsNullOrWhiteSpace(settings.DatabasePath) ? settings.DatabasePath : settings.DatabasePath.Trim(),
             ReminderCheckIntervalMinutes = interval,
             LanguageCode = LocalizationCatalog.NormalizeLanguageCode(settings.LanguageCode),
