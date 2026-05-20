@@ -206,6 +206,12 @@ Release notes for the first public build are stored in:
 docs\release-notes\v0.1.0.md
 ```
 
+Release notes for the current stabilization release are stored in:
+
+```text
+docs\release-notes\v0.1.1.md
+```
+
 ## Installer Bundle
 
 This repository also includes a per-user installer bundle flow for release distribution:
