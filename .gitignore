@@ -23,6 +23,7 @@ obj/
 
 artifacts/
 _artifacts/
+_sandbox/
 
 export/
 exports/

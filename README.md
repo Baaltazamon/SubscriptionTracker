@@ -206,6 +206,20 @@ Release notes for the first public build are stored in:
 docs\release-notes\v0.1.0.md
 ```
 
+## Installer Bundle
+
+This repository also includes a per-user installer bundle flow for release distribution:
+
+```powershell
+.\installer\Create-InstallerBundle.ps1 -Version v0.1.1
+```
+
+Installer docs:
+
+```text
+docs\packaging\installer-bundle.md
+```
+
 ## Run Tests
 
 ```bash
@@ -238,13 +252,13 @@ The current automated tests cover:
 ### Near-term
 
 - Additional release polish for light theme and visual consistency
-- Packaging and release build preparation
+- First-run and installer validation for `v0.1.1`
 
 ### Future
 
 - More payment scenario tests
 - Optional live exchange rates
-- Installer/distribution workflow
+- Signed MSIX or installer experience
 - Richer reporting templates
 - Additional languages
 
