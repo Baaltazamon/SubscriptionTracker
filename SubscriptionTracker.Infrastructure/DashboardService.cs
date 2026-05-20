@@ -27,11 +27,13 @@ public sealed class DashboardService(AppDbContext dbContext, IAppSettingsService
                 MonthlyCost = CurrencyConverter.Convert(
                     RecurringPaymentCalculator.GetMonthlyCost(subscription.Amount, subscription.BillingCycle),
                     subscription.Currency,
-                    settings.BaseCurrency),
+                    settings.BaseCurrency,
+                    settings.ExchangeRatesToRub),
                 YearlyCost = CurrencyConverter.Convert(
                     RecurringPaymentCalculator.GetYearlyCost(subscription.Amount, subscription.BillingCycle),
                     subscription.Currency,
-                    settings.BaseCurrency)
+                    settings.BaseCurrency,
+                    settings.ExchangeRatesToRub)
             })
             .ToArray();
 
@@ -48,7 +50,7 @@ public sealed class DashboardService(AppDbContext dbContext, IAppSettingsService
                 Currency = subscription.Currency,
                 PaymentDate = subscription.NextPaymentDate,
                 Status = PaymentStatus.Planned,
-                AmountInBaseCurrency = CurrencyConverter.Convert(subscription.Amount, subscription.Currency, settings.BaseCurrency),
+                AmountInBaseCurrency = CurrencyConverter.Convert(subscription.Amount, subscription.Currency, settings.BaseCurrency, settings.ExchangeRatesToRub),
                 BaseCurrency = settings.BaseCurrency
             })
             .OrderBy(static payment => payment.PaymentDate)
@@ -68,7 +70,8 @@ public sealed class DashboardService(AppDbContext dbContext, IAppSettingsService
                 Total = group.Sum(item => CurrencyConverter.Convert(
                     RecurringPaymentCalculator.GetMonthlyCost(item.Amount, item.BillingCycle),
                     item.Currency,
-                    settings.BaseCurrency))
+                    settings.BaseCurrency,
+                    settings.ExchangeRatesToRub))
             })
             .OrderByDescending(static item => item.Total)
             .ToArray();
@@ -118,7 +121,7 @@ public sealed class DashboardService(AppDbContext dbContext, IAppSettingsService
             BaseCurrency = settings.BaseCurrency,
             UpcomingPayments = upcomingPayments,
             CategoryExpenses = categoryExpenses,
-            MonthlyForecast = BuildForecast(subscriptions, today, settings.BaseCurrency),
+            MonthlyForecast = BuildForecast(subscriptions, today, settings.BaseCurrency, settings.ExchangeRatesToRub),
             CancellationRecommendations = cancellationRecommendations
         };
     }
@@ -126,7 +129,8 @@ public sealed class DashboardService(AppDbContext dbContext, IAppSettingsService
     private static IReadOnlyList<MonthlyForecastPointDto> BuildForecast(
         IReadOnlyCollection<Domain.Entities.Subscription> subscriptions,
         DateOnly today,
-        string baseCurrency)
+        string baseCurrency,
+        IReadOnlyDictionary<string, decimal> exchangeRatesToRub)
     {
         var result = new List<MonthlyForecastPointDto>(12);
         var monthStart = new DateOnly(today.Year, today.Month, 1);
@@ -144,7 +148,7 @@ public sealed class DashboardService(AppDbContext dbContext, IAppSettingsService
                 {
                     if (occurrence >= start)
                     {
-                        total += CurrencyConverter.Convert(subscription.Amount, subscription.Currency, baseCurrency);
+                        total += CurrencyConverter.Convert(subscription.Amount, subscription.Currency, baseCurrency, exchangeRatesToRub);
                     }
 
                     occurrence = RecurringPaymentCalculator.GetNextDate(occurrence, subscription.BillingCycle);

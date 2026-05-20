@@ -108,6 +108,10 @@
   <sys:String x:Key="SettingsAbout">About</sys:String>
   <sys:String x:Key="SettingsVersion">Version</sys:String>
   <sys:String x:Key="SettingsDataProfile">Data profile</sys:String>
+  <sys:String x:Key="SettingsExchangeRates">Exchange rates</sys:String>
+  <sys:String x:Key="SettingsExchangeRatesSubtitle">Manually maintain offline rates relative to RUB. These rates are used for forecasts, analytics, and totals in the selected base currency.</sys:String>
+  <sys:String x:Key="SettingsExchangeRatesUpdated">Last rate update</sys:String>
+  <sys:String x:Key="SettingsExchangeRatesReset">Reset to defaults</sys:String>
 
   <sys:String x:Key="CategoryAdd">Add category</sys:String>
   <sys:String x:Key="CategoryEdit">Rename</sys:String>

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Interfaces;
@@ -29,6 +30,7 @@ public sealed class SettingsViewModel : ViewModelBase
     private OptionItem<string>? _selectedCurrencyOption;
     private OptionItem<int>? _selectedReminderIntervalOption;
     private CategoryListItemDto? _selectedCategory;
+    private DateTime? _exchangeRatesUpdatedAtUtc;
     private bool _areNotificationsEnabled;
     private bool _launchOnStartup;
 
@@ -63,6 +65,7 @@ public sealed class SettingsViewModel : ViewModelBase
         DeleteCategoryCommand = new AsyncRelayCommand(DeleteCategoryAsync, () => SelectedCategory is not null && !SelectedCategory.IsSystem);
         UseDarkThemeCommand = new AsyncRelayCommand(() => SetThemeAsync(AppTheme.Dark));
         UseLightThemeCommand = new AsyncRelayCommand(() => SetThemeAsync(AppTheme.Light));
+        ResetExchangeRatesCommand = new RelayCommand(ResetExchangeRates);
 
         _localizationService.LanguageChanged += (_, _) => RebuildOptions();
         LoadFromSettings(_appSettingsService.GetSettings());
@@ -88,6 +91,8 @@ public sealed class SettingsViewModel : ViewModelBase
     }
 
     public ObservableCollection<CategoryListItemDto> Categories { get; } = [];
+
+    public ObservableCollection<CurrencyRateItemViewModel> ExchangeRates { get; } = [];
 
     public OptionItem<string>? SelectedLanguageOption
     {
@@ -146,6 +151,10 @@ public sealed class SettingsViewModel : ViewModelBase
 
     public string DataProfileText => LocalizationCatalog.Get("DataProfileText");
 
+    public string ExchangeRatesUpdatedLabel => _exchangeRatesUpdatedAtUtc.HasValue
+        ? LocalizationCatalog.Format("ExchangeRatesUpdatedFormat", _exchangeRatesUpdatedAtUtc.Value.ToLocalTime())
+        : LocalizationCatalog.Get("ExchangeRatesUpdatedEmpty");
+
     public int CategoryCount => Categories.Count;
 
     public int CustomCategoryCount => Categories.Count(static item => !item.IsSystem);
@@ -168,6 +177,8 @@ public sealed class SettingsViewModel : ViewModelBase
 
     public AsyncRelayCommand UseLightThemeCommand { get; }
 
+    public RelayCommand ResetExchangeRatesCommand { get; }
+
     public override async Task RefreshAsync()
     {
         await LoadCategoriesAsync();
@@ -175,21 +186,35 @@ public sealed class SettingsViewModel : ViewModelBase
 
     private async Task SavePreferencesAsync()
     {
-        var current = _appSettingsService.GetSettings();
-        var updated = current with
+        try
         {
-            BaseCurrency = SelectedCurrencyOption?.Value ?? current.BaseCurrency,
-            LanguageCode = SelectedLanguageOption?.Value ?? current.LanguageCode,
-            ReminderCheckIntervalMinutes = SelectedReminderIntervalOption?.Value ?? current.ReminderCheckIntervalMinutes,
-            NotificationsEnabled = AreNotificationsEnabled,
-            LaunchOnStartup = LaunchOnStartup
-        };
+            var current = _appSettingsService.GetSettings();
+            var updatedExchangeRates = BuildExchangeRatesOrThrow();
+            var updated = current with
+            {
+                BaseCurrency = SelectedCurrencyOption?.Value ?? current.BaseCurrency,
+                ExchangeRatesToRub = updatedExchangeRates,
+                ExchangeRatesUpdatedAtUtc = HaveExchangeRatesChanged(current.ExchangeRatesToRub, updatedExchangeRates)
+                    ? DateTime.UtcNow
+                    : current.ExchangeRatesUpdatedAtUtc,
+                LanguageCode = SelectedLanguageOption?.Value ?? current.LanguageCode,
+                ReminderCheckIntervalMinutes = SelectedReminderIntervalOption?.Value ?? current.ReminderCheckIntervalMinutes,
+                NotificationsEnabled = AreNotificationsEnabled,
+                LaunchOnStartup = LaunchOnStartup
+            };
 
-        await _appSettingsService.SaveAsync(updated);
-        await _autoStartService.SetEnabledAsync(updated.LaunchOnStartup);
-        _localizationService.ApplyLanguage(updated.LanguageCode);
-        _eventBus.PublishSettingsChanged();
-        RaiseReadonlyProperties();
+            await _appSettingsService.SaveAsync(updated);
+            LoadFromSettings(_appSettingsService.GetSettings());
+            RebuildOptions();
+            await _autoStartService.SetEnabledAsync(updated.LaunchOnStartup);
+            _localizationService.ApplyLanguage(updated.LanguageCode);
+            _eventBus.PublishSettingsChanged();
+            RaiseReadonlyProperties();
+        }
+        catch (Exception exception)
+        {
+            _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("SaveFailedTitle"));
+        }
     }
 
     private async Task SetThemeAsync(AppTheme theme)
@@ -272,6 +297,8 @@ public sealed class SettingsViewModel : ViewModelBase
     {
         AreNotificationsEnabled = settings.NotificationsEnabled;
         LaunchOnStartup = _autoStartService.IsEnabled();
+        _exchangeRatesUpdatedAtUtc = settings.ExchangeRatesUpdatedAtUtc;
+        LoadExchangeRates(settings.ExchangeRatesToRub);
     }
 
     private async Task AddCategoryAsync()
@@ -343,7 +370,7 @@ public sealed class SettingsViewModel : ViewModelBase
             new OptionItem<string> { Value = "en-US", Label = LocalizationCatalog.Get("LanguageEnglish") }
         ];
 
-        CurrencyOptions = CurrencyConverter.GetSupportedCurrencies()
+        CurrencyOptions = CurrencyConverter.GetSupportedCurrencies(settings.ExchangeRatesToRub)
             .Select(currency => new OptionItem<string> { Value = currency, Label = currency })
             .ToArray();
 
@@ -362,6 +389,13 @@ public sealed class SettingsViewModel : ViewModelBase
         LaunchOnStartup = _autoStartService.IsEnabled();
 
         RaiseReadonlyProperties();
+    }
+
+    private void ResetExchangeRates()
+    {
+        LoadExchangeRates(CurrencyConverter.GetDefaultRatesToRub());
+        _exchangeRatesUpdatedAtUtc = null;
+        RaisePropertyChanged(nameof(ExchangeRatesUpdatedLabel));
     }
 
     private async Task SaveCategoryAsync(SaveCategoryRequest request)
@@ -413,6 +447,7 @@ public sealed class SettingsViewModel : ViewModelBase
         RaisePropertyChanged(nameof(BackupStatus));
         RaisePropertyChanged(nameof(AppVersion));
         RaisePropertyChanged(nameof(DataProfileText));
+        RaisePropertyChanged(nameof(ExchangeRatesUpdatedLabel));
     }
 
     private void RaiseCategorySummaryProperties()
@@ -422,5 +457,80 @@ public sealed class SettingsViewModel : ViewModelBase
         RaisePropertyChanged(nameof(LinkedSubscriptionCount));
         EditCategoryCommand.NotifyCanExecuteChanged();
         DeleteCategoryCommand.NotifyCanExecuteChanged();
+    }
+
+    private void LoadExchangeRates(IReadOnlyDictionary<string, decimal> ratesToRub)
+    {
+        var normalizedRates = CurrencyConverter.NormalizeRatesToRub(ratesToRub);
+        var orderedCurrencies = CurrencyConverter.GetSupportedCurrencies(normalizedRates);
+
+        ExchangeRates.Clear();
+        foreach (var currency in orderedCurrencies)
+        {
+            ExchangeRates.Add(new CurrencyRateItemViewModel
+            {
+                CurrencyCode = currency,
+                DisplayLabel = currency,
+                RateText = normalizedRates[currency].ToString("0.##", CultureInfo.CurrentCulture)
+            });
+        }
+    }
+
+    private Dictionary<string, decimal> BuildExchangeRatesOrThrow()
+    {
+        var result = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var item in ExchangeRates)
+        {
+            if (item.IsReadOnly)
+            {
+                result[item.CurrencyCode] = 1m;
+                continue;
+            }
+
+            var parsed = item.ParseRate();
+            if (!parsed.HasValue)
+            {
+                throw new InvalidOperationException(LocalizationCatalog.Format("ExchangeRateInvalidFormat", item.CurrencyCode));
+            }
+
+            if (parsed.Value <= 0m)
+            {
+                throw new InvalidOperationException(LocalizationCatalog.Format("ExchangeRateMustBePositive", item.CurrencyCode));
+            }
+
+            result[item.CurrencyCode] = parsed.Value;
+        }
+
+        return CurrencyConverter.NormalizeRatesToRub(result)
+            .ToDictionary(static pair => pair.Key, static pair => pair.Value, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static bool HaveExchangeRatesChanged(
+        IReadOnlyDictionary<string, decimal> current,
+        IReadOnlyDictionary<string, decimal> updated)
+    {
+        var normalizedCurrent = CurrencyConverter.NormalizeRatesToRub(current);
+        var normalizedUpdated = CurrencyConverter.NormalizeRatesToRub(updated);
+
+        if (normalizedCurrent.Count != normalizedUpdated.Count)
+        {
+            return true;
+        }
+
+        foreach (var pair in normalizedCurrent)
+        {
+            if (!normalizedUpdated.TryGetValue(pair.Key, out var updatedValue))
+            {
+                return true;
+            }
+
+            if (pair.Value != updatedValue)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

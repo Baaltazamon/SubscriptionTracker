@@ -95,6 +95,70 @@
       </UniformGrid>
 
       <UniformGrid Columns="2">
+        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,14">
+          <StackPanel>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+
+              <StackPanel Grid.Column="0">
+                <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{DynamicResource SettingsExchangeRates}" />
+                <TextBlock Margin="0,6,0,0"
+                           Foreground="{DynamicResource AppMutedBrush}"
+                           Text="{DynamicResource SettingsExchangeRatesSubtitle}"
+                           TextWrapping="Wrap" />
+              </StackPanel>
+
+              <Button Grid.Column="1"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Top"
+                      Style="{StaticResource SecondaryButtonStyle}"
+                      Command="{Binding ResetExchangeRatesCommand}"
+                      Content="{DynamicResource SettingsExchangeRatesReset}" />
+            </Grid>
+
+            <Grid Margin="0,16,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+
+              <TextBlock Grid.Column="0"
+                         Foreground="{DynamicResource AppMutedBrush}"
+                         Text="{DynamicResource SettingsExchangeRatesUpdated}" />
+              <TextBlock Grid.Column="1"
+                         Text="{Binding ExchangeRatesUpdatedLabel}"
+                         TextWrapping="Wrap" />
+            </Grid>
+
+            <ItemsControl Margin="0,16,0,0"
+                          ItemsSource="{Binding ExchangeRates}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="80" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               FontWeight="SemiBold"
+                               Text="{Binding DisplayLabel}" />
+                    <TextBox Grid.Column="1"
+                             Text="{Binding RateText, UpdateSourceTrigger=PropertyChanged}"
+                             IsReadOnly="{Binding IsReadOnly}" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <Border Background="Transparent" Margin="0,0,0,14" />
+
         <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,14,0">
           <StackPanel>
             <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{DynamicResource SettingsStorage}" />

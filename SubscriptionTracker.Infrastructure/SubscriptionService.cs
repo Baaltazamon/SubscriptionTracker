@@ -40,7 +40,8 @@ public sealed class SubscriptionService(AppDbContext dbContext, IAppSettingsServ
                 MonthlyCostInBaseCurrency = CurrencyConverter.Convert(
                     RecurringPaymentCalculator.GetMonthlyCost(subscription.Amount, subscription.BillingCycle),
                     subscription.Currency,
-                    settings.BaseCurrency),
+                    settings.BaseCurrency,
+                    settings.ExchangeRatesToRub),
                 BaseCurrency = settings.BaseCurrency,
                 DueSoon = subscription.IsActive && subscription.NextPaymentDate <= today.AddDays(7)
             })
@@ -74,7 +75,7 @@ public sealed class SubscriptionService(AppDbContext dbContext, IAppSettingsServ
                     Currency = subscription.Currency,
                     PaymentDate = occurrence,
                     Status = PaymentStatus.Planned,
-                    AmountInBaseCurrency = CurrencyConverter.Convert(subscription.Amount, subscription.Currency, settings.BaseCurrency),
+                    AmountInBaseCurrency = CurrencyConverter.Convert(subscription.Amount, subscription.Currency, settings.BaseCurrency, settings.ExchangeRatesToRub),
                     BaseCurrency = settings.BaseCurrency
                 });
 
