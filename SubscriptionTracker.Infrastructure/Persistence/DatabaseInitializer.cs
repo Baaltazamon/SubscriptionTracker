@@ -17,6 +17,7 @@ public sealed class DatabaseInitializer(AppDbContext dbContext)
     {
         await dbContext.Database.EnsureCreatedAsync(cancellationToken);
         await EnsureSubscriptionSchemaAsync(cancellationToken);
+        await EnsureImportSessionSchemaAsync(cancellationToken);
 
         if (!await dbContext.Categories.AnyAsync(cancellationToken))
         {
@@ -40,6 +41,45 @@ public sealed class DatabaseInitializer(AppDbContext dbContext)
 
         await dbContext.Database.ExecuteSqlRawAsync(
             "ALTER TABLE Subscriptions ADD COLUMN IsLowUsage INTEGER NOT NULL DEFAULT 0;",
+            cancellationToken);
+    }
+
+    private async Task EnsureImportSessionSchemaAsync(CancellationToken cancellationToken)
+    {
+        await dbContext.Database.ExecuteSqlRawAsync(
+            """
+            CREATE TABLE IF NOT EXISTS ImportSessions (
+                Id TEXT NOT NULL CONSTRAINT PK_ImportSessions PRIMARY KEY,
+                SourceFileName TEXT NOT NULL,
+                CreatedAtUtc TEXT NOT NULL,
+                AppliedRowsCount INTEGER NOT NULL,
+                CreatedCount INTEGER NOT NULL,
+                UpdatedCount INTEGER NOT NULL,
+                CreatedCategoryCount INTEGER NOT NULL
+            );
+            """,
+            cancellationToken);
+
+        await dbContext.Database.ExecuteSqlRawAsync(
+            """
+            CREATE TABLE IF NOT EXISTS ImportSessionEntries (
+                Id TEXT NOT NULL CONSTRAINT PK_ImportSessionEntries PRIMARY KEY,
+                ImportSessionId TEXT NOT NULL,
+                Kind INTEGER NOT NULL,
+                EntityId TEXT NOT NULL,
+                SnapshotJson TEXT NULL,
+                DisplayName TEXT NULL,
+                CONSTRAINT FK_ImportSessionEntries_ImportSessions_ImportSessionId
+                    FOREIGN KEY (ImportSessionId) REFERENCES ImportSessions (Id) ON DELETE CASCADE
+            );
+            """,
+            cancellationToken);
+
+        await dbContext.Database.ExecuteSqlRawAsync(
+            """
+            CREATE INDEX IF NOT EXISTS IX_ImportSessionEntries_ImportSessionId
+            ON ImportSessionEntries (ImportSessionId);
+            """,
             cancellationToken);
     }
 

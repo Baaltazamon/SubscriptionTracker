@@ -88,6 +88,7 @@
           <Button Style="{StaticResource NeutralButtonStyle}" Command="{Binding SkipCommand}" Content="{DynamicResource SubscriptionsSkip}" />
           <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ToggleActiveCommand}" Content="{DynamicResource SubscriptionsToggle}" />
           <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ImportCommand}" Content="{DynamicResource SubscriptionsImport}" />
+          <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding UndoLastImportCommand}" Content="{DynamicResource SubscriptionsUndoLastImport}" />
           <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding DownloadImportTemplateCommand}" Content="{DynamicResource SubscriptionsImportTemplate}" />
           <Button Style="{StaticResource SecondaryButtonStyle}" Command="{Binding ExportCommand}" Content="{DynamicResource SubscriptionsExport}" />
           <Button Style="{StaticResource DangerButtonStyle}" Command="{Binding DeleteCommand}" Content="{DynamicResource SubscriptionsDelete}" />

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using SubscriptionTracker.Application.DTO;
@@ -16,6 +17,7 @@ public sealed class SubscriptionImportService(
 {
     private static readonly string[] SupportedExtensions = [".xlsx", ".csv"];
     private const string DefaultCategoryColor = "#94A3B8";
+    private static readonly JsonSerializerOptions SnapshotJsonOptions = new(JsonSerializerDefaults.Web);
 
     public async Task<ImportSubscriptionsPreviewDto> PreviewAsync(string filePath, CancellationToken cancellationToken = default)
     {
@@ -50,14 +52,48 @@ public sealed class SubscriptionImportService(
     public async Task<ImportSubscriptionsResultDto> ImportAsync(string filePath, CancellationToken cancellationToken = default)
     {
         var plan = await BuildImportPlanAsync(filePath, cancellationToken);
+        var actionableItems = plan.Items.Where(static item => item.Action is ImportPreviewAction.Create or ImportPreviewAction.Update).ToArray();
+
+        if (actionableItems.Length == 0)
+        {
+            return new ImportSubscriptionsResultDto
+            {
+                TotalRows = plan.TotalRows,
+                CreatedCount = 0,
+                UpdatedCount = 0,
+                CreatedCategoryCount = 0,
+                SkippedCount = plan.SkippedCount,
+                Warnings = plan.Warnings
+            };
+        }
 
         var categoriesByName = await dbContext.Categories
             .ToDictionaryAsync(static item => NormalizeKey(item.Name), cancellationToken);
 
         var createdCategories = new HashSet<string>(StringComparer.Ordinal);
-
-        foreach (var item in plan.Items.Where(static item => item.Action is ImportPreviewAction.Create or ImportPreviewAction.Update))
+        var importSession = new ImportSession
         {
+            Id = Guid.NewGuid(),
+            SourceFileName = Path.GetFileName(filePath),
+            CreatedAtUtc = DateTime.UtcNow,
+            AppliedRowsCount = actionableItems.Length,
+            CreatedCount = actionableItems.Count(static item => item.Action == ImportPreviewAction.Create),
+            UpdatedCount = actionableItems.Count(static item => item.Action == ImportPreviewAction.Update),
+            CreatedCategoryCount = 0
+        };
+
+        await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        await dbContext.ImportSessions.AddAsync(importSession, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        foreach (var item in actionableItems)
+        {
+            SubscriptionSnapshot? snapshot = null;
+            if (item.Action == ImportPreviewAction.Update && item.SubscriptionId is { } subscriptionId)
+            {
+                snapshot = await CreateSnapshotAsync(subscriptionId, cancellationToken);
+            }
+
             var categoryKey = NormalizeKey(item.CategoryName);
             if (!categoriesByName.TryGetValue(categoryKey, out var category))
             {
@@ -73,6 +109,16 @@ public sealed class SubscriptionImportService(
                 await dbContext.SaveChangesAsync(cancellationToken);
                 categoriesByName[categoryKey] = category;
                 createdCategories.Add(categoryKey);
+                importSession.CreatedCategoryCount = createdCategories.Count;
+
+                await dbContext.ImportSessionEntries.AddAsync(new ImportSessionEntry
+                {
+                    Id = Guid.NewGuid(),
+                    ImportSessionId = importSession.Id,
+                    Kind = ImportSessionEntryKind.CategoryCreated,
+                    EntityId = category.Id,
+                    DisplayName = category.Name
+                }, cancellationToken);
             }
 
             var request = new SaveSubscriptionRequest
@@ -92,8 +138,23 @@ public sealed class SubscriptionImportService(
                 IsLowUsage = item.IsLowUsage
             };
 
-            await subscriptionService.SaveAsync(request, cancellationToken);
+            var saved = await subscriptionService.SaveAsync(request, cancellationToken);
+
+            await dbContext.ImportSessionEntries.AddAsync(new ImportSessionEntry
+            {
+                Id = Guid.NewGuid(),
+                ImportSessionId = importSession.Id,
+                Kind = item.Action == ImportPreviewAction.Create
+                    ? ImportSessionEntryKind.SubscriptionCreated
+                    : ImportSessionEntryKind.SubscriptionUpdated,
+                EntityId = saved.Id,
+                DisplayName = saved.Name,
+                SnapshotJson = snapshot is null ? null : JsonSerializer.Serialize(snapshot, SnapshotJsonOptions)
+            }, cancellationToken);
         }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         return new ImportSubscriptionsResultDto
         {
@@ -103,6 +164,46 @@ public sealed class SubscriptionImportService(
             CreatedCategoryCount = createdCategories.Count,
             SkippedCount = plan.SkippedCount,
             Warnings = plan.Warnings
+        };
+    }
+
+    private async Task<SubscriptionSnapshot> CreateSnapshotAsync(Guid subscriptionId, CancellationToken cancellationToken)
+    {
+        var subscription = await dbContext.Subscriptions
+            .AsNoTracking()
+            .Include(static item => item.Payments)
+            .FirstAsync(item => item.Id == subscriptionId, cancellationToken);
+
+        return new SubscriptionSnapshot
+        {
+            Id = subscription.Id,
+            Name = subscription.Name,
+            Description = subscription.Description,
+            CategoryId = subscription.CategoryId,
+            Amount = subscription.Amount,
+            Currency = subscription.Currency,
+            BillingCycle = subscription.BillingCycle,
+            FirstPaymentDate = subscription.FirstPaymentDate,
+            NextPaymentDate = subscription.NextPaymentDate,
+            IsActive = subscription.IsActive,
+            AutoRenewal = subscription.AutoRenewal,
+            ReminderDaysBefore = subscription.ReminderDaysBefore,
+            IsLowUsage = subscription.IsLowUsage,
+            LastUsedDate = subscription.LastUsedDate,
+            CreatedAtUtc = subscription.CreatedAtUtc,
+            UpdatedAtUtc = subscription.UpdatedAtUtc,
+            Payments = subscription.Payments
+                .Select(static payment => new PaymentHistorySnapshot
+                {
+                    Id = payment.Id,
+                    Amount = payment.Amount,
+                    Currency = payment.Currency,
+                    PaymentDate = payment.PaymentDate,
+                    Status = payment.Status,
+                    Note = payment.Note,
+                    CreatedAtUtc = payment.CreatedAtUtc
+                })
+                .ToList()
         };
     }
 
@@ -621,5 +722,59 @@ public sealed class SubscriptionImportService(
                 DateTimeStyles.None,
                 out date);
         }
+    }
+
+    internal sealed class SubscriptionSnapshot
+    {
+        public Guid Id { get; init; }
+
+        public string Name { get; init; } = string.Empty;
+
+        public string? Description { get; init; }
+
+        public Guid CategoryId { get; init; }
+
+        public decimal Amount { get; init; }
+
+        public string Currency { get; init; } = "RUB";
+
+        public BillingCycle BillingCycle { get; init; }
+
+        public DateOnly FirstPaymentDate { get; init; }
+
+        public DateOnly NextPaymentDate { get; init; }
+
+        public bool IsActive { get; init; }
+
+        public bool AutoRenewal { get; init; }
+
+        public int ReminderDaysBefore { get; init; }
+
+        public bool IsLowUsage { get; init; }
+
+        public DateOnly? LastUsedDate { get; init; }
+
+        public DateTime CreatedAtUtc { get; init; }
+
+        public DateTime? UpdatedAtUtc { get; init; }
+
+        public List<PaymentHistorySnapshot> Payments { get; init; } = [];
+    }
+
+    internal sealed class PaymentHistorySnapshot
+    {
+        public Guid Id { get; init; }
+
+        public decimal Amount { get; init; }
+
+        public string Currency { get; init; } = "RUB";
+
+        public DateOnly PaymentDate { get; init; }
+
+        public PaymentStatus Status { get; init; }
+
+        public string? Note { get; init; }
+
+        public DateTime CreatedAtUtc { get; init; }
     }
 }

@@ -51,6 +51,7 @@
   <sys:String x:Key="SubscriptionsSkip">Skip</sys:String>
   <sys:String x:Key="SubscriptionsToggle">Toggle</sys:String>
   <sys:String x:Key="SubscriptionsImport">Import</sys:String>
+  <sys:String x:Key="SubscriptionsUndoLastImport">Undo last import</sys:String>
   <sys:String x:Key="SubscriptionsImportTemplate">Download template</sys:String>
   <sys:String x:Key="SubscriptionsExport">Export to Excel</sys:String>
   <sys:String x:Key="ImportPreviewSubtitle">Review which subscriptions will be created, updated, or skipped before applying the file.</sys:String>
