@@ -50,6 +50,7 @@
   <sys:String x:Key="SubscriptionsMarkPaid">Отметить как оплачено</sys:String>
   <sys:String x:Key="SubscriptionsSkip">Пропустить</sys:String>
   <sys:String x:Key="SubscriptionsToggle">Вкл/выкл</sys:String>
+  <sys:String x:Key="SubscriptionsImport">Импорт</sys:String>
   <sys:String x:Key="SubscriptionsExport">Экспорт в Excel</sys:String>
   <sys:String x:Key="SubscriptionsDelete">Удалить</sys:String>
   <sys:String x:Key="SubscriptionsCategory">Категория</sys:String>

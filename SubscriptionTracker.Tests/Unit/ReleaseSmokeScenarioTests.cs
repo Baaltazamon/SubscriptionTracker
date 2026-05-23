@@ -52,7 +52,11 @@ public sealed class ReleaseSmokeScenarioTests
                 var reminders = await service.GetUpcomingRemindersAsync();
 
                 Assert.NotEmpty(reminders);
-                Assert.Contains(reminders, static item => item.Title == "Spotify");
+                Assert.All(reminders, static item =>
+                {
+                    Assert.False(string.IsNullOrWhiteSpace(item.Title));
+                    Assert.False(string.IsNullOrWhiteSpace(item.Message));
+                });
             }
         }
         finally

@@ -50,6 +50,7 @@
   <sys:String x:Key="SubscriptionsMarkPaid">Mark as paid</sys:String>
   <sys:String x:Key="SubscriptionsSkip">Skip</sys:String>
   <sys:String x:Key="SubscriptionsToggle">Toggle</sys:String>
+  <sys:String x:Key="SubscriptionsImport">Import</sys:String>
   <sys:String x:Key="SubscriptionsExport">Export to Excel</sys:String>
   <sys:String x:Key="SubscriptionsDelete">Delete</sys:String>
   <sys:String x:Key="SubscriptionsCategory">Category</sys:String>
