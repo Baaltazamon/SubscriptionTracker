@@ -17,6 +17,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
     private readonly AppEventBus _eventBus;
     private readonly ISubscriptionEditorService _subscriptionEditorService;
     private readonly IImportPreviewDialogService _importPreviewDialogService;
+    private readonly IImportRollbackService _importRollbackService;
     private readonly IDialogService _dialogService;
     private readonly IAppSettingsService _appSettingsService;
     private readonly ILocalizationService _localizationService;
@@ -30,6 +31,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         AppEventBus eventBus,
         ISubscriptionEditorService subscriptionEditorService,
         IImportPreviewDialogService importPreviewDialogService,
+        IImportRollbackService importRollbackService,
         IDialogService dialogService,
         IAppSettingsService appSettingsService,
         ILocalizationService localizationService)
@@ -38,6 +40,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         _eventBus = eventBus;
         _subscriptionEditorService = subscriptionEditorService;
         _importPreviewDialogService = importPreviewDialogService;
+        _importRollbackService = importRollbackService;
         _dialogService = dialogService;
         _appSettingsService = appSettingsService;
         _localizationService = localizationService;
@@ -53,6 +56,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         ToggleActiveCommand = new AsyncRelayCommand(ToggleActiveAsync, () => SelectedItem is not null);
         ExportCommand = new AsyncRelayCommand(ExportAsync);
         ImportCommand = new AsyncRelayCommand(ImportAsync);
+        UndoLastImportCommand = new AsyncRelayCommand(UndoLastImportAsync);
         DownloadImportTemplateCommand = new AsyncRelayCommand(DownloadImportTemplateAsync);
 
         _localizationService.LanguageChanged += (_, _) => RebuildFilters();
@@ -118,6 +122,8 @@ public sealed class SubscriptionsViewModel : ViewModelBase
     public AsyncRelayCommand ExportCommand { get; }
 
     public AsyncRelayCommand ImportCommand { get; }
+
+    public AsyncRelayCommand UndoLastImportCommand { get; }
 
     public AsyncRelayCommand DownloadImportTemplateCommand { get; }
 
@@ -394,6 +400,57 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         catch (Exception exception)
         {
             _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("ImportTemplateFailedTitle"));
+        }
+    }
+
+    private async Task UndoLastImportAsync()
+    {
+        try
+        {
+            var preview = await _importRollbackService.GetLastImportAsync();
+            if (preview is null)
+            {
+                _dialogService.ShowInfo(
+                    LocalizationCatalog.Get("ImportRollbackUnavailableMessage"),
+                    LocalizationCatalog.Get("ImportRollbackUnavailableTitle"));
+                return;
+            }
+
+            var shouldRollback = _dialogService.Confirm(
+                LocalizationCatalog.Format(
+                    "ImportRollbackConfirmMessage",
+                    preview.SourceFileName,
+                    preview.CreatedAtUtc.ToLocalTime(),
+                    preview.AppliedRowsCount,
+                    preview.CreatedCount,
+                    preview.UpdatedCount,
+                    preview.CreatedCategoryCount),
+                LocalizationCatalog.Get("ImportRollbackConfirmTitle"),
+                DialogKind.Warning,
+                DialogButton.Restore,
+                DialogButton.Cancel);
+
+            if (!shouldRollback)
+            {
+                return;
+            }
+
+            var result = await _importRollbackService.RollbackLastImportAsync();
+            await RefreshAsync();
+            _eventBus.PublishDataChanged();
+
+            _dialogService.ShowInfo(
+                LocalizationCatalog.Format(
+                    "ImportRollbackCompletedMessage",
+                    result.SourceFileName,
+                    result.DeletedSubscriptionsCount,
+                    result.RestoredSubscriptionsCount,
+                    result.DeletedCategoriesCount),
+                LocalizationCatalog.Get("ImportRollbackCompletedTitle"));
+        }
+        catch (Exception exception)
+        {
+            _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("ImportRollbackFailedTitle"));
         }
     }
 

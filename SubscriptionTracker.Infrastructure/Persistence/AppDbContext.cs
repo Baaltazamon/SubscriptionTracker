@@ -11,6 +11,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<PaymentHistory> PaymentHistories => Set<PaymentHistory>();
 
+    public DbSet<ImportSession> ImportSessions => Set<ImportSession>();
+
+    public DbSet<ImportSessionEntry> ImportSessionEntries => Set<ImportSessionEntry>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(builder =>
@@ -47,6 +51,25 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             builder.HasOne(static payment => payment.Subscription)
                 .WithMany(static subscription => subscription.Payments)
                 .HasForeignKey(static payment => payment.SubscriptionId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ImportSession>(builder =>
+        {
+            builder.ToTable("ImportSessions");
+            builder.HasKey(static session => session.Id);
+            builder.Property(static session => session.SourceFileName).HasMaxLength(260).IsRequired();
+        });
+
+        modelBuilder.Entity<ImportSessionEntry>(builder =>
+        {
+            builder.ToTable("ImportSessionEntries");
+            builder.HasKey(static entry => entry.Id);
+            builder.Property(static entry => entry.SnapshotJson).HasMaxLength(16000);
+            builder.Property(static entry => entry.DisplayName).HasMaxLength(180);
+            builder.HasOne(static entry => entry.ImportSession)
+                .WithMany(static session => session.Entries)
+                .HasForeignKey(static entry => entry.ImportSessionId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
