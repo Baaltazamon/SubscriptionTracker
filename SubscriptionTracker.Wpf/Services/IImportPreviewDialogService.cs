@@ -4,5 +4,5 @@ namespace SubscriptionTracker.Wpf.Services;
 
 public interface IImportPreviewDialogService
 {
-    Task<bool> ShowAsync(ImportSubscriptionsPreviewDto preview, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<int>?> ShowAsync(ImportSubscriptionsPreviewDto preview, CancellationToken cancellationToken = default);
 }

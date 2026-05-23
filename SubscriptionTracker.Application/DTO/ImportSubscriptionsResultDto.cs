@@ -12,5 +12,7 @@ public sealed class ImportSubscriptionsResultDto
 
     public int SkippedCount { get; init; }
 
+    public int IgnoredCount { get; init; }
+
     public IReadOnlyList<string> Warnings { get; init; } = [];
 }
