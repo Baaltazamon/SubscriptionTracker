@@ -224,12 +224,18 @@ Release notes for the current stabilization release are stored in:
 docs\release-notes\v0.1.1.md
 ```
 
+Release notes for the current feature release are stored in:
+
+```text
+docs\release-notes\v0.2.0.md
+```
+
 ## Installer Bundle
 
 This repository also includes a per-user installer bundle flow for release distribution:
 
 ```powershell
-.\installer\Create-InstallerBundle.ps1 -Version v0.1.1
+.\installer\Create-InstallerBundle.ps1 -Version v0.2.0
 ```
 
 Installer docs:
