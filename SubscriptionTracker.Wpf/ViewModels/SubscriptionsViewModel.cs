@@ -50,6 +50,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         ToggleActiveCommand = new AsyncRelayCommand(ToggleActiveAsync, () => SelectedItem is not null);
         ExportCommand = new AsyncRelayCommand(ExportAsync);
         ImportCommand = new AsyncRelayCommand(ImportAsync);
+        DownloadImportTemplateCommand = new AsyncRelayCommand(DownloadImportTemplateAsync);
 
         _localizationService.LanguageChanged += (_, _) => RebuildFilters();
         RebuildFilters();
@@ -114,6 +115,8 @@ public sealed class SubscriptionsViewModel : ViewModelBase
     public AsyncRelayCommand ExportCommand { get; }
 
     public AsyncRelayCommand ImportCommand { get; }
+
+    public AsyncRelayCommand DownloadImportTemplateCommand { get; }
 
     public SubscriptionListItemDto? SelectedItem
     {
@@ -349,6 +352,37 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         catch (Exception exception)
         {
             _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("ImportFailedTitle"));
+        }
+    }
+
+    private async Task DownloadImportTemplateAsync()
+    {
+        var dialog = new SaveFileDialog
+        {
+            FileName = LocalizationCatalog.Get("ImportTemplateDefaultFileName"),
+            DefaultExt = ".xlsx",
+            AddExtension = true,
+            Filter = LocalizationCatalog.Get("ImportTemplateFileDialogFilter")
+        };
+
+        if (dialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var templateService = scope.ServiceProvider.GetRequiredService<ISubscriptionImportTemplateService>();
+            await templateService.CreateTemplateAsync(dialog.FileName);
+
+            _dialogService.ShowInfo(
+                LocalizationCatalog.Format("ImportTemplateCompletedMessage", dialog.FileName),
+                LocalizationCatalog.Get("ImportTemplateCompletedTitle"));
+        }
+        catch (Exception exception)
+        {
+            _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("ImportTemplateFailedTitle"));
         }
     }
 
