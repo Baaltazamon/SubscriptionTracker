@@ -17,6 +17,7 @@ The project is built as a real WPF product MVP rather than a demo CRUD app: it i
 - Clean layered architecture: `Wpf / Application / Domain / Infrastructure / Tests`
 - Dashboard with key metrics, upcoming charges, category breakdown, savings insights, and forecast
 - Subscription management with billing cycles, reminders, categories, currencies, and low-usage flags
+- Import workflow with preview, selective apply, rollback, and import history
 - Payment flows: mark as paid, skip payment, disable/enable subscription
 - Payment history and monthly payment calendar with search and filters
 - Analytics with `LiveCharts2`
@@ -98,9 +99,20 @@ The project is built as a real WPF product MVP rather than a demo CRUD app: it i
 - Skip next payment
 - Disable and re-enable subscriptions
 
+### Import and Recovery
+
+- Import subscriptions from `CSV` and `XLSX`
+- Download ready-to-fill import templates
+- Preview import results before apply
+- Select which rows should actually be imported
+- Upsert subscriptions by name and auto-create categories when needed
+- Undo the latest import via stored import session snapshots
+- Review recent import sessions directly in the subscriptions screen
+
 ### Finance and Planning
 
 - Base currency switching
+- Manual offline exchange rates with last-updated timestamp
 - Monthly and yearly projections
 - Category analytics
 - Upcoming charges overview
@@ -197,7 +209,7 @@ artifacts\publish\wpf
 Create a ZIP bundle for release distribution from the publish output:
 
 ```powershell
-Compress-Archive -Path artifacts\publish\wpf\* -DestinationPath artifacts\release\SubscriptionTracker-v0.1.0-win-x64.zip -Force
+Compress-Archive -Path artifacts\publish\wpf\* -DestinationPath artifacts\release\SubscriptionTracker-v0.1.1-win-x64.zip -Force
 ```
 
 Release notes for the first public build are stored in:
@@ -243,15 +255,20 @@ The current automated tests cover:
 - skip-payment flow
 - disable and re-enable flow
 - cancellation recommendation logic on the dashboard
+- manual exchange rate normalization and persistence
+- import from `CSV/XLSX`
+- import preview and selective apply
+- rollback of the last import
+- recent import session ordering
 
 ## Current Product Scope
 
 - Local-first desktop application
-- Offline currency conversion with fixed rates
+- Offline currency conversion with manual exchange rates
 - Reminder checks on startup and during runtime
 - Backup/restore for the local SQLite database
 - English and Russian UI localization
-- Product-style analytics and custom desktop UI
+- Product-style analytics, import tooling, and custom desktop UI
 
 ## Roadmap
 
