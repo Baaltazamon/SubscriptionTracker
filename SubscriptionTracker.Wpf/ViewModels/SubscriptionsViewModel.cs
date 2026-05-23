@@ -16,6 +16,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly AppEventBus _eventBus;
     private readonly ISubscriptionEditorService _subscriptionEditorService;
+    private readonly IImportPreviewDialogService _importPreviewDialogService;
     private readonly IDialogService _dialogService;
     private readonly IAppSettingsService _appSettingsService;
     private readonly ILocalizationService _localizationService;
@@ -28,6 +29,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         IServiceScopeFactory scopeFactory,
         AppEventBus eventBus,
         ISubscriptionEditorService subscriptionEditorService,
+        IImportPreviewDialogService importPreviewDialogService,
         IDialogService dialogService,
         IAppSettingsService appSettingsService,
         ILocalizationService localizationService)
@@ -35,6 +37,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         _scopeFactory = scopeFactory;
         _eventBus = eventBus;
         _subscriptionEditorService = subscriptionEditorService;
+        _importPreviewDialogService = importPreviewDialogService;
         _dialogService = dialogService;
         _appSettingsService = appSettingsService;
         _localizationService = localizationService;
@@ -320,6 +323,12 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         {
             using var scope = _scopeFactory.CreateScope();
             var importService = scope.ServiceProvider.GetRequiredService<ISubscriptionImportService>();
+            var preview = await importService.PreviewAsync(dialog.FileName);
+            if (!await _importPreviewDialogService.ShowAsync(preview))
+            {
+                return;
+            }
+
             var result = await importService.ImportAsync(dialog.FileName);
 
             await RefreshAsync();

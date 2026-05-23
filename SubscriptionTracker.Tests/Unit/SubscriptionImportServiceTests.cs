@@ -141,6 +141,41 @@ public sealed class SubscriptionImportServiceTests
         }
     }
 
+    [Fact]
+    public async Task PreviewAsync_Csv_ReturnsCreateAndSkipRows_BeforeImport()
+    {
+        using var database = new SqliteTestDbContextFactory();
+        var csvPath = CreateTempFile(".csv");
+
+        try
+        {
+            await File.WriteAllTextAsync(csvPath,
+                "Name;Category;Amount;Currency;Cycle;Next payment" + Environment.NewLine +
+                "Figma Pro;Design;15;USD;Monthly;2026-07-10" + Environment.NewLine +
+                "Broken Row;Design;abc;USD;Monthly;2026-07-10");
+
+            await using var context = database.CreateContext();
+            var service = CreateService(context);
+
+            var preview = await service.PreviewAsync(csvPath);
+
+            Assert.Equal(2, preview.TotalRows);
+            Assert.Equal(1, preview.CreatedCount);
+            Assert.Equal(0, preview.UpdatedCount);
+            Assert.Equal(1, preview.CreatedCategoryCount);
+            Assert.Equal(1, preview.SkippedCount);
+            Assert.True(preview.CanImport);
+            Assert.Equal(2, preview.Items.Count);
+            Assert.Contains(preview.Items, static item => item.Action == ImportPreviewAction.Create && item.Name == "Figma Pro");
+            Assert.Contains(preview.Items, static item => item.Action == ImportPreviewAction.Skip);
+            Assert.NotEmpty(preview.Warnings);
+        }
+        finally
+        {
+            CleanupTempFile(csvPath);
+        }
+    }
+
     private static SubscriptionImportService CreateService(AppDbContext context)
     {
         var subscriptionService = new SubscriptionService(context, new TestAppSettingsService(new AppSettingsDto

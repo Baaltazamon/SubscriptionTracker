@@ -53,6 +53,11 @@
   <sys:String x:Key="SubscriptionsImport">Import</sys:String>
   <sys:String x:Key="SubscriptionsImportTemplate">Download template</sys:String>
   <sys:String x:Key="SubscriptionsExport">Export to Excel</sys:String>
+  <sys:String x:Key="ImportPreviewSubtitle">Review which subscriptions will be created, updated, or skipped before applying the file.</sys:String>
+  <sys:String x:Key="ImportPreviewWarningsTitle">Warnings and skipped rows</sys:String>
+  <sys:String x:Key="ImportPreviewRowsTitle">File rows</sys:String>
+  <sys:String x:Key="ImportPreviewActionColumn">Action</sys:String>
+  <sys:String x:Key="ImportPreviewConfirm">Import now</sys:String>
   <sys:String x:Key="SubscriptionsDelete">Delete</sys:String>
   <sys:String x:Key="SubscriptionsCategory">Category</sys:String>
   <sys:String x:Key="SubscriptionsCycle">Cycle</sys:String>

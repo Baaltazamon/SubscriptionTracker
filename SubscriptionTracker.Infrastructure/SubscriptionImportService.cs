@@ -17,7 +17,96 @@ public sealed class SubscriptionImportService(
     private static readonly string[] SupportedExtensions = [".xlsx", ".csv"];
     private const string DefaultCategoryColor = "#94A3B8";
 
+    public async Task<ImportSubscriptionsPreviewDto> PreviewAsync(string filePath, CancellationToken cancellationToken = default)
+    {
+        var plan = await BuildImportPlanAsync(filePath, cancellationToken);
+
+        return new ImportSubscriptionsPreviewDto
+        {
+            TotalRows = plan.TotalRows,
+            CreatedCount = plan.CreatedCount,
+            UpdatedCount = plan.UpdatedCount,
+            CreatedCategoryCount = plan.CreatedCategoryCount,
+            SkippedCount = plan.SkippedCount,
+            Warnings = plan.Warnings,
+            Items = plan.Items
+                .Select(static item => new ImportPreviewItemDto
+                {
+                    RowNumber = item.RowNumber,
+                    Name = item.Name,
+                    CategoryName = item.CategoryName,
+                    Amount = item.Amount,
+                    Currency = item.Currency,
+                    BillingCycle = item.BillingCycle,
+                    NextPaymentDate = item.NextPaymentDate,
+                    Action = item.Action,
+                    WillCreateCategory = item.WillCreateCategory,
+                    Note = item.Note
+                })
+                .ToArray()
+        };
+    }
+
     public async Task<ImportSubscriptionsResultDto> ImportAsync(string filePath, CancellationToken cancellationToken = default)
+    {
+        var plan = await BuildImportPlanAsync(filePath, cancellationToken);
+
+        var categoriesByName = await dbContext.Categories
+            .ToDictionaryAsync(static item => NormalizeKey(item.Name), cancellationToken);
+
+        var createdCategories = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var item in plan.Items.Where(static item => item.Action is ImportPreviewAction.Create or ImportPreviewAction.Update))
+        {
+            var categoryKey = NormalizeKey(item.CategoryName);
+            if (!categoriesByName.TryGetValue(categoryKey, out var category))
+            {
+                category = new Category
+                {
+                    Id = Guid.NewGuid(),
+                    Name = item.CategoryName.Trim(),
+                    ColorHex = DefaultCategoryColor,
+                    IsSystem = false
+                };
+
+                await dbContext.Categories.AddAsync(category, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                categoriesByName[categoryKey] = category;
+                createdCategories.Add(categoryKey);
+            }
+
+            var request = new SaveSubscriptionRequest
+            {
+                Id = item.SubscriptionId,
+                Name = item.Name,
+                Description = item.Description,
+                CategoryId = category.Id,
+                Amount = item.Amount,
+                Currency = item.Currency,
+                BillingCycle = item.BillingCycle,
+                FirstPaymentDate = item.FirstPaymentDate,
+                NextPaymentDate = item.NextPaymentDate,
+                IsActive = item.IsActive,
+                AutoRenewal = item.AutoRenewal,
+                ReminderDaysBefore = item.ReminderDaysBefore,
+                IsLowUsage = item.IsLowUsage
+            };
+
+            await subscriptionService.SaveAsync(request, cancellationToken);
+        }
+
+        return new ImportSubscriptionsResultDto
+        {
+            TotalRows = plan.TotalRows,
+            CreatedCount = plan.CreatedCount,
+            UpdatedCount = plan.UpdatedCount,
+            CreatedCategoryCount = createdCategories.Count,
+            SkippedCount = plan.SkippedCount,
+            Warnings = plan.Warnings
+        };
+    }
+
+    private async Task<ImportPlan> BuildImportPlanAsync(string filePath, CancellationToken cancellationToken)
     {
         var extension = Path.GetExtension(filePath);
         if (!SupportedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
@@ -35,35 +124,33 @@ public sealed class SubscriptionImportService(
         }
 
         var categoriesByName = await dbContext.Categories
-            .ToDictionaryAsync(
-                static item => NormalizeKey(item.Name),
-                cancellationToken);
+            .AsNoTracking()
+            .ToDictionaryAsync(static item => NormalizeKey(item.Name), cancellationToken);
 
         var subscriptionsByName = await dbContext.Subscriptions
             .AsNoTracking()
-            .ToDictionaryAsync(
-                static item => NormalizeKey(item.Name),
-                cancellationToken);
+            .ToDictionaryAsync(static item => NormalizeKey(item.Name), cancellationToken);
 
+        var reservedNewCategories = new HashSet<string>(StringComparer.Ordinal);
         var warnings = new List<string>();
+        var items = new List<ImportPlanItem>();
         var createdCount = 0;
         var updatedCount = 0;
-        var createdCategoryCount = 0;
         var skippedCount = 0;
 
         foreach (var row in rows)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
-                var category = await GetOrCreateCategoryAsync(row, categoriesByName, cancellationToken);
-                if (category.WasCreated)
-                {
-                    createdCategoryCount++;
-                }
-
-                var name = row.GetRequired("name", "subscription");
+                var name = row.GetRequired("name", "subscription").Trim();
                 var key = NormalizeKey(name);
                 subscriptionsByName.TryGetValue(key, out var existing);
+
+                var categoryName = row.GetRequired("category").Trim();
+                var categoryKey = NormalizeKey(categoryName);
+                var willCreateCategory = !categoriesByName.ContainsKey(categoryKey) && reservedNewCategories.Add(categoryKey);
 
                 var nextPaymentDate = row.GetRequiredDate(
                     "nextpayment",
@@ -77,28 +164,18 @@ public sealed class SubscriptionImportService(
                     "first")
                     ?? nextPaymentDate;
 
-                var request = new SaveSubscriptionRequest
-                {
-                    Id = existing?.Id,
-                    Name = name.Trim(),
-                    Description = row.GetOptional("description"),
-                    CategoryId = category.Category.Id,
-                    Amount = row.GetRequiredDecimal("amount", "sum"),
-                    Currency = row.GetOptional("currency")?.Trim().ToUpperInvariant() ?? "RUB",
-                    BillingCycle = row.GetRequiredBillingCycle("cycle", "billingcycle", "period"),
-                    FirstPaymentDate = firstPaymentDate,
-                    NextPaymentDate = nextPaymentDate,
-                    IsActive = row.GetOptionalBoolean("isactive")
-                        ?? row.GetOptionalStatus("status")
-                        ?? true,
-                    AutoRenewal = row.GetOptionalBoolean("autorenewal", "auto") ?? true,
-                    ReminderDaysBefore = row.GetOptionalInt("reminderdays", "reminderdaysbefore", "reminder") ?? 3,
-                    IsLowUsage = row.GetOptionalBoolean("islowusage", "lowusage") ?? false
-                };
+                var amount = row.GetRequiredDecimal("amount", "sum");
+                var currency = row.GetOptional("currency")?.Trim().ToUpperInvariant() ?? "RUB";
+                var billingCycle = row.GetRequiredBillingCycle("cycle", "billingcycle", "period");
+                var isActive = row.GetOptionalBoolean("isactive")
+                    ?? row.GetOptionalStatus("status")
+                    ?? true;
+                var autoRenewal = row.GetOptionalBoolean("autorenewal", "auto") ?? true;
+                var reminderDays = row.GetOptionalInt("reminderdays", "reminderdaysbefore", "reminder") ?? 3;
+                var isLowUsage = row.GetOptionalBoolean("islowusage", "lowusage") ?? false;
 
-                var saved = await subscriptionService.SaveAsync(request, cancellationToken);
-
-                if (existing is null)
+                var action = existing is null ? ImportPreviewAction.Create : ImportPreviewAction.Update;
+                if (action == ImportPreviewAction.Create)
                 {
                     createdCount++;
                 }
@@ -107,55 +184,51 @@ public sealed class SubscriptionImportService(
                     updatedCount++;
                 }
 
-                subscriptionsByName[key] = new Subscription
+                items.Add(new ImportPlanItem
                 {
-                    Id = saved.Id,
-                    Name = saved.Name
-                };
+                    RowNumber = row.RowNumber,
+                    SubscriptionId = existing?.Id,
+                    Name = name,
+                    CategoryName = categoryName,
+                    Amount = amount,
+                    Currency = currency,
+                    BillingCycle = billingCycle,
+                    FirstPaymentDate = firstPaymentDate,
+                    NextPaymentDate = nextPaymentDate,
+                    Description = row.GetOptional("description"),
+                    IsActive = isActive,
+                    AutoRenewal = autoRenewal,
+                    ReminderDaysBefore = reminderDays,
+                    IsLowUsage = isLowUsage,
+                    Action = action,
+                    WillCreateCategory = willCreateCategory,
+                    Note = willCreateCategory ? LocalizationCatalog.Get("ImportPreviewNewCategoryNote") : null
+                });
             }
             catch (Exception exception)
             {
                 skippedCount++;
-                warnings.Add(LocalizationCatalog.Format("ImportWarningRowFormat", row.RowNumber, exception.Message));
+                var warning = LocalizationCatalog.Format("ImportWarningRowFormat", row.RowNumber, exception.Message);
+                warnings.Add(warning);
+                items.Add(new ImportPlanItem
+                {
+                    RowNumber = row.RowNumber,
+                    Action = ImportPreviewAction.Skip,
+                    Note = exception.Message
+                });
             }
         }
 
-        return new ImportSubscriptionsResultDto
+        return new ImportPlan
         {
             TotalRows = rows.Count,
             CreatedCount = createdCount,
             UpdatedCount = updatedCount,
-            CreatedCategoryCount = createdCategoryCount,
+            CreatedCategoryCount = reservedNewCategories.Count,
             SkippedCount = skippedCount,
-            Warnings = warnings
+            Warnings = warnings,
+            Items = items
         };
-    }
-
-    private async Task<(Category Category, bool WasCreated)> GetOrCreateCategoryAsync(
-        ImportRow row,
-        IDictionary<string, Category> categoriesByName,
-        CancellationToken cancellationToken)
-    {
-        var categoryName = row.GetRequired("category");
-        var key = NormalizeKey(categoryName);
-
-        if (categoriesByName.TryGetValue(key, out var existing))
-        {
-            return (existing, false);
-        }
-
-        var category = new Category
-        {
-            Id = Guid.NewGuid(),
-            Name = categoryName.Trim(),
-            ColorHex = DefaultCategoryColor,
-            IsSystem = false
-        };
-
-        await dbContext.Categories.AddAsync(category, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        categoriesByName[key] = category;
-        return (category, true);
     }
 
     private static Task<IReadOnlyList<ImportRow>> ReadExcelRowsAsync(string filePath, CancellationToken cancellationToken)
@@ -259,20 +332,20 @@ public sealed class SubscriptionImportService(
 
         return compact switch
         {
-            "name" or "название" => "name",
-            "subscription" or "подписка" => "subscription",
-            "category" or "категория" => "category",
-            "amount" or "sum" or "сумма" => "amount",
-            "currency" or "валюта" => "currency",
-            "cycle" or "billingcycle" or "period" or "период" => "cycle",
-            "nextpayment" or "nextpaymentdate" or "nextcharge" or "следующеесписание" or "следующийплатеж" => "nextpayment",
-            "firstpayment" or "firstpaymentdate" or "датапервогоплатежа" => "firstpayment",
-            "description" or "описание" => "description",
-            "status" or "статус" => "status",
-            "isactive" or "активна" => "isactive",
-            "autorenewal" or "автопродление" => "autorenewal",
-            "reminderdays" or "reminderdaysbefore" or "напоминатьзадней" => "reminderdays",
-            "islowusage" or "lowusage" or "редкоиспользую" => "islowusage",
+            "name" or "РЅР°Р·РІР°РЅРёРµ" => "name",
+            "subscription" or "РїРѕРґРїРёСЃРєР°" => "subscription",
+            "category" or "РєР°С‚РµРіРѕСЂРёСЏ" => "category",
+            "amount" or "sum" or "СЃСѓРјРјР°" => "amount",
+            "currency" or "РІР°Р»СЋС‚Р°" => "currency",
+            "cycle" or "billingcycle" or "period" or "РїРµСЂРёРѕРґ" => "cycle",
+            "nextpayment" or "nextpaymentdate" or "nextcharge" or "СЃР»РµРґСѓСЋС‰РµРµСЃРїРёСЃР°РЅРёРµ" or "СЃР»РµРґСѓСЋС‰РёР№РїР»Р°С‚РµР¶" => "nextpayment",
+            "firstpayment" or "firstpaymentdate" or "РґР°С‚Р°РїРµСЂРІРѕРіРѕРїР»Р°С‚РµР¶Р°" => "firstpayment",
+            "description" or "РѕРїРёСЃР°РЅРёРµ" => "description",
+            "status" or "СЃС‚Р°С‚СѓСЃ" => "status",
+            "isactive" or "Р°РєС‚РёРІРЅР°" => "isactive",
+            "autorenewal" or "Р°РІС‚РѕРїСЂРѕРґР»РµРЅРёРµ" => "autorenewal",
+            "reminderdays" or "reminderdaysbefore" or "РЅР°РїРѕРјРёРЅР°С‚СЊР·Р°РґРЅРµР№" => "reminderdays",
+            "islowusage" or "lowusage" or "СЂРµРґРєРѕРёСЃРїРѕР»СЊР·СѓСЋ" => "islowusage",
             _ => compact
         };
     }
@@ -336,6 +409,60 @@ public sealed class SubscriptionImportService(
 
         result.Add(buffer.ToString());
         return result;
+    }
+
+    private sealed class ImportPlan
+    {
+        public int TotalRows { get; init; }
+
+        public int CreatedCount { get; init; }
+
+        public int UpdatedCount { get; init; }
+
+        public int CreatedCategoryCount { get; init; }
+
+        public int SkippedCount { get; init; }
+
+        public IReadOnlyList<ImportPlanItem> Items { get; init; } = [];
+
+        public IReadOnlyList<string> Warnings { get; init; } = [];
+    }
+
+    private sealed class ImportPlanItem
+    {
+        public int RowNumber { get; init; }
+
+        public Guid? SubscriptionId { get; init; }
+
+        public string Name { get; init; } = string.Empty;
+
+        public string CategoryName { get; init; } = string.Empty;
+
+        public decimal Amount { get; init; }
+
+        public string Currency { get; init; } = "RUB";
+
+        public BillingCycle BillingCycle { get; init; }
+
+        public DateOnly FirstPaymentDate { get; init; }
+
+        public DateOnly NextPaymentDate { get; init; }
+
+        public string? Description { get; init; }
+
+        public bool IsActive { get; init; }
+
+        public bool AutoRenewal { get; init; }
+
+        public int ReminderDaysBefore { get; init; }
+
+        public bool IsLowUsage { get; init; }
+
+        public ImportPreviewAction Action { get; init; }
+
+        public bool WillCreateCategory { get; init; }
+
+        public string? Note { get; init; }
     }
 
     private sealed class ImportRow(int rowNumber, IReadOnlyDictionary<string, string> values)
@@ -430,8 +557,8 @@ public sealed class SubscriptionImportService(
             var normalized = NormalizeKey(value);
             return normalized switch
             {
-                "TRUE" or "YES" or "ДА" or "1" or "ACTIVE" or "АКТИВНА" => true,
-                "FALSE" or "NO" or "НЕТ" or "0" or "DISABLED" or "ОТКЛЮЧЕНА" => false,
+                "TRUE" or "YES" or "Р”Рђ" or "1" or "ACTIVE" or "РђРљРўРР’РќРђ" => true,
+                "FALSE" or "NO" or "РќР•Рў" or "0" or "DISABLED" or "РћРўРљР›Р®Р§Р•РќРђ" => false,
                 _ => throw new InvalidOperationException(LocalizationCatalog.Format("ImportInvalidBoolean", value))
             };
         }
@@ -447,8 +574,8 @@ public sealed class SubscriptionImportService(
             var normalized = NormalizeKey(value);
             return normalized switch
             {
-                "ACTIVE" or "АКТИВНА" => true,
-                "DISABLED" or "ОТКЛЮЧЕНА" => false,
+                "ACTIVE" or "РђРљРўРР’РќРђ" => true,
+                "DISABLED" or "РћРўРљР›Р®Р§Р•РќРђ" => false,
                 _ => null
             };
         }
@@ -460,10 +587,10 @@ public sealed class SubscriptionImportService(
 
             return normalized switch
             {
-                "1" or "MONTHLY" or "EVERYMONTH" or "КАЖДЫЙМЕСЯЦ" => BillingCycle.Monthly,
-                "2" or "QUARTERLY" or "EVERYQUARTER" or "КАЖДЫЙКВАРТАЛ" => BillingCycle.Quarterly,
-                "3" or "SEMIANNUAL" or "HALFYEAR" or "EVERYHALFYEAR" or "РАЗВПОЛГОДА" => BillingCycle.SemiAnnual,
-                "4" or "YEARLY" or "ANNUAL" or "EVERYYEAR" or "РАЗВГОД" => BillingCycle.Yearly,
+                "1" or "MONTHLY" or "EVERYMONTH" or "РљРђР–Р”Р«Р™РњР•РЎРЇР¦" => BillingCycle.Monthly,
+                "2" or "QUARTERLY" or "EVERYQUARTER" or "РљРђР–Р”Р«Р™РљР’РђР РўРђР›" => BillingCycle.Quarterly,
+                "3" or "SEMIANNUAL" or "HALFYEAR" or "EVERYHALFYEAR" or "Р РђР—Р’РџРћР›Р“РћР”Рђ" => BillingCycle.SemiAnnual,
+                "4" or "YEARLY" or "ANNUAL" or "EVERYYEAR" or "Р РђР—Р’Р“РћР”" => BillingCycle.Yearly,
                 _ => throw new InvalidOperationException(LocalizationCatalog.Format("ImportInvalidCycle", value))
             };
         }
