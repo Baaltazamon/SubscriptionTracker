@@ -53,6 +53,11 @@
   <sys:String x:Key="SubscriptionsImport">Импорт</sys:String>
   <sys:String x:Key="SubscriptionsImportTemplate">Скачать шаблон</sys:String>
   <sys:String x:Key="SubscriptionsExport">Экспорт в Excel</sys:String>
+  <sys:String x:Key="ImportPreviewSubtitle">Проверьте, какие подписки будут созданы, обновлены или пропущены перед применением файла.</sys:String>
+  <sys:String x:Key="ImportPreviewWarningsTitle">Предупреждения и пропуски</sys:String>
+  <sys:String x:Key="ImportPreviewRowsTitle">Строки файла</sys:String>
+  <sys:String x:Key="ImportPreviewActionColumn">Действие</sys:String>
+  <sys:String x:Key="ImportPreviewConfirm">Импортировать</sys:String>
   <sys:String x:Key="SubscriptionsDelete">Удалить</sys:String>
   <sys:String x:Key="SubscriptionsCategory">Категория</sys:String>
   <sys:String x:Key="SubscriptionsCycle">Период</sys:String>
