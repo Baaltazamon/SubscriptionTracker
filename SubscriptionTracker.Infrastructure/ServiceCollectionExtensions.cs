@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IPaymentHistoryService, PaymentHistoryService>();
         services.AddScoped<ISubscriptionService, SubscriptionService>();
+        services.AddScoped<ISubscriptionImportService, SubscriptionImportService>();
         services.AddScoped<IReminderService, ReminderService>();
         services.AddScoped<IExportService, ExcelExportService>();
 

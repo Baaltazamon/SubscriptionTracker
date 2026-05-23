@@ -49,6 +49,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         SkipCommand = new AsyncRelayCommand(SkipAsync, () => SelectedItem is not null);
         ToggleActiveCommand = new AsyncRelayCommand(ToggleActiveAsync, () => SelectedItem is not null);
         ExportCommand = new AsyncRelayCommand(ExportAsync);
+        ImportCommand = new AsyncRelayCommand(ImportAsync);
 
         _localizationService.LanguageChanged += (_, _) => RebuildFilters();
         RebuildFilters();
@@ -111,6 +112,8 @@ public sealed class SubscriptionsViewModel : ViewModelBase
     public AsyncRelayCommand ToggleActiveCommand { get; }
 
     public AsyncRelayCommand ExportCommand { get; }
+
+    public AsyncRelayCommand ImportCommand { get; }
 
     public SubscriptionListItemDto? SelectedItem
     {
@@ -294,6 +297,58 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         catch (Exception exception)
         {
             _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("ExportErrorTitle"));
+        }
+    }
+
+    private async Task ImportAsync()
+    {
+        var dialog = new OpenFileDialog
+        {
+            CheckFileExists = true,
+            Filter = LocalizationCatalog.Get("ImportFileDialogFilter")
+        };
+
+        if (dialog.ShowDialog() != true)
+        {
+            return;
+        }
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var importService = scope.ServiceProvider.GetRequiredService<ISubscriptionImportService>();
+            var result = await importService.ImportAsync(dialog.FileName);
+
+            await RefreshAsync();
+            _eventBus.PublishDataChanged();
+
+            var summary = LocalizationCatalog.Format(
+                "ImportSummaryFormat",
+                result.TotalRows,
+                result.CreatedCount,
+                result.UpdatedCount,
+                result.CreatedCategoryCount,
+                result.SkippedCount);
+
+            if (result.Warnings.Count > 0)
+            {
+                var details = string.Join(Environment.NewLine, result.Warnings.Take(5));
+                var moreSuffix = result.Warnings.Count > 5
+                    ? Environment.NewLine + LocalizationCatalog.Format("ImportWarningsMoreFormat", result.Warnings.Count - 5)
+                    : string.Empty;
+
+                _dialogService.ShowWarning(
+                    summary + Environment.NewLine + Environment.NewLine + details + moreSuffix,
+                    LocalizationCatalog.Get("ImportCompletedWithWarningsTitle"));
+            }
+            else
+            {
+                _dialogService.ShowInfo(summary, LocalizationCatalog.Get("ImportCompletedTitle"));
+            }
+        }
+        catch (Exception exception)
+        {
+            _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("ImportFailedTitle"));
         }
     }
 
