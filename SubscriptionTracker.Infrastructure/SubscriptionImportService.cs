@@ -49,12 +49,21 @@ public sealed class SubscriptionImportService(
         };
     }
 
-    public async Task<ImportSubscriptionsResultDto> ImportAsync(string filePath, CancellationToken cancellationToken = default)
+    public async Task<ImportSubscriptionsResultDto> ImportAsync(
+        string filePath,
+        IReadOnlyCollection<int>? selectedRowNumbers = null,
+        CancellationToken cancellationToken = default)
     {
         var plan = await BuildImportPlanAsync(filePath, cancellationToken);
-        var actionableItems = plan.Items.Where(static item => item.Action is ImportPreviewAction.Create or ImportPreviewAction.Update).ToArray();
+        var selectedRows = selectedRowNumbers?.ToHashSet() ?? [];
+        var actionableItems = plan.Items
+            .Where(static item => item.Action is ImportPreviewAction.Create or ImportPreviewAction.Update)
+            .ToArray();
+        var itemsToImport = selectedRowNumbers is null
+            ? actionableItems
+            : actionableItems.Where(item => selectedRows.Contains(item.RowNumber)).ToArray();
 
-        if (actionableItems.Length == 0)
+        if (itemsToImport.Length == 0)
         {
             return new ImportSubscriptionsResultDto
             {
@@ -63,6 +72,7 @@ public sealed class SubscriptionImportService(
                 UpdatedCount = 0,
                 CreatedCategoryCount = 0,
                 SkippedCount = plan.SkippedCount,
+                IgnoredCount = actionableItems.Length,
                 Warnings = plan.Warnings
             };
         }
@@ -76,9 +86,9 @@ public sealed class SubscriptionImportService(
             Id = Guid.NewGuid(),
             SourceFileName = Path.GetFileName(filePath),
             CreatedAtUtc = DateTime.UtcNow,
-            AppliedRowsCount = actionableItems.Length,
-            CreatedCount = actionableItems.Count(static item => item.Action == ImportPreviewAction.Create),
-            UpdatedCount = actionableItems.Count(static item => item.Action == ImportPreviewAction.Update),
+            AppliedRowsCount = itemsToImport.Length,
+            CreatedCount = itemsToImport.Count(static item => item.Action == ImportPreviewAction.Create),
+            UpdatedCount = itemsToImport.Count(static item => item.Action == ImportPreviewAction.Update),
             CreatedCategoryCount = 0
         };
 
@@ -86,7 +96,7 @@ public sealed class SubscriptionImportService(
         await dbContext.ImportSessions.AddAsync(importSession, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        foreach (var item in actionableItems)
+        foreach (var item in itemsToImport)
         {
             SubscriptionSnapshot? snapshot = null;
             if (item.Action == ImportPreviewAction.Update && item.SubscriptionId is { } subscriptionId)
@@ -159,10 +169,11 @@ public sealed class SubscriptionImportService(
         return new ImportSubscriptionsResultDto
         {
             TotalRows = plan.TotalRows,
-            CreatedCount = plan.CreatedCount,
-            UpdatedCount = plan.UpdatedCount,
+            CreatedCount = itemsToImport.Count(static item => item.Action == ImportPreviewAction.Create),
+            UpdatedCount = itemsToImport.Count(static item => item.Action == ImportPreviewAction.Update),
             CreatedCategoryCount = createdCategories.Count,
             SkippedCount = plan.SkippedCount,
+            IgnoredCount = actionableItems.Length - itemsToImport.Length,
             Warnings = plan.Warnings
         };
     }

@@ -59,6 +59,7 @@
   <sys:String x:Key="ImportPreviewRowsTitle">File rows</sys:String>
   <sys:String x:Key="ImportPreviewActionColumn">Action</sys:String>
   <sys:String x:Key="ImportPreviewConfirm">Import now</sys:String>
+  <sys:String x:Key="ImportPreviewSelectAll">Select all</sys:String>
   <sys:String x:Key="SubscriptionsDelete">Delete</sys:String>
   <sys:String x:Key="SubscriptionsCategory">Category</sys:String>
   <sys:String x:Key="SubscriptionsCycle">Cycle</sys:String>

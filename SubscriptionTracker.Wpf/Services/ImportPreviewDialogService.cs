@@ -7,17 +7,18 @@ namespace SubscriptionTracker.Wpf.Services;
 
 public sealed class ImportPreviewDialogService : IImportPreviewDialogService
 {
-    public Task<bool> ShowAsync(ImportSubscriptionsPreviewDto preview, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<int>?> ShowAsync(ImportSubscriptionsPreviewDto preview, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        var viewModel = new ImportPreviewViewModel(preview);
         var window = new ImportPreviewWindow
         {
-            DataContext = new ImportPreviewViewModel(preview)
+            DataContext = viewModel
         };
 
         SetOwner(window);
-        return Task.FromResult(window.ShowDialog() == true);
+        return Task.FromResult<IReadOnlyList<int>?>(window.ShowDialog() == true ? viewModel.SelectedRowNumbers : null);
     }
 
     private static void SetOwner(Window window)

@@ -176,6 +176,47 @@ public sealed class SubscriptionImportServiceTests
         }
     }
 
+    [Fact]
+    public async Task ImportAsync_Csv_ImportsOnlySelectedRows()
+    {
+        using var database = new SqliteTestDbContextFactory();
+        var csvPath = CreateTempFile(".csv");
+
+        try
+        {
+            await File.WriteAllTextAsync(csvPath,
+                "Name;Category;Amount;Currency;Cycle;Next payment" + Environment.NewLine +
+                "Figma Pro;Design;15;USD;Monthly;2026-07-10" + Environment.NewLine +
+                "Miro;Collaboration;12;USD;Monthly;2026-07-12");
+
+            await using var context = database.CreateContext();
+            var service = CreateService(context);
+
+            var preview = await service.PreviewAsync(csvPath);
+            var selectedRows = preview.Items
+                .Where(static item => item.Name == "Miro")
+                .Select(static item => item.RowNumber)
+                .ToArray();
+
+            var result = await service.ImportAsync(csvPath, selectedRows);
+
+            Assert.Equal(2, result.TotalRows);
+            Assert.Equal(1, result.CreatedCount);
+            Assert.Equal(0, result.UpdatedCount);
+            Assert.Equal(1, result.IgnoredCount);
+            Assert.Equal(0, result.SkippedCount);
+
+            await using var verification = database.CreateContext();
+            var subscriptions = await verification.Subscriptions.OrderBy(static item => item.Name).ToListAsync();
+            Assert.Single(subscriptions);
+            Assert.Equal("Miro", subscriptions[0].Name);
+        }
+        finally
+        {
+            CleanupTempFile(csvPath);
+        }
+    }
+
     private static SubscriptionImportService CreateService(AppDbContext context)
     {
         var subscriptionService = new SubscriptionService(context, new TestAppSettingsService(new AppSettingsDto
