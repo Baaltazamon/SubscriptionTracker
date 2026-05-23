@@ -17,6 +17,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
     private readonly AppEventBus _eventBus;
     private readonly ISubscriptionEditorService _subscriptionEditorService;
     private readonly IImportPreviewDialogService _importPreviewDialogService;
+    private readonly IImportSessionService _importSessionService;
     private readonly IImportRollbackService _importRollbackService;
     private readonly IDialogService _dialogService;
     private readonly IAppSettingsService _appSettingsService;
@@ -31,6 +32,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         AppEventBus eventBus,
         ISubscriptionEditorService subscriptionEditorService,
         IImportPreviewDialogService importPreviewDialogService,
+        IImportSessionService importSessionService,
         IImportRollbackService importRollbackService,
         IDialogService dialogService,
         IAppSettingsService appSettingsService,
@@ -40,6 +42,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         _eventBus = eventBus;
         _subscriptionEditorService = subscriptionEditorService;
         _importPreviewDialogService = importPreviewDialogService;
+        _importSessionService = importSessionService;
         _importRollbackService = importRollbackService;
         _dialogService = dialogService;
         _appSettingsService = appSettingsService;
@@ -59,11 +62,17 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         UndoLastImportCommand = new AsyncRelayCommand(UndoLastImportAsync);
         DownloadImportTemplateCommand = new AsyncRelayCommand(DownloadImportTemplateAsync);
 
-        _localizationService.LanguageChanged += (_, _) => RebuildFilters();
+        _localizationService.LanguageChanged += (_, _) =>
+        {
+            RebuildFilters();
+            RebuildImportSessions(ImportSessions.Select(static item => item.Session));
+        };
         RebuildFilters();
     }
 
     public ObservableCollection<SubscriptionListItemDto> Items { get; } = [];
+
+    public ObservableCollection<ImportSessionHistoryItemViewModel> ImportSessions { get; } = [];
 
     public ICollectionView ItemsView { get; }
 
@@ -106,6 +115,8 @@ public sealed class SubscriptionsViewModel : ViewModelBase
     public decimal VisibleMonthlyTotal => ItemsView.Cast<SubscriptionListItemDto>().Sum(static item => item.MonthlyCostInBaseCurrency);
 
     public string VisibleMonthlyTotalLabel => $"{VisibleMonthlyTotal:N2} {_appSettingsService.GetSettings().BaseCurrency}";
+
+    public bool HasImportSessions => ImportSessions.Count > 0;
 
     public AsyncRelayCommand AddCommand { get; }
 
@@ -152,11 +163,14 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         try
         {
             var items = await subscriptionService.GetAllAsync();
+            var importSessions = await _importSessionService.GetRecentAsync();
             Items.Clear();
             foreach (var item in items)
             {
                 Items.Add(item);
             }
+
+            RebuildImportSessions(importSessions);
 
             ItemsView.Refresh();
             RaiseSummaryProperties();
@@ -475,6 +489,22 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         RaisePropertyChanged(nameof(ActiveCount));
         RaisePropertyChanged(nameof(VisibleMonthlyTotal));
         RaisePropertyChanged(nameof(VisibleMonthlyTotalLabel));
+        RaisePropertyChanged(nameof(HasImportSessions));
+    }
+
+    private void RebuildImportSessions(IEnumerable<ImportSessionListItemDto> sessions)
+    {
+        ImportSessions.Clear();
+        foreach (var session in sessions.Select((item, index) => new ImportSessionHistoryItemViewModel
+                 {
+                     Session = item,
+                     IsLatest = index == 0
+                 }))
+        {
+            ImportSessions.Add(session);
+        }
+
+        RaisePropertyChanged(nameof(HasImportSessions));
     }
 
     public enum SubscriptionFilter

@@ -53,6 +53,10 @@
   <sys:String x:Key="SubscriptionsImport">Import</sys:String>
   <sys:String x:Key="SubscriptionsUndoLastImport">Undo last import</sys:String>
   <sys:String x:Key="SubscriptionsImportTemplate">Download template</sys:String>
+  <sys:String x:Key="ImportHistoryTitle">Import history</sys:String>
+  <sys:String x:Key="ImportHistorySubtitle">Recent import sessions and the scope of changes they applied.</sys:String>
+  <sys:String x:Key="ImportHistoryLatestBadge">Latest</sys:String>
+  <sys:String x:Key="ImportHistoryEmpty">No imports have been applied yet.</sys:String>
   <sys:String x:Key="SubscriptionsExport">Export to Excel</sys:String>
   <sys:String x:Key="ImportPreviewSubtitle">Review which subscriptions will be created, updated, or skipped before applying the file.</sys:String>
   <sys:String x:Key="ImportPreviewWarningsTitle">Warnings and skipped rows</sys:String>
