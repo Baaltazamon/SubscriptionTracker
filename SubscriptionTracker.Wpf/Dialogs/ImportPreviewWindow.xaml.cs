@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Input;
+using SubscriptionTracker.Wpf.ViewModels;
 
 namespace SubscriptionTracker.Wpf.Dialogs;
 
@@ -12,6 +13,11 @@ public partial class ImportPreviewWindow : Window
 
     private void ImportClick(object sender, RoutedEventArgs e)
     {
+        if (DataContext is not ImportPreviewViewModel viewModel || !viewModel.CanImport)
+        {
+            return;
+        }
+
         DialogResult = true;
         Close();
     }

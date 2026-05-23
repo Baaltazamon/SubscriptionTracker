@@ -1,11 +1,14 @@
 using SubscriptionTracker.Application.DTO;
 using SubscriptionTracker.Application.Localization;
 using SubscriptionTracker.Application.Services;
+using SubscriptionTracker.Wpf.Services;
 
 namespace SubscriptionTracker.Wpf.ViewModels;
 
-public sealed class ImportPreviewItemViewModel
+public sealed class ImportPreviewItemViewModel : ObservableObject
 {
+    private bool _isSelected;
+
     public ImportPreviewItemViewModel(ImportPreviewItemDto item)
     {
         RowNumber = item.RowNumber;
@@ -34,6 +37,8 @@ public sealed class ImportPreviewItemViewModel
             ImportPreviewAction.Update => "#F97316",
             _ => "#64748B"
         };
+        IsSelectable = item.Action is ImportPreviewAction.Create or ImportPreviewAction.Update;
+        _isSelected = IsSelectable;
 
         Note = item.WillCreateCategory
             ? string.IsNullOrWhiteSpace(item.Note)
@@ -59,6 +64,22 @@ public sealed class ImportPreviewItemViewModel
     public string ActionColorHex { get; }
 
     public string? Note { get; }
+
+    public bool IsSelectable { get; }
+
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            if (!IsSelectable)
+            {
+                return;
+            }
+
+            SetProperty(ref _isSelected, value);
+        }
+    }
 
     public bool HasNote => !string.IsNullOrWhiteSpace(Note);
 }

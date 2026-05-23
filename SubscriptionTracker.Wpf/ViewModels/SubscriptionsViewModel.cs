@@ -324,23 +324,25 @@ public sealed class SubscriptionsViewModel : ViewModelBase
             using var scope = _scopeFactory.CreateScope();
             var importService = scope.ServiceProvider.GetRequiredService<ISubscriptionImportService>();
             var preview = await importService.PreviewAsync(dialog.FileName);
-            if (!await _importPreviewDialogService.ShowAsync(preview))
+            var selectedRowNumbers = await _importPreviewDialogService.ShowAsync(preview);
+            if (selectedRowNumbers is null)
             {
                 return;
             }
 
-            var result = await importService.ImportAsync(dialog.FileName);
+            var result = await importService.ImportAsync(dialog.FileName, selectedRowNumbers);
 
             await RefreshAsync();
             _eventBus.PublishDataChanged();
 
             var summary = LocalizationCatalog.Format(
-                "ImportSummaryFormat",
+                "ImportResultSummaryFormat",
                 result.TotalRows,
                 result.CreatedCount,
                 result.UpdatedCount,
                 result.CreatedCategoryCount,
-                result.SkippedCount);
+                result.SkippedCount,
+                result.IgnoredCount);
 
             if (result.Warnings.Count > 0)
             {

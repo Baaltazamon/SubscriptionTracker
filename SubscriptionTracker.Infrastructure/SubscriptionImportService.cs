@@ -47,16 +47,26 @@ public sealed class SubscriptionImportService(
         };
     }
 
-    public async Task<ImportSubscriptionsResultDto> ImportAsync(string filePath, CancellationToken cancellationToken = default)
+    public async Task<ImportSubscriptionsResultDto> ImportAsync(
+        string filePath,
+        IReadOnlyCollection<int>? selectedRowNumbers = null,
+        CancellationToken cancellationToken = default)
     {
         var plan = await BuildImportPlanAsync(filePath, cancellationToken);
+        var selectedRows = selectedRowNumbers?.ToHashSet() ?? [];
+        var actionableItems = plan.Items
+            .Where(static item => item.Action is ImportPreviewAction.Create or ImportPreviewAction.Update)
+            .ToArray();
+        var itemsToImport = selectedRowNumbers is null
+            ? actionableItems
+            : actionableItems.Where(item => selectedRows.Contains(item.RowNumber)).ToArray();
 
         var categoriesByName = await dbContext.Categories
             .ToDictionaryAsync(static item => NormalizeKey(item.Name), cancellationToken);
 
         var createdCategories = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var item in plan.Items.Where(static item => item.Action is ImportPreviewAction.Create or ImportPreviewAction.Update))
+        foreach (var item in itemsToImport)
         {
             var categoryKey = NormalizeKey(item.CategoryName);
             if (!categoriesByName.TryGetValue(categoryKey, out var category))
@@ -98,10 +108,11 @@ public sealed class SubscriptionImportService(
         return new ImportSubscriptionsResultDto
         {
             TotalRows = plan.TotalRows,
-            CreatedCount = plan.CreatedCount,
-            UpdatedCount = plan.UpdatedCount,
+            CreatedCount = itemsToImport.Count(static item => item.Action == ImportPreviewAction.Create),
+            UpdatedCount = itemsToImport.Count(static item => item.Action == ImportPreviewAction.Update),
             CreatedCategoryCount = createdCategories.Count,
             SkippedCount = plan.SkippedCount,
+            IgnoredCount = actionableItems.Length - itemsToImport.Length,
             Warnings = plan.Warnings
         };
     }
