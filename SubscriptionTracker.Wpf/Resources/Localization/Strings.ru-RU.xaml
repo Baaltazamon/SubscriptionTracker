@@ -56,6 +56,9 @@
   <sys:String x:Key="ImportHistoryTitle">РСЃС‚РѕСЂРёСЏ РёРјРїРѕСЂС‚Р°</sys:String>
   <sys:String x:Key="ImportHistorySubtitle">РџРѕСЃР»РµРґРЅРёРµ СЃРµСЃСЃРёРё РёРјРїРѕСЂС‚Р° Рё РѕР±СЉРµРј РёР·РјРµРЅРµРЅРёР№, РєРѕС‚РѕСЂС‹Рµ РѕРЅРё РїСЂРёРјРµРЅРёР»Рё.</sys:String>
   <sys:String x:Key="ImportHistoryLatestBadge">РџРѕСЃР»РµРґРЅРёР№</sys:String>
+  <sys:String x:Key="ImportHistoryBlockedBadge">Р—Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ</sys:String>
+  <sys:String x:Key="ImportHistoryDetails">Р”РµС‚Р°Р»Рё</sys:String>
+  <sys:String x:Key="ImportHistoryRollbackSelected">РћС‚РєР°С‚РёС‚СЊ РІС‹Р±СЂР°РЅРЅС‹Р№</sys:String>
   <sys:String x:Key="ImportHistoryEmpty">РРјРїРѕСЂС‚РѕРІ РїРѕРєР° РЅРµ Р±С‹Р»Рѕ.</sys:String>
   <sys:String x:Key="SubscriptionsExport">Р­РєСЃРїРѕСЂС‚ РІ Excel</sys:String>
   <sys:String x:Key="ImportPreviewSubtitle">РџСЂРѕРІРµСЂСЊС‚Рµ, РєР°РєРёРµ РїРѕРґРїРёСЃРєРё Р±СѓРґСѓС‚ СЃРѕР·РґР°РЅС‹, РѕР±РЅРѕРІР»РµРЅС‹ РёР»Рё РїСЂРѕРїСѓС‰РµРЅС‹ РїРµСЂРµРґ РїСЂРёРјРµРЅРµРЅРёРµРј С„Р°Р№Р»Р°.</sys:String>
@@ -152,4 +155,5 @@
   <sys:String x:Key="SubscriptionEditorSave">РЎРѕС…СЂР°РЅРёС‚СЊ</sys:String>
   <sys:String x:Key="SubscriptionEditorCancel">РћС‚РјРµРЅР°</sys:String>
 </ResourceDictionary>
+
 

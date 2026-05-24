@@ -23,6 +23,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
     private readonly IAppSettingsService _appSettingsService;
     private readonly ILocalizationService _localizationService;
     private SubscriptionListItemDto? _selectedItem;
+    private ImportSessionHistoryItemViewModel? _selectedImportSession;
     private OptionItem<SubscriptionFilter>? _selectedFilter;
     private IReadOnlyList<OptionItem<SubscriptionFilter>> _filters = [];
     private string _searchText = string.Empty;
@@ -61,6 +62,8 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         ImportCommand = new AsyncRelayCommand(ImportAsync);
         UndoLastImportCommand = new AsyncRelayCommand(UndoLastImportAsync);
         DownloadImportTemplateCommand = new AsyncRelayCommand(DownloadImportTemplateAsync);
+        ViewImportSessionDetailsCommand = new AsyncRelayCommand(ViewImportSessionDetailsAsync, () => SelectedImportSession is not null);
+        RollbackImportSessionCommand = new AsyncRelayCommand(RollbackSelectedImportSessionAsync, () => SelectedImportSession is not null);
 
         _localizationService.LanguageChanged += (_, _) =>
         {
@@ -138,6 +141,10 @@ public sealed class SubscriptionsViewModel : ViewModelBase
 
     public AsyncRelayCommand DownloadImportTemplateCommand { get; }
 
+    public AsyncRelayCommand ViewImportSessionDetailsCommand { get; }
+
+    public AsyncRelayCommand RollbackImportSessionCommand { get; }
+
     public SubscriptionListItemDto? SelectedItem
     {
         get => _selectedItem;
@@ -150,6 +157,19 @@ public sealed class SubscriptionsViewModel : ViewModelBase
                 MarkPaidCommand.NotifyCanExecuteChanged();
                 SkipCommand.NotifyCanExecuteChanged();
                 ToggleActiveCommand.NotifyCanExecuteChanged();
+            }
+        }
+    }
+
+    public ImportSessionHistoryItemViewModel? SelectedImportSession
+    {
+        get => _selectedImportSession;
+        set
+        {
+            if (SetProperty(ref _selectedImportSession, value))
+            {
+                ViewImportSessionDetailsCommand.NotifyCanExecuteChanged();
+                RollbackImportSessionCommand.NotifyCanExecuteChanged();
             }
         }
     }
@@ -468,6 +488,110 @@ public sealed class SubscriptionsViewModel : ViewModelBase
         }
     }
 
+    private async Task ViewImportSessionDetailsAsync()
+    {
+        if (SelectedImportSession is null)
+        {
+            return;
+        }
+
+        var details = await _importSessionService.GetDetailsAsync(SelectedImportSession.Session.Id);
+        if (details is null)
+        {
+            _dialogService.ShowWarning(
+                LocalizationCatalog.Get("ImportSessionNotFoundMessage"),
+                LocalizationCatalog.Get("ImportSessionNotFoundTitle"));
+            return;
+        }
+
+        var entries = details.Entries.Count == 0
+            ? LocalizationCatalog.Get("ImportSessionDetailsNoEntries")
+            : string.Join(Environment.NewLine, details.Entries.Select(static item => $"• {item.KindLabel}: {item.DisplayName}"));
+
+        var rollbackLine = details.CanRollback
+            ? LocalizationCatalog.Get("ImportHistoryRollbackAvailable")
+            : details.RollbackBlockedReason ?? LocalizationCatalog.Get("ImportHistoryRollbackBlocked");
+
+        var message = LocalizationCatalog.Format(
+            "ImportSessionDetailsMessage",
+            details.SourceFileName,
+            details.CreatedAtUtc.ToLocalTime(),
+            details.AppliedRowsCount,
+            details.CreatedCount,
+            details.UpdatedCount,
+            details.CreatedCategoryCount,
+            rollbackLine,
+            entries);
+
+        _dialogService.ShowInfo(
+            message,
+            LocalizationCatalog.Get("ImportSessionDetailsTitle"));
+    }
+
+    private async Task RollbackSelectedImportSessionAsync()
+    {
+        if (SelectedImportSession is null)
+        {
+            return;
+        }
+
+        try
+        {
+            var preview = await _importSessionService.GetDetailsAsync(SelectedImportSession.Session.Id);
+            if (preview is null)
+            {
+                _dialogService.ShowWarning(
+                    LocalizationCatalog.Get("ImportSessionNotFoundMessage"),
+                    LocalizationCatalog.Get("ImportSessionNotFoundTitle"));
+                return;
+            }
+
+            if (!preview.CanRollback)
+            {
+                _dialogService.ShowWarning(
+                    preview.RollbackBlockedReason ?? LocalizationCatalog.Get("ImportHistoryRollbackBlocked"),
+                    LocalizationCatalog.Get("ImportRollbackFailedTitle"));
+                return;
+            }
+
+            var shouldRollback = _dialogService.Confirm(
+                LocalizationCatalog.Format(
+                    "ImportRollbackConfirmMessage",
+                    preview.SourceFileName,
+                    preview.CreatedAtUtc.ToLocalTime(),
+                    preview.AppliedRowsCount,
+                    preview.CreatedCount,
+                    preview.UpdatedCount,
+                    preview.CreatedCategoryCount),
+                LocalizationCatalog.Get("ImportRollbackConfirmTitle"),
+                DialogKind.Warning,
+                DialogButton.Restore,
+                DialogButton.Cancel);
+
+            if (!shouldRollback)
+            {
+                return;
+            }
+
+            var result = await _importRollbackService.RollbackAsync(preview.Id);
+            await RefreshAsync();
+            _eventBus.PublishDataChanged();
+
+            _dialogService.ShowInfo(
+                LocalizationCatalog.Format(
+                    "ImportRollbackCompletedMessage",
+                    result.SourceFileName,
+                    result.DeletedSubscriptionsCount,
+                    result.RestoredSubscriptionsCount,
+                    result.DeletedCategoriesCount),
+                LocalizationCatalog.Get("ImportRollbackCompletedTitle"));
+        }
+        catch (Exception exception)
+        {
+            _dialogService.ShowError(exception.Message, LocalizationCatalog.Get("ImportRollbackFailedTitle"));
+        }
+    }
+
     private void RebuildFilters()
     {
         var selectedValue = SelectedFilter?.Value ?? SubscriptionFilter.All;
@@ -504,6 +628,7 @@ public sealed class SubscriptionsViewModel : ViewModelBase
             ImportSessions.Add(session);
         }
 
+        SelectedImportSession = ImportSessions.FirstOrDefault(item => item.IsLatest) ?? ImportSessions.FirstOrDefault();
         RaisePropertyChanged(nameof(HasImportSessions));
     }
 

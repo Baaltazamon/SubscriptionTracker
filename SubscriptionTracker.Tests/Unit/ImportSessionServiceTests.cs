@@ -59,4 +59,69 @@ public sealed class ImportSessionServiceTests
         Assert.Equal(4, sessions[0].AppliedRowsCount);
         Assert.Equal(2, sessions[0].CreatedCategoryCount);
     }
+
+    [Fact]
+    public async Task GetDetailsAsync_MarksRollbackAsBlocked_WhenNewerImportTouchesSameEntity()
+    {
+        using var database = new SqliteTestDbContextFactory();
+        var subscriptionId = Guid.NewGuid();
+        var olderSessionId = Guid.NewGuid();
+        var newerSessionId = Guid.NewGuid();
+
+        await using (var seedContext = database.CreateContext())
+        {
+            seedContext.ImportSessions.AddRange(
+                new ImportSession
+                {
+                    Id = olderSessionId,
+                    SourceFileName = "older.csv",
+                    CreatedAtUtc = new DateTime(2026, 5, 20, 9, 0, 0, DateTimeKind.Utc),
+                    AppliedRowsCount = 1,
+                    CreatedCount = 0,
+                    UpdatedCount = 1,
+                    CreatedCategoryCount = 0,
+                    Entries =
+                    [
+                        new ImportSessionEntry
+                        {
+                            Id = Guid.NewGuid(),
+                            Kind = Domain.Enums.ImportSessionEntryKind.SubscriptionUpdated,
+                            EntityId = subscriptionId,
+                            DisplayName = "Notion Plus"
+                        }
+                    ]
+                },
+                new ImportSession
+                {
+                    Id = newerSessionId,
+                    SourceFileName = "newer.csv",
+                    CreatedAtUtc = new DateTime(2026, 5, 21, 10, 0, 0, DateTimeKind.Utc),
+                    AppliedRowsCount = 1,
+                    CreatedCount = 0,
+                    UpdatedCount = 1,
+                    CreatedCategoryCount = 0,
+                    Entries =
+                    [
+                        new ImportSessionEntry
+                        {
+                            Id = Guid.NewGuid(),
+                            Kind = Domain.Enums.ImportSessionEntryKind.SubscriptionUpdated,
+                            EntityId = subscriptionId,
+                            DisplayName = "Notion Plus"
+                        }
+                    ]
+                });
+
+            await seedContext.SaveChangesAsync();
+        }
+
+        await using var context = database.CreateContext();
+        var service = new ImportSessionService(context);
+
+        var details = await service.GetDetailsAsync(olderSessionId);
+
+        Assert.NotNull(details);
+        Assert.False(details.CanRollback);
+        Assert.Contains("newer.csv", details.RollbackBlockedReason);
+    }
 }

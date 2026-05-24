@@ -40,10 +40,29 @@ public sealed class ImportRollbackService(AppDbContext dbContext) : IImportRollb
     public async Task<ImportRollbackResultDto> RollbackLastImportAsync(CancellationToken cancellationToken = default)
     {
         var session = await dbContext.ImportSessions
-            .Include(static item => item.Entries)
+            .AsNoTracking()
             .OrderByDescending(static item => item.CreatedAtUtc)
             .FirstOrDefaultAsync(cancellationToken)
             ?? throw new InvalidOperationException(LocalizationCatalog.Get("ImportRollbackUnavailableMessage"));
+
+        return await RollbackAsync(session.Id, cancellationToken);
+    }
+
+    public async Task<ImportRollbackResultDto> RollbackAsync(Guid sessionId, CancellationToken cancellationToken = default)
+    {
+        var session = await dbContext.ImportSessions
+            .Include(static item => item.Entries)
+            .FirstOrDefaultAsync(item => item.Id == sessionId, cancellationToken)
+            ?? throw new InvalidOperationException(LocalizationCatalog.Get("ImportRollbackUnavailableMessage"));
+
+        var conflictingImport = await FindNewerConflictingImportAsync(session, cancellationToken);
+        if (conflictingImport is not null)
+        {
+            throw new InvalidOperationException(LocalizationCatalog.Format(
+                "ImportRollbackBlockedByNewerImport",
+                conflictingImport.SourceFileName,
+                conflictingImport.CreatedAtUtc.ToLocalTime()));
+        }
 
         var createdSubscriptionEntries = session.Entries
             .Where(static entry => entry.Kind == ImportSessionEntryKind.SubscriptionCreated)
@@ -160,5 +179,27 @@ public sealed class ImportRollbackService(AppDbContext dbContext) : IImportRollb
             RestoredSubscriptionsCount = updatedSubscriptionEntries.Length,
             DeletedCategoriesCount = deletedCategoriesCount
         };
+    }
+
+    private async Task<ImportSession?> FindNewerConflictingImportAsync(ImportSession session, CancellationToken cancellationToken)
+    {
+        var affectedEntityIds = session.Entries.Select(static item => item.EntityId).Distinct().ToArray();
+        if (affectedEntityIds.Length == 0)
+        {
+            return null;
+        }
+
+        return await dbContext.ImportSessionEntries
+            .AsNoTracking()
+            .Where(item => affectedEntityIds.Contains(item.EntityId))
+            .Where(item => item.ImportSessionId != session.Id)
+            .Join(
+                dbContext.ImportSessions.AsNoTracking(),
+                entry => entry.ImportSessionId,
+                importSession => importSession.Id,
+                (entry, importSession) => importSession)
+            .Where(item => item.CreatedAtUtc > session.CreatedAtUtc)
+            .OrderBy(item => item.CreatedAtUtc)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

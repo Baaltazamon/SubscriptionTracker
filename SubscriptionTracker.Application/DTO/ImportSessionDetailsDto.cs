@@ -1,6 +1,6 @@
 namespace SubscriptionTracker.Application.DTO;
 
-public sealed class ImportSessionListItemDto
+public sealed class ImportSessionDetailsDto
 {
     public Guid Id { get; init; }
 
@@ -19,4 +19,6 @@ public sealed class ImportSessionListItemDto
     public bool CanRollback { get; init; }
 
     public string? RollbackBlockedReason { get; init; }
+
+    public IReadOnlyList<ImportSessionEntryItemDto> Entries { get; init; } = [];
 }

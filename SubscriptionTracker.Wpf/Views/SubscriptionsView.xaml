@@ -31,6 +31,34 @@
         </Setter.Value>
       </Setter>
     </Style>
+    <Style x:Key="ImportSessionListItemStyle" TargetType="ListBoxItem">
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="0,0,0,10" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ListBoxItem">
+            <Border x:Name="Root"
+                    Padding="12"
+                    Background="{DynamicResource AppPanelBrush}"
+                    BorderBrush="{DynamicResource AppBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12">
+              <ContentPresenter />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AppAccentAltBrush}" />
+              </Trigger>
+              <Trigger Property="IsSelected" Value="True">
+                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AppAccentBrush}" />
+                <Setter TargetName="Root" Property="Background" Value="{DynamicResource AppSecondaryCardBrush}" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
   </UserControl.Resources>
 
   <DockPanel>
@@ -97,50 +125,78 @@
 
         <Border Margin="0,16,0,0" Style="{StaticResource CardBorderStyle}" Padding="16">
           <StackPanel>
-            <TextBlock FontSize="18" FontWeight="SemiBold" Text="{DynamicResource ImportHistoryTitle}" />
-            <TextBlock Margin="0,4,0,0"
-                       Foreground="{DynamicResource AppMutedBrush}"
-                       Text="{DynamicResource ImportHistorySubtitle}" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
 
-            <ItemsControl Margin="0,14,0,0" ItemsSource="{Binding ImportSessions}">
-              <ItemsControl.ItemTemplate>
+              <StackPanel Grid.Column="0">
+                <TextBlock FontSize="18" FontWeight="SemiBold" Text="{DynamicResource ImportHistoryTitle}" />
+                <TextBlock Margin="0,4,0,0"
+                           Foreground="{DynamicResource AppMutedBrush}"
+                           Text="{DynamicResource ImportHistorySubtitle}" />
+              </StackPanel>
+
+              <WrapPanel Grid.Column="1" Margin="16,0,0,0">
+                <Button Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding ViewImportSessionDetailsCommand}"
+                        Content="{DynamicResource ImportHistoryDetails}" />
+                <Button Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding RollbackImportSessionCommand}"
+                        Content="{DynamicResource ImportHistoryRollbackSelected}" />
+              </WrapPanel>
+            </Grid>
+
+            <ListBox Margin="0,14,0,0"
+                     ItemsSource="{Binding ImportSessions}"
+                     SelectedItem="{Binding SelectedImportSession}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     ItemContainerStyle="{StaticResource ImportSessionListItemStyle}">
+              <ListBox.ItemTemplate>
                 <DataTemplate>
-                  <Border Margin="0,0,0,10"
-                          Padding="12"
-                          Background="{DynamicResource AppPanelBrush}"
-                          BorderBrush="{DynamicResource AppBorderBrush}"
-                          BorderThickness="1"
-                          CornerRadius="12">
-                    <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                      </Grid.ColumnDefinitions>
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                      <StackPanel Grid.Column="0">
-                        <TextBlock FontWeight="SemiBold" Text="{Binding SourceFileName}" />
-                        <TextBlock Margin="0,4,0,0"
-                                   Foreground="{DynamicResource AppMutedBrush}"
-                                   Text="{Binding CreatedAtLabel}" />
-                        <TextBlock Margin="0,8,0,0" Text="{Binding RowsLabel}" />
-                        <TextBlock Margin="0,2,0,0"
-                                   Foreground="{DynamicResource AppMutedBrush}"
-                                   Text="{Binding SummaryLabel}" />
-                      </StackPanel>
+                    <StackPanel Grid.Column="0">
+                      <TextBlock FontWeight="SemiBold" Text="{Binding SourceFileName}" />
+                      <TextBlock Margin="0,4,0,0"
+                                 Foreground="{DynamicResource AppMutedBrush}"
+                                 Text="{Binding CreatedAtLabel}" />
+                      <TextBlock Margin="0,8,0,0" Text="{Binding RowsLabel}" />
+                      <TextBlock Margin="0,2,0,0"
+                                 Foreground="{DynamicResource AppMutedBrush}"
+                                 Text="{Binding SummaryLabel}" />
+                      <TextBlock Margin="0,8,0,0"
+                                 Foreground="{DynamicResource AppMutedBrush}"
+                                 Text="{Binding RollbackStateLabel}"
+                                 TextWrapping="Wrap" />
+                    </StackPanel>
 
-                      <Border Grid.Column="1"
-                              Margin="12,0,0,0"
-                              VerticalAlignment="Top"
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0" HorizontalAlignment="Right">
+                      <Border VerticalAlignment="Top"
+                              HorizontalAlignment="Right"
                               Style="{StaticResource StatusBadgeBorderStyle}"
                               Background="{DynamicResource AppAccentBrush}"
                               Visibility="{Binding IsLatest, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <TextBlock Style="{StaticResource StatusBadgeTextStyle}" Text="{DynamicResource ImportHistoryLatestBadge}" />
                       </Border>
-                    </Grid>
-                  </Border>
+                      <Border Margin="0,8,0,0"
+                              HorizontalAlignment="Right"
+                              Style="{StaticResource StatusBadgeBorderStyle}"
+                              Background="{DynamicResource AppSecondaryCardBrush}"
+                              Visibility="{Binding IsRollbackBlocked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Style="{StaticResource StatusBadgeTextStyle}" Text="{DynamicResource ImportHistoryBlockedBadge}" />
+                      </Border>
+                    </StackPanel>
+                  </Grid>
                 </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+              </ListBox.ItemTemplate>
+            </ListBox>
 
             <TextBlock Margin="0,12,0,0"
                        Foreground="{DynamicResource AppMutedBrush}"

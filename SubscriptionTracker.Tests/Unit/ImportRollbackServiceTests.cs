@@ -145,6 +145,91 @@ public sealed class ImportRollbackServiceTests
         }
     }
 
+    [Fact]
+    public async Task RollbackAsync_Throws_WhenNewerImportAlreadyChangedSameSubscription()
+    {
+        using var database = new SqliteTestDbContextFactory();
+        var firstCsvPath = CreateTempFile(".csv");
+        var secondCsvPath = CreateTempFile(".csv");
+        var categoryId = Guid.NewGuid();
+        var subscriptionId = Guid.NewGuid();
+
+        try
+        {
+            await using (var seedContext = database.CreateContext())
+            {
+                seedContext.Categories.Add(new Category
+                {
+                    Id = categoryId,
+                    Name = "Software",
+                    ColorHex = "#94A3B8",
+                    IsSystem = false
+                });
+
+                seedContext.Subscriptions.Add(new Subscription
+                {
+                    Id = subscriptionId,
+                    Name = "Notion Plus",
+                    CategoryId = categoryId,
+                    Amount = 8m,
+                    Currency = "USD",
+                    BillingCycle = BillingCycle.Monthly,
+                    FirstPaymentDate = new DateOnly(2026, 6, 1),
+                    NextPaymentDate = new DateOnly(2026, 6, 1),
+                    IsActive = true,
+                    AutoRenewal = true,
+                    ReminderDaysBefore = 2,
+                    CreatedAtUtc = DateTime.UtcNow
+                });
+
+                await seedContext.SaveChangesAsync();
+            }
+
+            await File.WriteAllTextAsync(firstCsvPath,
+                "Name;Category;Amount;Currency;Cycle;Next payment" + Environment.NewLine +
+                "Notion Plus;Software;12;USD;Monthly;2026-07-01");
+
+            await File.WriteAllTextAsync(secondCsvPath,
+                "Name;Category;Amount;Currency;Cycle;Next payment" + Environment.NewLine +
+                "Notion Plus;Software;14;USD;Monthly;2026-08-01");
+
+            await using (var importContext = database.CreateContext())
+            {
+                var importService = CreateImportService(importContext);
+                await importService.ImportAsync(firstCsvPath);
+            }
+
+            Guid olderSessionId;
+            await using (var inspectionContext = database.CreateContext())
+            {
+                olderSessionId = await inspectionContext.ImportSessions
+                    .OrderBy(static item => item.CreatedAtUtc)
+                    .Select(static item => item.Id)
+                    .FirstAsync();
+            }
+
+            await Task.Delay(20);
+
+            await using (var secondImportContext = database.CreateContext())
+            {
+                var importService = CreateImportService(secondImportContext);
+                await importService.ImportAsync(secondCsvPath);
+            }
+
+            await using (var rollbackContext = database.CreateContext())
+            {
+                var rollbackService = new ImportRollbackService(rollbackContext);
+                var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => rollbackService.RollbackAsync(olderSessionId));
+                Assert.Contains("newer", exception.Message, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+        finally
+        {
+            CleanupTempFile(firstCsvPath);
+            CleanupTempFile(secondCsvPath);
+        }
+    }
+
     private static SubscriptionImportService CreateImportService(AppDbContext context)
     {
         var subscriptionService = new SubscriptionService(context, new TestAppSettingsService(new AppSettingsDto

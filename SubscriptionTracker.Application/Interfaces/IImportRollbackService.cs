@@ -7,4 +7,6 @@ public interface IImportRollbackService
     Task<ImportRollbackPreviewDto?> GetLastImportAsync(CancellationToken cancellationToken = default);
 
     Task<ImportRollbackResultDto> RollbackLastImportAsync(CancellationToken cancellationToken = default);
+
+    Task<ImportRollbackResultDto> RollbackAsync(Guid sessionId, CancellationToken cancellationToken = default);
 }
