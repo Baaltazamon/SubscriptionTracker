@@ -20,4 +20,12 @@ public sealed class ImportSessionHistoryItemViewModel
         Session.CreatedCount,
         Session.UpdatedCount,
         Session.CreatedCategoryCount);
+
+    public bool CanRollback => Session.CanRollback;
+
+    public bool IsRollbackBlocked => !Session.CanRollback && !string.IsNullOrWhiteSpace(Session.RollbackBlockedReason);
+
+    public string RollbackStateLabel => Session.CanRollback
+        ? LocalizationCatalog.Get("ImportHistoryRollbackAvailable")
+        : Session.RollbackBlockedReason ?? LocalizationCatalog.Get("ImportHistoryRollbackBlocked");
 }
