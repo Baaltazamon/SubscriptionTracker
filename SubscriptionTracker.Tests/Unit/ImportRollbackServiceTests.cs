@@ -220,7 +220,7 @@ public sealed class ImportRollbackServiceTests
             {
                 var rollbackService = new ImportRollbackService(rollbackContext);
                 var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => rollbackService.RollbackAsync(olderSessionId));
-                Assert.Contains("newer", exception.Message, StringComparison.OrdinalIgnoreCase);
+                Assert.Contains(Path.GetFileName(secondCsvPath), exception.Message, StringComparison.OrdinalIgnoreCase);
             }
         }
         finally
